@@ -1,0 +1,483 @@
+{
+  "aventura": {
+    "nome": "Matar a Fome",
+    "tipo": "Vampiro",
+    "objetivo": "Saciar a queimação da Fome e controlar a Besta sem quebrar a Máscara.",
+    "cenas": [
+      {
+        "id": "Cena01",
+        "titulo": "No Refúgio",
+        "descricao": "[Nome do Personagem] acorda com um barulho vindo da rua. Ao olhar para o relógio, nota que já são 18h40. O clima tropical está abafado e o som caótico dos carros invade o ambiente. Uma análise rápida ao redor mostra que nada de anormal aconteceu no refúgio. Porém, ao se colocar de pé, a intensa queimação da Fome o ataca violentamente, exigindo uma reação imediata.",
+        "acoes": [
+          {
+            "id": "Acao01_01",
+            "foco": "Físico",
+            "texto": "Sair do refúgio imediatamente para procurar um local de caça nas ruas.",
+            "teste": "Sucesso Automático",
+            "dificuldade_sucessos": 0,
+            "destino_sucesso": "Cena02",
+            "destino_falha": null
+          },
+          {
+            "id": "Acao01_02",
+            "foco": "Social",
+            "texto": "Ligar para o seu contato da noite, procurando por uma fonte de alimentação segura.",
+            "teste": "Carisma + Sobrevivência",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena03",
+            "destino_falha": "Cena04"
+          },
+          {
+            "id": "Acao01_03",
+            "foco": "Mental",
+            "texto": "Tentar resistir e lutar contra o avanço da Fome para clarear os pensamentos.",
+            "teste": "Autocontrole + Determinação",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena05",
+            "destino_falha": "Cena04"
+          }
+        ]
+      },
+      {
+        "id": "Cena02",
+        "titulo": "As Calçadas da Consolação",
+        "descricao": "Você ganha as calçadas da Consolação. O movimento de pedestres está estranho: há muitas viaturas da PM cruzando a avenida e seguranças privados de terno e fone de ouvido nas esquinas de Higienópolis. O congresso de medicina trouxe uma vigilância pesada. Caçar aqui de peito aberto é um risco. Você precisa achar um ponto cego.",
+        "acoes": [
+          {
+            "id": "Acao02_01",
+            "foco": "Físico",
+            "texto": "Entrar sorrateiramente em um beco escuro atrás de um restaurante que parece promissor.",
+            "teste": "Destreza + Furtividade",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena06",
+            "destino_falha": "Cena07"
+          },
+          {
+            "id": "Acao02_02",
+            "foco": "Social",
+            "texto": "Fingir ser um congressista perdido para puxar assunto com uma pessoa isolada perto de um ponto de táxi.",
+            "teste": "Carisma + Subterfúgio",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena08",
+            "destino_falha": "Cena07"
+          },
+          {
+            "id": "Acao02_03",
+            "foco": "Mental",
+            "texto": "Observar o posicionamento das câmeras de segurança e os horários das patrulhas para achar uma rota segura.",
+            "teste": "Raciocínio + Percepção",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena09",
+            "destino_falha": "Cena07"
+          }
+        ]
+      },
+      {
+        "id": "Cena03",
+        "titulo": "O Telefonema Criptografado",
+        "descricao": "Seu contato atende com um sussurro apressado. Ele diz que o centro está cercado por causa do evento, mas deixou uma bolsa de sangue estocada em um frigobar nos fundos de um estacionamento 24h na rua de trás. O problema é que o portão eletrônico está trancado e há um guarda no local.",
+        "acoes": [
+          {
+            "id": "Acao03_01",
+            "foco": "Físico",
+            "texto": "Escalar o muro lateral do estacionamento aproveitando o barulho de um caminhão que passa.",
+            "teste": "Força + Atletismo",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena10",
+            "destino_falha": "Cena07"
+          },
+          {
+            "id": "Acao03_02",
+            "foco": "Social",
+            "texto": "Abordar o guarda do estacionamento e tentar convencê-lo ou suborná-lo para te deixar entrar por dois minutos.",
+            "teste": "Manipulação + Persuasão",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena11",
+            "destino_falha": "Cena12"
+          },
+          {
+            "id": "Acao03_03",
+            "foco": "Mental",
+            "texto": "Procurar pelo painel elétrico externo do estacionamento para tentar cortar a energia e destravar o portão.",
+            "teste": "Inteligência + Tecnologia",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena13",
+            "destino_falha": "Cena12"
+          }
+        ]
+      },
+      {
+        "id": "Cena04",
+        "titulo": "O Ponto de Ruptura",
+        "descricao": "Seus esforços falham e a queimação nas suas veias se torna insuportável. A Besta assume o controle parcial dos seus músculos, nublando sua visão e empurrando você para fora do refúgio em um estado de quase frenesi. Você está cambaleando na calçada e sua boca saliva ao ver o pescoço de uma jovem que sai de uma farmácia.",
+        "acoes": [
+          {
+            "id": "Acao04_01",
+            "foco": "Físico",
+            "texto": "Avançar brutalmente e arrastar a jovem para trás das caçambas de entulho de uma obra ali perto.",
+            "teste": "Força + Briga",
+            "dificuldade_sucessos": 4,
+            "destino_sucesso": "Cena14",
+            "destino_falha": "Cena15"
+          },
+          {
+            "id": "Acao04_02",
+            "foco": "Social",
+            "texto": "Forçar um sorriso maníaco e tentar usar sua Presença (Fascínio) para fazer com que ela ande voluntariamente até você, ignorando a multidão.",
+            "teste": "Carisma + Presença",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena16",
+            "destino_falha": "Cena15"
+          },
+          {
+            "id": "Acao04_03",
+            "foco": "Mental",
+            "texto": "Morder o próprio lábio até sangrar, usando a dor física para retomar o foco mental por alguns segundos e procurar um alvo mais fácil.",
+            "teste": "Determinação + Autocontrole",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena02",
+            "destino_falha": "Cena15"
+          }
+        ]
+      },
+      {
+        "id": "Cena05",
+        "titulo": "Olhar Clínico",
+        "descricao": "Com uma força de vontade impressionante, você sufoca os rosnados da Besta e limpa sua mente. Seus sentidos vampíricos se expandem. Do alto da sacada do refúgio, você percebe que a segurança não é da polícia comum: os carros pretos carregam símbolos da ShieldGuard Security. Eles estão vigiando especificamente os ricaços do congresso. Você nota um ponto fraco no quarteirão de baixo, onde os funcionários do hotel saem para fumar.",
+        "acoes": [
+          {
+            "id": "Acao05_01",
+            "foco": "Físico",
+            "texto": "Descer pelas escadas de incêndio externas de forma silenciosa para interceptar a área dos funcionários.",
+            "teste": "Destreza + Furtividade",
+            "dificuldade_sucessos": 1,
+            "destino_sucesso": "Cena06",
+            "destino_falha": "Cena07"
+          },
+          {
+            "id": "Acao05_02",
+            "foco": "Social",
+            "texto": "Vestir uma roupa social elegante do seu armário e caminhar até a área VIP do evento misturando-se aos médicos estrangeiros.",
+            "teste": "Manipulação + Etiqueta",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena16",
+            "destino_falha": "Cena07"
+          },
+          {
+            "id": "Acao05_03",
+            "foco": "Mental",
+            "texto": "Usar seu conhecimento das ruas para deduzir qual beco adjacente os funcionários usam para descartar o lixo do hotel, longe dos olhos da segurança.",
+            "teste": "Inteligência + Manha",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena06",
+            "destino_falha": "Cena07"
+          }
+        ]
+      },
+      {
+        "id": "Cena06",
+        "titulo": "O Beco do Policial",
+        "descricao": "Você entra no beco escuro. Após procurar intensamente, você não acha nenhum pedestre comum, apenas uma figura caída entre caixas de papelão que parece ser um mendigo adormecido. Movido pelo desespero da fome, você se aproxima para dar o bote, mas o homem abre os olhos abruptamente, rola para o lado esquivando-se e saca uma pistola Taurus da cintura. É um policial do Deic disfarçado em uma operação contra o tráfico local. 'Parado, polícia!'",
+        "acoes": [
+          {
+            "id": "Acao06_01",
+            "foco": "Físico",
+            "texto": "Avançar contra a arma dele usando sua força pura para desarmá-lo e iniciar uma briga corporal.",
+            "teste": "Força + Briga",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena15",
+            "destino_falha": "Cena07"
+          },
+          {
+            "id": "Acao06_02",
+            "foco": "Social",
+            "texto": "Usar o olhar aterrorizante de Intimidação para congelar o policial de medo por um segundo antes que ele atire.",
+            "teste": "Carisma + Intimidação",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena15",
+            "destino_falha": "Cena07"
+          },
+          {
+            "id": "Acao06_03",
+            "foco": "Mental",
+            "texto": "Chutar uma caçamba de lixo na direção dele para bloquear a linha de tiro e correr desesperadamente de volta para a avenida.",
+            "teste": "Raciocínio + Atletismo",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena02",
+            "destino_falha": "Cena07"
+          }
+        ]
+      },
+      {
+        "id": "Cena07",
+        "titulo": "O Alarme Soou",
+        "descricao": "Seus movimentos bruscos ativam os sensores de proximidade da ShieldGuard ou disparam o alerta da polícia. Uma viatura dobra a esquina em alta velocidade, apontando os holofotes na sua direção. Policiais saem com armas em punho: 'Parado! Mãos na cabeça!' O cerco está fechado e a vigilância está alta demais hoje. Não há como caçar. Você é forçado a bater em retirada total, usando becos imundos para sumir antes de ser baleado ou capturado.",
+        "acoes": [
+          {
+            "id": "Acao07_01",
+            "foco": "Físico",
+            "texto": "Correr de volta para o seu refúgio de mãos vazias, trancando as portas enquanto a Besta racha sua mente.",
+            "teste": "Sucesso Automático",
+            "dificuldade_sucessos": 0,
+            "destino_sucesso": "Cena12",
+            "destino_falha": null
+          }
+        ]
+      },
+      {
+        "id": "Cena08",
+        "titulo": "O Alvo Elegante",
+        "descricao": "Você caminha até a entrada lateral do hotel do evento. Após uma busca intensa, você localiza o alvo perfeito: uma mulher atraente, vestindo roupas de grife elegantes e carregando o crachá da comitiva internacional do congresso. Você passa a segui-la discretamente e nota que ela está inquieta, olhando para os lados e conversando com um sotaque espanhol ao telefone, procurando claramente por algum entorpecente ou diversão fora do protocolo do evento. Ela é uma vítima fácil.",
+        "acoes": [
+          {
+            "id": "Acao08_01",
+            "foco": "Físico",
+            "texto": "Esgueirar-se por trás dela quando ela entrar em uma área de fumantes isolada do jardim.",
+            "teste": "Destreza + Furtividade",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena16",
+            "destino_falha": "Cena06"
+          },
+          {
+            "id": "Acao08_02",
+            "foco": "Social",
+            "texto": "Aproximar-se calmamente, acender um isqueiro e usar sua lábia sedutora para encantá-la, oferecendo-se para levá-la a um lugar 'especial'.",
+            "teste": "Manipulação + Subterfúgio",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena16",
+            "destino_falha": "Cena04"
+          },
+          {
+            "id": "Acao08_03",
+            "foco": "Mental",
+            "texto": "Analisar o comportamento dela à distância para decifrar exatamente qual tipo de substância ela quer, usando isso como isca perfeita.",
+            "teste": "Inteligência + Sagacidade",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena16",
+            "destino_falha": "Cena02"
+          }
+        ]
+      },
+      {
+        "id": "Cena09",
+        "titulo": "Rotas Ocultas",
+        "descricao": "Seu mapeamento mental das câmeras funciona. Você evita os grandes eixos protegidos pela ShieldGuard e alcança uma ruela residencial escura perto do limite com o Bixiga. O faro de sangue o guia até uma silhueta alta caminhando sozinha na penumbra.",
+        "acoes": [
+          {
+            "id": "Acao09_01",
+            "foco": "Físico",
+            "texto": "Dar o bote rápido pelas costas antes que a pessoa note sua aproximação.",
+            "teste": "Força + Briga",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena14",
+            "destino_falha": "Cena06"
+          },
+          {
+            "id": "Acao09_02",
+            "foco": "Social",
+            "texto": "Chamar a atenção da pessoa com um sussurro usando Presença para paralisá-la de fascínio.",
+            "teste": "Carisma + Presença",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena14",
+            "destino_falha": "Cena06"
+          },
+          {
+            "id": "Acao09_03",
+            "foco": "Mental",
+            "texto": "Aguardar nas sombras até que a vítima entre embaixo da marquise apagada de um prédio antigo.",
+            "teste": "Raciocínio + Furtividade",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena14",
+            "destino_falha": "Cena06"
+          }
+        ]
+      },
+      {
+        "id": "Cena10",
+        "titulo": "Invasão Vertical",
+        "descricao": "Você pula o muro do estacionamento com precisão felina. O guarda está de costas assistindo a um jogo no celular. O frigobar indicado pelo contato está a poucos metros de você, trancado com um cadeado simples de metal.",
+        "acoes": [
+          {
+            "id": "Acao10_01",
+            "foco": "Físico",
+            "texto": "Usar sua força bruta enriquecida pelo sangue para quebrar o cadeado em um puxão silencioso.",
+            "teste": "Força + Ofícios",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena11",
+            "destino_falha": "Cena12"
+          },
+          {
+            "id": "Acao10_02",
+            "foco": "Mental",
+            "texto": "Usar um grampo ou pedaço de arame encontrado no chão para abrir o cadeado sem fazer nenhum barulho.",
+            "teste": "Destreza + Ladroagem",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena11",
+            "destino_falha": "Cena12"
+          }
+        ]
+      },
+      {
+        "id": "Cena11",
+        "titulo": "O Gosto do Plástico",
+        "descricao": "O cadeado cede. Dentro do frigobar, você encontra três bolsas de plasma hospitalar intactas. Você rasga o plástico com as presas. O sangue está frio e sem a energia emocional (Ressonância) de uma caça viva, mas é o suficiente para aplacar a queimação e salvar sua pele esta noite.",
+        "acoes": [
+          {
+            "id": "Acao11_01",
+            "foco": "Físico",
+            "texto": "Consumir o sangue rapidamente e saltar o muro de volta para a rua, limpando os vestígios.",
+            "teste": "Sucesso Automático",
+            "dificuldade_sucessos": 0,
+            "destino_sucesso": "Cena13",
+            "destino_falha": null
+          }
+        ]
+      },
+      {
+        "id": "Cena12",
+        "titulo": "Noite de Escassez e Fome (FIM POR FALTA DE ALVO)",
+        "descricao": "Você se tranca no seu refúgio. Lá fora, o som das sereias e o vaivém da segurança privada deixam claro que Higienópolis e a Consolação se tornaram uma fortaleza impenetrável por conta do evento médico. Você vasculha os cantos, mas não há uma gota de sangue estocada. A Besta ruge de frustração dentro do seu peito. Seus olhos ardem e seus músculos tremem; a Fome venceu esta rodada e sua noite termina no mais puro desespero existencial.",
+        "consequencias_api": {
+          "modificar_fome": 2,
+          "modificar_forca_de_vontade": -2,
+          "modificar_humanidade": 0
+        },
+        "acoes": []
+      },
+      {
+        "id": "Cena13",
+        "titulo": "Sobrevivência Sintética (FIM COM SANGUE DE BANCO)",
+        "descricao": "Você retorna deslizando pelas sombras até seu refúgio seguro. O sangue estocado removeu a névoa vermelha da sua mente. Você sobreviveu mais uma noite sem violar a Máscara e sem chamar a atenção da polícia ou da ShieldGuard. Foi uma vitória fria e sem sabor, mas estratégica.",
+        "consequencias_api": {
+          "modificar_fome": -2,
+          "modificar_forca_de_vontade": 0,
+          "modificar_humanidade": 0,
+          "recompensa_habilidade": "Tecnologia"
+        },
+        "acoes": []
+      },
+      {
+        "id": "Cena14",
+        "titulo": "Sangue no Beco Escondido",
+        "descricao": "Suas mãos prendem a vítima contra a parede de tijolos. O pânico dela dura apenas um segundo antes que suas presas perfurem a carótida. Ao beber, o sangue pulsa denso e violento. Mas a sensação de que há algo errado ataca seus sentidos sobrenaturais: passos apressados ecoam na entrada do beco.",
+        "acoes": [
+          {
+            "id": "Acao14_01",
+            "foco": "Físico",
+            "texto": "Empurrar o corpo da vítima no chão e escalar o muro dos fundos para fugir antes de ser visto.",
+            "teste": "Destreza + Atletismo",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena19",
+            "destino_falha": "Cena07"
+          },
+          {
+            "id": "Acao14_02",
+            "foco": "Social",
+            "texto": "Usar Dominação (Esquecimento) na pessoa que acabou de dobrar o beco para fazê-la esquecer o que viu.",
+            "teste": "Carisma + Dominação",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena19",
+            "destino_falha": "Cena07"
+          }
+        ]
+      },
+      {
+        "id": "Cena15",
+        "titulo": "A Fuga pelo Sangue",
+        "descricao": "A briga no beco é caótica. O policial disfarçado é bom, mas sua força sobrenatural quebra a vantagem dele. Você desfere um soco que o joga contra as lixeiras. O sangue dele espirra no seu rosto por causa de um corte. O cheiro ativa sua fome de forma incontrolável. Você morde o pescoço dele ali mesmo, no chão do beco, sugando freneticamente enquanto ele perde os sentidos. Você ouve pelo rádio caído na sarjeta que o reforço da PM está a dois quarteirões dali.",
+        "acoes": [
+          {
+            "id": "Acao15_01",
+            "foco": "Físico",
+            "texto": "Largar o corpo ensanguentado do policial e correr em disparada cruzando a avenida antes que o cerco feche.",
+            "teste": "Sucesso Automático",
+            "dificuldade_sucessos": 0,
+            "destino_sucesso": "Cena19",
+            "destino_falha": null
+          }
+        ]
+      },
+      {
+        "id": "Cena16",
+        "titulo": "O Encanto e a Proposta",
+        "descricao": "Você se aproxima da mulher elegante do congresso. Utilizando sua lábia, charme e um toque sutil de feitiçaria social, você se apresenta como um empresário influente da noite paulistana e diz que conhece um clube privado exclusivo perfeito para o que ela procura. Ela cai no seu jogo, os olhos dela brilham e ela aceita segui-lo. No entanto, quando você sugere pegar um táxi para ir a um motel discreto, ela hesita, olhando para o relógio do crachá do evento: 'Melhor irmos para aquele canto escuro do estacionamento do hotel... não posso sumir por muito tempo.' A fome está gigantesca dentro de você.",
+        "acoes": [
+          {
+            "id": "Acao16_01",
+            "foco": "Social",
+            "texto": "Insistir e usar o máximo de sua Persuasão para convencê-la de que o motel é mais seguro e luxuoso.",
+            "teste": "Manipulação + Persuasão",
+            "dificuldade_sucessos": 3,
+            "destino_sucesso": "Cena18",
+            "destino_falha": "Cena17"
+          },
+          {
+            "id": "Acao16_02",
+            "foco": "Físico",
+            "texto": "Desclinar do motel. Conduzi-la até o canto escuro do estacionamento ali mesmo para dar o bote longe dos olhares, já que você não consegue mais se segurar.",
+            "teste": "Destreza + Furtividade",
+            "dificuldade_sucessos": 2,
+            "destino_sucesso": "Cena17",
+            "destino_falha": "Cena07"
+          }
+        ]
+      },
+      {
+        "id": "Cena17",
+        "titulo": "O Bote Sem Controle",
+        "descricao": "Você não consegue convencê-la a ir para o motel ou sua fome simplesmente atinge o limite. Sem conseguir se segurar, você a arrasta para a penumbra do estacionamento do próprio hotel do evento. Você crava suas presas com força. Ela solta um gemido abafado contra seu peito. Você se alimenta ali mesmo, de forma arriscada, no epicentro do perigo urbano. Enquanto você bebe, nota o reflexo metálico de uma lente vinda de uma janela do segundo andar do prédio adjacente. Alguém gravou a cena.",
+        "acoes": [
+          {
+            "id": "Acao17_01",
+            "foco": "Físico",
+            "texto": "Largar a mulher desmaiada no banco do carro e fugir correndo por entre as sombras rumo ao seu refúgio.",
+            "teste": "Sucesso Automático",
+            "dificuldade_sucessos": 0,
+            "destino_sucesso": "Cena19",
+            "destino_falha": null
+          }
+        ]
+      },
+      {
+        "id": "Cena18",
+        "titulo": "O Quarto de Hotel",
+        "descricao": "Sua lábia e encantamento quebram a resistência dela. Vocês entram em um hotel/motel discreto nas imediações da Consolação. Entre quatro paredes, longe dos olhos da ShieldGuard e do policiamento, você dá o bote. Você morde com extrema delicadeza, injetando o êxtase do Beijo do Vampiro nas veias dela. Ela não entra em pânico; pelo contrário, o efeito do seu sangue a deixa flutuando em uma felicidade artificial profunda e entorpecida. Você drena o necessário para zerar sua Fome sem matá-la.",
+        "acoes": [
+          {
+            "id": "Acao18_01",
+            "foco": "Físico",
+            "texto": "Colocá-la deitada confortavelmente na cama e sair do quarto caminhando calmamente em direção à rua.",
+            "teste": "Sucesso Automático",
+            "dificuldade_sucessos": 0,
+            "destino_sucesso": "Cena20",
+            "destino_falha": null
+          }
+        ]
+      },
+      {
+        "id": "Cena19",
+        "titulo": "O Preço do Descuido (FIM COM EXPOSIÇÃO - CONSEQUÊNCIA 3)",
+        "descricao": "Você tranca a porta do seu refúgio com a Fome totalmente saciada. Suas veias finalmente pararam de queimar. No entanto, dez minutos depois, seu telefone criptografado vibra. É uma mensagem de texto urgente do seu contato: 'Você foi descuidado! Um jornalista freelancer que cobria o congresso médico estava testando lentes de alta definição noturna e gravou um vídeo nítido de você atacando no perímetro do hotel. O arquivo vazou na rede oculta e a Segunda Inquisição interceptou os metadados. Eles sabem sua descrição. Limpe o local e suma da Consolação AGORA!'",
+        "consequencias_api": {
+          "modificar_fome": 0,
+          "modificar_forca_de_vontade": 0,
+          "modificar_humanidade": -1,
+          "ativar_defeito": "Segunda Inquisição no Rastro"
+        },
+        "acoes": []
+      },
+      {
+        "id": "Cena20",
+        "titulo": "Saciedade, Prazer e Silêncio (FIM PERFEITO - CONSEQUÊNCIA 1)",
+        "descricao": "Você caminha de volta para o seu refúgio cortando o clima abafado della noite de São Paulo. A caçada foi um sucesso absoluto. A mulher elegante ficou em segurança no hotel, totalmente dopada pelo prazer sobrenatural do seu Beijo e sem memórias claras do ataque. A Besta recuou completamente para o fundo da sua alma. Você fecha as trancas do seu refúgio sabendo que jogou o jogo da Máscara com perfeição e maestria.",
+        "consequencias_api": {
+          "modificar_fome": 0,
+          "modificar_forca_de_vontade": 0,
+          "modificar_humanidade": 0,
+          "recompensa_habilidade": "Subterfúgio"
+        },
+        "acoes": []
+      }
+    ]
+  }
+}

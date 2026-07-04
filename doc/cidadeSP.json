@@ -1,0 +1,834 @@
+{
+  "sao_paulo_rpg_regioes": {
+    "zona_central": {
+      "nome": "Zona Central",
+      "clima_narrativo": "Ruas estreitas, prédios históricos ocupados, forte contraste entre o dia caótico e a noite fantasmagórica.",
+      "bairros": [
+        {
+          "id": 1,
+          "nome": "Sé / Centro Velho",
+          "riqueza": "Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Vampiros (Clã Nosferatu)",
+          "seguranca_publica": "Guarda Civil Metropolitana (GCM)",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 9,
+            "teste_criminalidade": 4,
+            "teste_seguranca": 4,
+            "teste_dominio": 8,
+            "teste_visibilidade": 3
+          }
+        },
+        {
+          "id": 2,
+          "nome": "República",
+          "riqueza": "Média",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Mago (Tecnocracia)",
+          "seguranca_publica": "Polícia Militar (ROA - Fictícia)",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 5,
+            "teste_seguranca": 6,
+            "teste_dominio": 9,
+            "teste_visibilidade": 6
+          }
+        },
+        {
+          "id": 3,
+          "nome": "Santa Ifigênia",
+          "riqueza": "Média-Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Mago (Tradição: Adeptos da Virtualidade)",
+          "seguranca_publica": "Polícia Civil (DEIC)",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 7,
+            "teste_criminalidade": 4,
+            "teste_seguranca": 7,
+            "teste_dominio": 8,
+            "teste_visibilidade": 4
+          }
+        },
+        {
+          "id": 4,
+          "nome": "Higienópolis",
+          "riqueza": "Altíssima",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Vampiros (Clã Ventrue / Anciões)",
+          "seguranca_publica": "Empresa Privada ShieldGuard & PM",
+          "visibilidade_midiatica": "Altíssima",
+          "dificuldades": {
+            "teste_riqueza": 2,
+            "teste_criminalidade": 9,
+            "teste_seguranca": 9,
+            "teste_dominio": 9,
+            "teste_visibilidade": 10
+          }
+        },
+        {
+          "id": 5,
+          "nome": "Consolação",
+          "riqueza": "Alta",
+          "criminalidade": "Média-Baixa",
+          "dominio_faccao": "Caçadores (Células Acadêmicas)",
+          "seguranca_publica": "Base Comunitária PM & Segurança Universitária",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 4,
+            "teste_criminalidade": 7,
+            "teste_seguranca": 6,
+            "teste_dominio": 7,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 6,
+          "nome": "Bela Vista / Bixiga",
+          "riqueza": "Média",
+          "criminalidade": "Média",
+          "dominio_faccao": "Vampiros (Clã Hecata / Giovanni)",
+          "seguranca_publica": "Polícia Militar (Rádio Patrulha)",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 5,
+            "teste_dominio": 7,
+            "teste_visibilidade": 6
+          }
+        },
+        {
+          "id": 7,
+          "nome": "Bom Retiro",
+          "riqueza": "Média-Baixa",
+          "criminalidade": "Média",
+          "dominio_faccao": "Caçadores (Inquisidores da Fé)",
+          "seguranca_publica": "Polícia Federal & Fiscais do Trabalho",
+          "visibilidade_midiatica": "Baixa-Média",
+          "dificuldades": {
+            "teste_riqueza": 7,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 6,
+            "teste_dominio": 7,
+            "teste_visibilidade": 5
+          }
+        },
+        {
+          "id": 8,
+          "nome": "Luz",
+          "riqueza": "Baixa",
+          "criminalidade": "Altíssima",
+          "dominio_faccao": "Vampiros (Clã Brujah / Malkavian)",
+          "seguranca_publica": "Batalhão de Choque da PM",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 10,
+            "teste_criminalidade": 2,
+            "teste_seguranca": 8,
+            "teste_dominio": 6,
+            "teste_visibilidade": 6
+          }
+        },
+        {
+          "id": 9,
+          "nome": "Liberdade",
+          "riqueza": "Média-Alta",
+          "criminalidade": "Média-Baixa",
+          "dominio_faccao": "Mago (Irmandade de Akasha)",
+          "seguranca_publica": "Policiamento Turístico da PM",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 5,
+            "teste_criminalidade": 7,
+            "teste_seguranca": 6,
+            "teste_dominio": 8,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 10,
+          "nome": "Cambuci",
+          "riqueza": "Média",
+          "criminalidade": "Média",
+          "dominio_faccao": "Lobisomem (Andarilhos do Asfalto)",
+          "seguranca_publica": "Rondas Comunitárias da PM",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 5,
+            "teste_dominio": 6,
+            "teste_visibilidade": 3
+          }
+        }
+      ]
+    },
+    "zona_oeste": {
+      "nome": "Zona Oeste",
+      "clima_narrativo": "Região rica, desenvolvida, com forte aparato tecnológico corporativo, ladeiras nobres e bolhas universitárias.",
+      "bairros": [
+        {
+          "id": 11,
+          "nome": "Pinheiros",
+          "riqueza": "Alta",
+          "criminalidade": "Média-Baixa",
+          "dominio_faccao": "Vampiros (Clã Toreador)",
+          "seguranca_publica": "Monitoramento CityCams & PM",
+          "visibilidade_midiatica": "Altíssima",
+          "dificuldades": {
+            "teste_riqueza": 3,
+            "teste_criminalidade": 8,
+            "teste_seguranca": 7,
+            "teste_dominio": 8,
+            "teste_visibilidade": 9
+          }
+        },
+        {
+          "id": 12,
+          "nome": "Vila Madalena",
+          "riqueza": "Alta",
+          "criminalidade": "Média",
+          "dominio_faccao": "Vampiros (Anarquistas / Clã Ministry)",
+          "seguranca_publica": "Policiamento Ostensivo de Eventos PM",
+          "visibilidade_midiatica": "Altíssima",
+          "dificuldades": {
+            "teste_riqueza": 4,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 6,
+            "teste_dominio": 7,
+            "teste_visibilidade": 9
+          }
+        },
+        {
+          "id": 13,
+          "nome": "Butantã",
+          "riqueza": "Média",
+          "criminalidade": "Média",
+          "dominio_faccao": "Mago (Filhos de Éter / Ordem de Hermes)",
+          "seguranca_publica": "Guarda Universitária & PM",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 6,
+            "teste_dominio": 8,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 14,
+          "nome": "Perdizes",
+          "riqueza": "Alta",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Vampiros (Clã Tremere)",
+          "seguranca_publica": "Guaritas Blindadas Privadas & PM",
+          "visibilidade_midiatica": "Altíssima",
+          "dificuldades": {
+            "teste_riqueza": 3,
+            "teste_criminalidade": 9,
+            "teste_seguranca": 8,
+            "teste_dominio": 9,
+            "teste_visibilidade": 9
+          }
+        },
+        {
+          "id": 15,
+          "nome": "Lapa",
+          "riqueza": "Média",
+          "criminalidade": "Média-Alta",
+          "dominio_faccao": "Lobisomem (Roedores de Ossos)",
+          "seguranca_publica": "PM - Operação Delegada",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 5,
+            "teste_seguranca": 5,
+            "teste_dominio": 6,
+            "teste_visibilidade": 6
+          }
+        },
+        {
+          "id": 16,
+          "nome": "Barra Funda",
+          "riqueza": "Média-Alta",
+          "criminalidade": "Média",
+          "dominio_faccao": "Mago (Tecnocracia - Sindicato)",
+          "seguranca_publica": "Choque & Escoltas do Fórum Criminal",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 5,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 8,
+            "teste_dominio": 8,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 17,
+          "nome": "Alto de Pinheiros",
+          "riqueza": "Altíssima",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Vampiros (Clã Ventrue)",
+          "seguranca_publica": "AlphaSecurity Privada (Drones/Vans)",
+          "visibilidade_midiatica": "Crítica",
+          "dificuldades": {
+            "teste_riqueza": 1,
+            "teste_criminalidade": 10,
+            "teste_seguranca": 9,
+            "teste_dominio": 9,
+            "teste_visibilidade": 10
+          }
+        },
+        {
+          "id": 18,
+          "nome": "Vila Leopoldina",
+          "riqueza": "Alta",
+          "criminalidade": "Média",
+          "dominio_faccao": "Vampiros (Clã Gangrel)",
+          "seguranca_publica": "Segurança do CEAGESP & Polícia Civil",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 4,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 6,
+            "teste_dominio": 7,
+            "teste_visibilidade": 6
+          }
+        },
+        {
+          "id": 19,
+          "nome": "Pompéia",
+          "riqueza": "Alta",
+          "criminalidade": "Média-Baixa",
+          "dominio_faccao": "Vampiros (Anarquistas / Clã Brujah)",
+          "seguranca_publica": "PM Rondas Preventivas & Choque",
+          "visibilidade_midiatica": "Altíssima",
+          "dificuldades": {
+            "teste_riqueza": 4,
+            "teste_criminalidade": 7,
+            "teste_seguranca": 7,
+            "teste_dominio": 7,
+            "teste_visibilidade": 9
+          }
+        },
+        {
+          "id": 20,
+          "nome": "Jaguaré",
+          "riqueza": "Média-Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Caçadores (Células Operárias)",
+          "seguranca_publica": "Patrulhamento de Fronteira ROTA",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 7,
+            "teste_criminalidade": 4,
+            "teste_seguranca": 6,
+            "teste_dominio": 6,
+            "teste_visibilidade": 3
+          }
+        }
+      ]
+    },
+    "zona_sul": {
+      "nome": "Zona Sul",
+      "clima_narrativo": "O maior contraste da cidade: muralhas corporativas de vidro blindado e periferias imensas marcadas pela mata e mananciais.",
+      "bairros": [
+        {
+          "id": 21,
+          "nome": "Vila Olímpia",
+          "riqueza": "Altíssima",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Mago (Tecnocracia - Iteração X)",
+          "seguranca_publica": "OmniSec Privada Armada",
+          "visibilidade_midiatica": "Crítica",
+          "dificuldades": {
+            "teste_riqueza": 1,
+            "teste_criminalidade": 9,
+            "teste_seguranca": 9,
+            "teste_dominio": 9,
+            "teste_visibilidade": 10
+          }
+        },
+        {
+          "id": 22,
+          "nome": "Itaim Bibi",
+          "riqueza": "Altíssima",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Vampiros (Clã Ventrue - Príncipe)",
+          "seguranca_publica": "Choque, ROTA & Polícia Civil Velada",
+          "visibilidade_midiatica": "Crítica",
+          "dificuldades": {
+            "teste_riqueza": 1,
+            "teste_criminalidade": 9,
+            "teste_seguranca": 9,
+            "teste_dominio": 10,
+            "teste_visibilidade": 10
+          }
+        },
+        {
+          "id": 23,
+          "nome": "Moema",
+          "riqueza": "Altíssima",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Lobisomem (Andarilhos / Crias)",
+          "seguranca_publica": "Vigilância Solidária Câmeras & PM",
+          "visibilidade_midiatica": "Altíssima",
+          "dificuldades": {
+            "teste_riqueza": 2,
+            "teste_criminalidade": 9,
+            "teste_seguranca": 8,
+            "teste_dominio": 9,
+            "teste_visibilidade": 9
+          }
+        },
+        {
+          "id": 24,
+          "nome": "Jardins (Europa / Paulista)",
+          "riqueza": "Altíssima",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Vampiros (Clã Toreador e Ventrue)",
+          "seguranca_publica": "GATE (PM) & Forças Consulares Privadas",
+          "visibilidade_midiatica": "Crítica",
+          "dificuldades": {
+            "teste_riqueza": 1,
+            "teste_criminalidade": 10,
+            "teste_seguranca": 10,
+            "teste_dominio": 9,
+            "teste_visibilidade": 10
+          }
+        },
+        {
+          "id": 25,
+          "nome": "Capão Redondo",
+          "riqueza": "Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Caçadores (Células de Proteção Urbana)",
+          "seguranca_publica": "Força Tática PM (Incursões em Comboio)",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 9,
+            "teste_criminalidade": 3,
+            "teste_seguranca": 5,
+            "teste_dominio": 5,
+            "teste_visibilidade": 2
+          }
+        },
+        {
+          "id": 26,
+          "nome": "Campo Limpo",
+          "riqueza": "Média-Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Vampiros (Clã Lasombra Anarquistas)",
+          "seguranca_publica": "Patrulhas PM (Resposta Lenta)",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 8,
+            "teste_criminalidade": 4,
+            "teste_seguranca": 4,
+            "teste_dominio": 6,
+            "teste_visibilidade": 3
+          }
+        },
+        {
+          "id": 27,
+          "nome": "Grajaú",
+          "riqueza": "Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Lobisomem (Garras Vermelhas)",
+          "seguranca_publica": "Guarda Civil Ambiental (Barcos)",
+          "visibilidade_midiatica": "Nenhuma",
+          "dificuldades": {
+            "teste_riqueza": 9,
+            "teste_criminalidade": 3,
+            "teste_seguranca": 4,
+            "teste_dominio": 7,
+            "teste_visibilidade": 1
+          }
+        },
+        {
+          "id": 28,
+          "nome": "Santo Amaro",
+          "riqueza": "Média",
+          "criminalidade": "Média-Alta",
+          "dominio_faccao": "Mago (Coro Celestial)",
+          "seguranca_publica": "GCM Calçadões & PM Base Fixa",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 5,
+            "teste_seguranca": 5,
+            "teste_dominio": 7,
+            "teste_visibilidade": 6
+          }
+        },
+        {
+          "id": 29,
+          "nome": "Jabaquara",
+          "riqueza": "Média",
+          "criminalidade": "Média",
+          "dominio_faccao": "Vampiros (Clã Malkavian)",
+          "seguranca_publica": "Polícia Rodoviária Federal & Segurança Interna",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 6,
+            "teste_dominio": 6,
+            "teste_visibilidade": 5
+          }
+        },
+        {
+          "id": 30,
+          "nome": "Interlagos",
+          "riqueza": "Média-Alta",
+          "criminalidade": "Média",
+          "dominio_faccao": "Lobisomem (Andarilhos do Asfalto)",
+          "seguranca_publica": "Cavalaria PM & Segurança Circuito Privada",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 5,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 6,
+            "teste_dominio": 7,
+            "teste_visibilidade": 8
+          }
+        }
+      ]
+    },
+    "zona_leste": {
+      "nome": "Zona Leste",
+      "clima_narrativo": "Densidade demográfica absurda, mercados negros, herança industrial desativada e forte resistência de comunidades.",
+      "bairros": [
+        {
+          "id": 31,
+          "nome": "Tatuapé",
+          "riqueza": "Alta",
+          "criminalidade": "Média-Baixa",
+          "dominio_faccao": "Vampiros (Clã Giovanni / Hecata)",
+          "seguranca_publica": "Vans Blindadas Privadas & PM",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 4,
+            "teste_criminalidade": 7,
+            "teste_seguranca": 7,
+            "teste_dominio": 8,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 32,
+          "nome": "Mooca",
+          "riqueza": "Média-Alta",
+          "criminalidade": "Média-Baixa",
+          "dominio_faccao": "Vampiros (Anarquistas / Clã Brujah)",
+          "seguranca_publica": "PM Comunitária & Vigilância de Idosos Local",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 5,
+            "teste_criminalidade": 7,
+            "teste_seguranca": 5,
+            "teste_dominio": 7,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 33,
+          "nome": "Itaquera",
+          "riqueza": "Média-Baixa",
+          "criminalidade": "Média-Alta",
+          "dominio_faccao": "Caçadores (Torcidas Organizadas)",
+          "seguranca_publica": "PM Batalhão de Choque em Dias de Jogo",
+          "visibilidade_midiatica": "Eventual (Alta/Baixa)",
+          "dificuldades": {
+            "teste_riqueza": 7,
+            "teste_criminalidade": 5,
+            "teste_seguranca": 7,
+            "teste_dominio": 6,
+            "teste_visibilidade": 7
+          }
+        },
+        {
+          "id": 34,
+          "nome": "Cidade Tiradentes",
+          "riqueza": "Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Lobisomem (Roedores de Ossos)",
+          "seguranca_publica": "ROTA em Incursões Cirúrgicas",
+          "visibilidade_midiatica": "Nenhuma",
+          "dificuldades": {
+            "teste_riqueza": 9,
+            "teste_criminalidade": 3,
+            "teste_seguranca": 5,
+            "teste_dominio": 6,
+            "teste_visibilidade": 1
+          }
+        },
+        {
+          "id": 35,
+          "nome": "São Miguel Paulista",
+          "riqueza": "Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Caçadores (Células Religiosas)",
+          "seguranca_publica": "Polícia Comunitária (Bases de Latão)",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 9,
+            "teste_criminalidade": 4,
+            "teste_seguranca": 4,
+            "teste_dominio": 5,
+            "teste_visibilidade": 3
+          }
+        },
+        {
+          "id": 36,
+          "nome": "Brás",
+          "riqueza": "Média",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Mago (Tecnocracia - Sindicato)",
+          "seguranca_publica": "Choque da PM & GCM (Madrugadas)",
+          "visibilidade_midiatica": "Média-Alta",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 4,
+            "teste_seguranca": 7,
+            "teste_dominio": 8,
+            "teste_visibilidade": 7
+          }
+        },
+        {
+          "id": 37,
+          "nome": "Penha",
+          "riqueza": "Média",
+          "criminalidade": "Média",
+          "dominio_faccao": "Mago (Coro Celestial)",
+          "seguranca_publica": "PM Rondas de Moto (ROCAM)",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 5,
+            "teste_dominio": 7,
+            "teste_visibilidade": 5
+          }
+        },
+        {
+          "id": 38,
+          "nome": "Vila Formosa",
+          "riqueza": "Média",
+          "criminalidade": "Média",
+          "dominio_faccao": "Vampiros (Clã Hecata / Necromantes)",
+          "seguranca_publica": "Vigilância Interna Cemitério & GCM",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 4,
+            "teste_dominio": 7,
+            "teste_visibilidade": 2
+          }
+        },
+        {
+          "id": 39,
+          "nome": "Sapopemba",
+          "riqueza": "Baixa",
+          "criminalidade": "Altíssima",
+          "dominio_faccao": "Vampiros (Caitiff / Sangue-Fraco)",
+          "seguranca_publica": "ROTA em Confrontos Pesados",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 9,
+            "teste_criminalidade": 2,
+            "teste_seguranca": 6,
+            "teste_dominio": 5,
+            "teste_visibilidade": 3
+          }
+        },
+        {
+          "id": 40,
+          "nome": "Belenzinho",
+          "riqueza": "Média",
+          "criminalidade": "Média",
+          "dominio_faccao": "Lobisomem (Andarilhos do Asfalto)",
+          "seguranca_publica": "Polícia Civil Rondas Regulares",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 5,
+            "teste_dominio": 6,
+            "teste_visibilidade": 5
+          }
+        }
+      ]
+    },
+    "zona_norte": {
+      "nome": "Zona Norte",
+      "clima_narrativo": "Rotas rodoviárias estratégicas, serras tropicais impenetráveis e vilas de transportadoras com galpões maciços.",
+      "bairros": [
+        {
+          "id": 41,
+          "nome": "Santana",
+          "riqueza": "Média-Alta",
+          "criminalidade": "Média",
+          "dominio_faccao": "Vampiros (Clã Ventrue)",
+          "seguranca_publica": "Batalhão de Choque ZN Central",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 5,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 7,
+            "teste_dominio": 8,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 42,
+          "nome": "Tremembé",
+          "riqueza": "Alta",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Lobisomem (Fúrias Gêmeas / Crias)",
+          "seguranca_publica": "Câmeras IA Privadas & Guaritas",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 4,
+            "teste_criminalidade": 8,
+            "teste_seguranca": 7,
+            "teste_dominio": 7,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 43,
+          "nome": "Cantareira (Serra)",
+          "riqueza": "Média-Alta",
+          "criminalidade": "Baixa",
+          "dominio_faccao": "Lobisomem (Garras Vermelhas - Caern Supremo)",
+          "seguranca_publica": "PM Ambiental (Viaturas Selva 4x4)",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 5,
+            "teste_criminalidade": 8,
+            "teste_seguranca": 6,
+            "teste_dominio": 9,
+            "teste_visibilidade": 2
+          }
+        },
+        {
+          "id": 44,
+          "nome": "Brasilândia",
+          "riqueza": "Baixa",
+          "criminalidade": "Altíssima",
+          "dominio_faccao": "Caçadores (Células de Motoboys)",
+          "seguranca_publica": "COE (Comando de Operações Especiais)",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 9,
+            "teste_criminalidade": 2,
+            "teste_seguranca": 7,
+            "teste_dominio": 5,
+            "teste_visibilidade": 3
+          }
+        },
+        {
+          "id": 45,
+          "nome": "Vila Maria",
+          "riqueza": "Média",
+          "criminalidade": "Média-Alta",
+          "dominio_faccao": "Vampiros (Clã Ventrue / Lasombra)",
+          "seguranca_publica": "Divisão de Roubo de Cargas (DEIC)",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 5,
+            "teste_seguranca": 7,
+            "teste_dominio": 7,
+            "teste_visibilidade": 6
+          }
+        },
+        {
+          "id": 46,
+          "nome": "Casa Verde",
+          "riqueza": "Média-Alta",
+          "criminalidade": "Média",
+          "dominio_faccao": "Vampiros (Clã Toreador / Anarquistas)",
+          "seguranca_publica": "PM Rondas Marginais",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 5,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 6,
+            "teste_dominio": 7,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 47,
+          "nome": "Jaçanã",
+          "riqueza": "Média-Baixa",
+          "criminalidade": "Média",
+          "dominio_faccao": "Mago (Órfãos / Sem Tradição)",
+          "seguranca_publica": "PM de Bairro & Motos Guarda Municipal",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 7,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 5,
+            "teste_dominio": 6,
+            "teste_visibilidade": 3
+          }
+        },
+        {
+          "id": 48,
+          "nome": "Tucuruvi",
+          "riqueza": "Média",
+          "criminalidade": "Média",
+          "dominio_faccao": "Caçadores (Seguranças de Shopping)",
+          "seguranca_publica": "Segurança Corporativa & Base PM Estação",
+          "visibilidade_midiatica": "Alta",
+          "dificuldades": {
+            "teste_riqueza": 6,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 6,
+            "teste_dominio": 6,
+            "teste_visibilidade": 8
+          }
+        },
+        {
+          "id": 49,
+          "nome": "Mandaqui",
+          "riqueza": "Média-Alta",
+          "criminalidade": "Média-Baixa",
+          "dominio_faccao": "Mago (Tradição: Verbena)",
+          "seguranca_publica": "Guaritas Fixas Complexos de Saúde",
+          "visibilidade_midiatica": "Média",
+          "dificuldades": {
+            "teste_riqueza": 5,
+            "teste_criminalidade": 7,
+            "teste_seguranca": 6,
+            "teste_dominio": 7,
+            "teste_visibilidade": 6
+          }
+        },
+        {
+          "id": 50,
+          "nome": "Cachoeirinha",
+          "riqueza": "Baixa",
+          "criminalidade": "Alta",
+          "dominio_faccao": "Vampiros (Caitiff / Carniçais)",
+          "seguranca_publica": "Força Tática PM (Encostas)",
+          "visibilidade_midiatica": "Baixa",
+          "dificuldades": {
+            "teste_riqueza": 9,
+            "teste_criminalidade": 6,
+            "teste_seguranca": 9,
+            "teste_dominio": 7,
+            "teste_visibilidade": 9
+          }
+        }
+      ]
+    }
+  }
+}

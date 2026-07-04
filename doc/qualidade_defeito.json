@@ -1,0 +1,582 @@
+{
+  "qualidades_e_defeitos_mundo_das_trevas": {
+    "vampiro_v5": {
+      "sistema": "Vampiro: A Máscara (V5)",
+      "lista": [
+        {
+          "nome": "Vontade Inabalável",
+          "tipo": "Qualidade",
+          "pontos": 3,
+          "categoria": "Mental",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": "resistencia_poderes_mentais",
+            "disciplinas_afetadas": ["Dominação", "Presença"]
+          },
+          "nota_narrativa": "Comum em caçadores veteranos abraçados ou mentes altamente disciplinadas."
+        },
+        {
+          "nome": "Besta Calma",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Mental",
+          "efeito_api": {
+            "modificador_dificuldade": -1,
+            "alvo_teste": "resistir_frenesi"
+          },
+          "nota_narrativa": "O vampiro mantém o controle mesmo sob forte estresse urbano."
+        },
+        {
+          "nome": "Resistência ao Sol",
+          "tipo": "Qualidade",
+          "pontos": 5,
+          "categoria": "Física",
+          "efeito_api": {
+            "altera_tipo_dano": {
+              "de": "agravado",
+              "para": "superficial",
+              "condicao": "primeiros_turnos_exposicao"
+            }
+          },
+          "nota_narrativa": "Extremamente raro e valioso; permite fugas diurnas milagrosas pelas ruas de SP."
+        },
+        {
+          "nome": "Consumidor Eficiente",
+          "tipo": "Qualidade",
+          "pontos": 3,
+          "categoria": "Física",
+          "efeito_api": {
+            "modificador_reducao_fome": 2,
+            "alvo_teste": "alimentacao"
+          },
+          "nota_narrativa": "O vampiro sabe extrair e processar cada gota de Ressonância das suas vítimas."
+        },
+        {
+          "nome": "Refúgio Fortificado",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "modificador_dificuldade_inimigo": 2,
+            "alvo_teste": "rastreio_invasao_refugio"
+          },
+          "nota_narrativa": "Uma cobertura blindada nos Jardins ou um bunker subterrâneo secreto na Sé."
+        },
+        {
+          "nome": "Status na Camarilla",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": "manipulacao_diplomacia",
+            "condicao": "interacao_membros_seita"
+          },
+          "nota_narrativa": "Respeito político garantido nos salões nobres do Itaim Bibi."
+        },
+        {
+          "nome": "Identidade Falsa de Elite",
+          "tipo": "Qualidade",
+          "pontos": 3,
+          "categoria": "Social",
+          "efeito_api": {
+            "ignora_fiscalizacao_mundana": true
+          },
+          "nota_narrativa": "Permite transitar livremente por fiscalizações na Vila Olímpia ou na Avenida Paulista."
+        },
+        {
+          "nome": "Fobia Tremenda",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Mental",
+          "efeito_api": {
+            "gatilho_teste": "Rötschreck_imediato",
+            "condicao": "confrontar_gatilho_especifico"
+          },
+          "nota_narrativa": "Pode ser medo de fogo, água profunda (Represa do Grajaú) ou grandes aglomerações."
+        },
+        {
+          "nome": "Pesadelos Recorrentes",
+          "tipo": "Defeito",
+          "pontos": 1,
+          "categoria": "Mental",
+          "efeito_api": {
+            "teste_obrigatorio": "forca_de_vontade_ao_acordar",
+            "falha_penalidade_dados": -1,
+            "alvo_penalidade": "acoes_mentais_inicio_noite"
+          },
+          "nota_narrativa": "Visões perturbadoras que drenam o descanso e incitam a Besta interior."
+        },
+        {
+          "nome": "Sangue Ralo (Caitiff/Sangue-Fraco)",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "trava_nivel_disciplina": 1,
+            "remove_bonus_cla": true
+          },
+          "nota_narrativa": "Escondem-se nas franjas de SP, como nas favelas densas do Sapopemba."
+        },
+        {
+          "nome": "Alimentação Restrita",
+          "tipo": "Defeito",
+          "pontos": 3,
+          "categoria": "Física",
+          "efeito_api": {
+            "bloqueia_saciedade_alvos": "nao_especificados_pelo_defeito"
+          },
+          "nota_narrativa": "Limita severamente as opções de caça na rua durante as escolhas do Twine."
+        },
+        {
+          "nome": "Repulsivo",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "falha_automatica_testes": "sociais_baseados_em_aparence"
+          },
+          "nota_narrativa": "Padrão para o Clã Nosferatu, forçando o uso de Ofuscação nos becos da Sé."
+        },
+        {
+          "nome": "Segunda Inquisição no Rastro",
+          "tipo": "Defeito",
+          "pontos": 4,
+          "categoria": "Social",
+          "efeito_api": {
+            "chance_encontro_aleatorio": 0.40,
+            "tipo_inimigo": "caçadores_tecnologicos"
+          },
+          "nota_narrativa": "Vans pretas patrulham o quarteirão do seu refúgio com frequência assustadora."
+        },
+        {
+          "nome": "Contatos Comprometidos",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "modificador_dificuldade_suporte": 2,
+            "custo_recursos_dobrado": true
+          },
+          "nota_narrativa": "Seus aliados ou informantes exigem favores perigosos ou cobram caro por sangue seguro."
+        }
+      ]
+    },
+    "lobisomem_w5": {
+      "sistema": "Lobisomem: O Apocalipse (W5)",
+      "lista": [
+        {
+          "nome": "Afinidade com a Umbra",
+          "tipo": "Qualidade",
+          "pontos": 3,
+          "categoria": "Mental",
+          "efeito_api": {
+            "modificador_dificuldade": -2,
+            "alvo_teste": "atravessar_pelicula"
+          },
+          "nota_narrativa": "O lobo se move facilmente entre o asfalto de SP e o plano místico espiritual."
+        },
+        {
+          "nome": "Mentor Espiritual",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Mental",
+          "efeito_api": {
+            "modificador_dados": 1,
+            "alvo_teste": ["ocultismo", "aprender_dons"]
+          },
+          "nota_narrativa": "Um espírito aliado que habita o Caern secreto do Parque Ibirapuera."
+        },
+        {
+          "nome": "Cura Acelerada",
+          "tipo": "Qualidade",
+          "pontos": 4,
+          "categoria": "Física",
+          "efeito_api": {
+            "regeneracao_adicional_sem_furia": true
+          },
+          "nota_narrativa": "Sua biologia Garou é absurdamente vigorosa e resiliente a ferimentos."
+        },
+        {
+          "nome": "Sentidos Hiper-Aguçados",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": "percepcao_olfato_audicao",
+            "forma_requerida": "Hominídea"
+          },
+          "nota_narrativa": "Capaz de farejar o rastro de um alvo mesmo em meio à poluição da Marginal Tietê."
+        },
+        {
+          "nome": "Renome de Linhagem",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "pontos_iniciais_renome": 1
+          },
+          "nota_narrativa": "Respeito imediato garantido entre as matilhas ancestrais da Serra da Cantareira."
+        },
+        {
+          "nome": "Equilíbrio de Harano",
+          "tipo": "Qualidade",
+          "pontos": 3,
+          "categoria": "Social",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": "resistir_harano"
+          },
+          "nota_narrativa": "Sua mente se mantém firme diante da inevitabilidade do Apocalipse de Gaia."
+        },
+        {
+          "nome": "Película Espessa",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Mental",
+          "efeito_api": {
+            "modificador_dificuldade": 2,
+            "alvo_teste": ["atravessar_pelicula", "notar_espiritos"]
+          },
+          "nota_narrativa": "O Garou é espiritualmente 'cego', muito preso à dura realidade material."
+        },
+        {
+          "nome": "Magnetismo da Wyrm",
+          "tipo": "Defeito",
+          "pontos": 3,
+          "categoria": "Mental",
+          "efeito_api": {
+            "modificador_dificuldade_inimigo": -2,
+            "alvo_teste": "furtividade_contra_servos_wyrm"
+          },
+          "nota_narrativa": "Criaturas e servos da Devastadora sentem o seu cheiro espiritual a quilômetros."
+        },
+        {
+          "nome": "Monstro Desfigurado",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "aumenta_danos_colaterais": true,
+            "delirio_humano_violento": true
+          },
+          "nota_narrativa": "Suas garras e mandíbula são grotescas, quebrando qualquer chance de sutileza."
+        },
+        {
+          "nome": "Alergia a Prata Estrita",
+          "tipo": "Defeito",
+          "pontos": 4,
+          "categoria": "Física",
+          "efeito_api": {
+            "dano_por_turno_contato_prata": {
+              "quantidade": 1,
+              "tipo": "agravado",
+              "aplica_em_hominideo": true
+            }
+          },
+          "nota_narrativa": "O maior pesadelo biológico de um lobo nas ruas de São Paulo."
+        },
+        {
+          "nome": "Fúria Cega",
+          "tipo": "Defeito",
+          "pontos": 3,
+          "categoria": "Social",
+          "efeito_api": {
+            "modificador_dificuldade": 2,
+            "alvo_teste": "resistir_frenesi",
+            "gatilhos": ["dano_fisico", "insulto_social"]
+          },
+          "nota_narrativa": "O motor sobrenatural explode com facilidade, gerando caos irracional."
+        },
+        {
+          "nome": "Exilado da Seita",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "penalidade_dados": -2,
+            "alvo_teste": "testes_sociais_com_propria_tribo"
+          },
+          "nota_narrativa": "Você quebrou leis da Litania e não é bem-vindo nos santuários urbanos."
+        }
+      ]
+    },
+    "mago_m20": {
+      "sistema": "Mago: A Ascensão (M20)",
+      "lista": [
+        {
+          "nome": "Avatar Forte",
+          "tipo": "Qualidade",
+          "pontos": 3,
+          "categoria": "Mental",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": ["absorver_quintessencia", "canalizar_quintessencia"]
+          },
+          "nota_narrativa": "Seu espírito desperto possui uma conexão visceral e pura com o Primórdio."
+        },
+        {
+          "nome": "Resistência ao Paradoxo",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Mental",
+          "efeito_api": {
+            "reducao_acumulo_paradoxo": 1,
+            "condicao": "falha_magica_vulgar"
+          },
+          "nota_narrativa": "A realidade parece 'perdoar' seus pequenos deslizes contra o Consenso."
+        },
+        {
+          "nome": "Equilíbrio Perfeito",
+          "tipo": "Qualidade",
+          "pontos": 1,
+          "categoria": "Física",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": ["esportes", "atletismo_coordenacao"]
+          },
+          "nota_narrativa": "Útil para escapar de agentes da Tecnocracia pulando telhados no centro velho."
+        },
+        {
+          "nome": "Concentração Absoluta",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "ignora_penalidades_distracao": true,
+            "testes_afetados": ["meditacao", "conjuracao_esferas"]
+          },
+          "nota_narrativa": "Permite conjurar efeitos precisos mesmo sob o barulho da Marginal Tietê."
+        },
+        {
+          "nome": "Contatos na Burocracia",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": ["politica", "direito_desviar_investigacoes"]
+          },
+          "nota_narrativa": "Facilita a vida do mago infiltrado nos bastidores do Fórum da Barra Funda."
+        },
+        {
+          "nome": "Laços com a Tradição",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "modificador_dados": 1,
+            "alvo_teste": "interacoes_sociais_faccao",
+            "garante_refugio_seguro": true
+          },
+          "nota_narrativa": "Respeito e abrigo espiritual imediato garantidos na Basílica da Penha."
+        },
+        {
+          "nome": "Paradoxo Permanente",
+          "tipo": "Defeito",
+          "pontos": 3,
+          "categoria": "Mental",
+          "efeito_api": {
+            "pontos_paradoxo_travados": 2
+          },
+          "nota_narrativa": "Uma deformidade visível ou tique físico que a realidade pune constantemente."
+        },
+        {
+          "nome": "Avatar Insano / Destrutivo",
+          "tipo": "Defeito",
+          "pontos": 3,
+          "categoria": "Mental",
+          "efeito_api": {
+            "gatilho_surto_loucura": "falha_critica_rolagem_arete"
+          },
+          "nota_narrativa": "Seu Avatar exige a Ascensão através do caos, flertando com o perigo."
+        },
+        {
+          "nome": "Foco Rígido / Dependência",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "bloqueia_magica_sem_instrumento": true
+          },
+          "nota_narrativa": "Padrão para tecnomantes que dependem de hardware customizado da Santa Ifigênia."
+        },
+        {
+          "nome": "Vulnerabilidade Sobrenatural",
+          "tipo": "Defeito",
+          "pontos": 4,
+          "categoria": "Física",
+          "efeito_api": {
+            "dano_agravado_fonte_especifica": true
+          },
+          "nota_narrativa": "Seu corpo físico desprotegido reage terrivelmente às garras dos outros monstros."
+        },
+        {
+          "nome": "Caçado pela Tecnocracia",
+          "tipo": "Defeito",
+          "pontos": 4,
+          "categoria": "Social",
+          "efeito_api": {
+            "rastreio_automatica_bairros_tecnologicos": true,
+            "chance_emboscada_regiao_republica": 0.35
+          },
+          "nota_narrativa": "Câmeras de reconhecimento facial disparam alertas se você passar pelo centro."
+        },
+        {
+          "nome": "Segredo Sombrio",
+          "tipo": "Defeito",
+          "pontos": 1,
+          "categoria": "Social",
+          "efeito_api": {
+            "condicao_descoberta_perda_status": true,
+            "consequencia": "julgamento_pelo_conselho"
+          },
+          "nota_narrativa": "Você pode ter negociado com Nephandi ou vendido dados para os Ventrue."
+        }
+      ]
+    },
+    "cacador_h5": {
+      "sistema": "Caçador: A Revanche (H5)",
+      "lista": [
+        {
+          "nome": "Mente Blindada",
+          "tipo": "Qualidade",
+          "pontos": 3,
+          "categoria": "Mental",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": ["autocontrol", "determinacao"],
+            "condicao": "resistir_poderes_mentais_monstros"
+          },
+          "nota_narrativa": "Sua força de vontade e obstinação humana são extremamente difíceis de quebrar."
+        },
+        {
+          "nome": "Fé Inabalável",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Mental",
+          "efeito_api": {
+            "permite_teste_recuperacao_aflicao": {
+              "atributo": "determinacao",
+              "ignora_redencao_externa": true
+            }
+          },
+          "nota_narrativa": "Comum em caçadores do Credo Protetor infiltrados nas igrejas da Penha."
+        },
+        {
+          "nome": "Armeiro Clandestino",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "modificador_dificuldade": -2,
+            "alvo_teste": ["criar_itens_arsenal", "modificar_municao"]
+          },
+          "nota_narrativa": "Excelente para caçadores operários que utilizam galpões ocultos no Jaguaré."
+        },
+        {
+          "nome": "Tolerância a Toxinas",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "modificador_dados": 2,
+            "alvo_teste": "vigor_resistir_venenos_sangue_contaminado"
+          },
+          "nota_narrativa": "Seu corpo aguenta o tranco de compostos químicos perigosos e ambientes insalubres."
+        },
+        {
+          "nome": "Rede de Informantes",
+          "tipo": "Qualidade",
+          "pontos": 3,
+          "categoria": "Social",
+          "efeito_api": {
+            "modificador_dificuldade": -2,
+            "alvo_teste": ["investigacao", "manha_descobrir_fraqueza_inimiga"]
+          },
+          "nota_narrativa": "Conexões diretas com motoboys na Brasilândia ou seguranças na Vila Olímpia."
+        },
+        {
+          "nome": "Célula Coesa",
+          "tipo": "Qualidade",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "uso_limitado_por_aventura": 1,
+            "modificador_dados": 1,
+            "alvo_teste": ["social", "mental"],
+            "condicao": "aliados_na_mesma_cena"
+          },
+          "nota_narrativa": "O poder do suporte tático e da confiança mútua entre humanos comuns."
+        },
+        {
+          "nome": "Paranoia Obsessiva",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Mental",
+          "efeito_api": {
+            "penalidade_dados": -2,
+            "alvo_teste": ["sagacidade", "raciocinio"],
+            "condicao": "fora_de_caçada_ativa"
+          },
+          "nota_narrativa": "O caçador vê monstros em cada esquina, desgastando sua sanidade do dia a dia."
+        },
+        {
+          "nome": "Traumatizado",
+          "tipo": "Defeito",
+          "pontos": 1,
+          "categoria": "Mental",
+          "efeito_api": {
+            "perda_imediata_impeto": 1,
+            "condicao": "confrontar_tipo_especifico_monstro_gatilho"
+          },
+          "nota_narrativa": "Memórias brutais e paralisantes que travam o dedo no gatilho na hora H."
+        },
+        {
+          "nome": "Equipamento Defeituoso",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Física",
+          "efeito_api": {
+            "condicao_quebra_item": "falha_teste_fisico_arsenal",
+            "exige_reparo": "teste_oficios"
+          },
+          "nota_narrativa": "Drones ou armas montadas com peças baratas contrabandeadas da Santa Ifigênia."
+        },
+        {
+          "nome": "Dependência Chemical",
+          "tipo": "Defeito",
+          "pontos": 3,
+          "categoria": "Física",
+          "efeito_api": {
+            "penalidade_dados_sem_consumo": -1,
+            "alvo_penalidade": "testes_fisicos_em_combate"
+          },
+          "nota_narrativa": "Químicos e estimulantes usados para segurar o medo diante do terror urbano."
+        },
+        {
+          "nome": "Rastro Policial (Infiltrado)",
+          "tipo": "Defeito",
+          "pontos": 3,
+          "categoria": "Social",
+          "efeito_api": {
+            "bloqueia_transito_armas": ["Itaim Bibi", "Jardins", "Higienópolis"],
+            "chance_abordagem_policial": 0.25
+          },
+          "nota_narrativa": "Agências oficiais (DEIC) investigam suas ações vigilantes como terrorismo doméstico."
+        },
+        {
+          "nome": "Protetor de Pilares",
+          "tipo": "Defeito",
+          "pontos": 2,
+          "categoria": "Social",
+          "efeito_api": {
+            "gatilho_aflicao_automatica": "pilar_sofrer_dano_na_historia"
+          },
+          "nota_narrativa": "Você possui um familiar ou amigo inocente que virou o calcanhar de Aquiles dos monstros."
+        }
+      ]
+    }
+  }
+}
