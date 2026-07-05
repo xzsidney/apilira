@@ -25,7 +25,9 @@ app.use(cors());
 app.use(express.json());
 
 // Configure Swagger documentation
-setupSwagger(app);
+if (process.env.NODE_ENV !== "production") {
+  setupSwagger(app);
+}
 
 // API Routes
 app.use("/api/auth", authRoutes);
