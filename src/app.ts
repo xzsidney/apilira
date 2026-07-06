@@ -46,7 +46,16 @@ app.use("/api/adventures", adventureRoutes);
 app.use("/api/scenes", sceneRoutes);
 app.use("/api/actions", actionRoutes);
 
-// Base route for health check
+// Base routes
+app.get("/", (req: Request, res: Response) => {
+  res.json({
+    message: "LiraRPG API",
+    version: "1.0.0",
+    status: "online",
+    description: "Servidor de backend para o sistema LiraRPG."
+  });
+});
+
 app.get("/health", (req: Request, res: Response) => {
   res.json({ status: "OK", timestamp: new Date() });
 });
