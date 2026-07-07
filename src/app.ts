@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import path from "path";
 import authRoutes from "./routes/authRoutes";
 import characterRoutes from "./routes/characterRoutes";
 import attributeDefinitionRoutes from "./routes/attributeDefinitionRoutes";
@@ -35,7 +36,6 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Serve static files for uploaded images
-import path from "path";
 app.use("/uploads", express.static(path.join(__dirname, "../../public/uploads")));
 
 // API Routes
