@@ -16,6 +16,7 @@ import adventureRoutes from "./routes/adventureRoutes";
 import sceneRoutes from "./routes/sceneRoutes";
 import actionRoutes from "./routes/actionRoutes";
 import { setupSwagger } from "./config/swagger";
+import prisma from "./config/db";
 
 const app = express();
 
@@ -58,6 +59,25 @@ app.get("/", (req: Request, res: Response) => {
 
 app.get("/health", (req: Request, res: Response) => {
   res.json({ status: "OK", timestamp: new Date() });
+});
+
+app.get("/teste", async (req: Request, res: Response) => {
+  try {
+    // Tenta executar uma query super leve no banco de dados
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ 
+      status: "success", 
+      message: "Conexão com o banco de dados estabelecida com sucesso!" 
+    });
+  } catch (error: any) {
+    console.error("Erro no teste de banco:", error);
+    res.status(500).json({ 
+      status: "error", 
+      message: "Falha na conexão com o banco de dados.",
+      details: error.message,
+      stack: error.stack
+    });
+  }
 });
 
 // Global Error Handler
