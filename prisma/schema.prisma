@@ -17,7 +17,7 @@ model User {
   characters Character[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  @@map("user")
+
 }
 
 enum Role {
@@ -53,7 +53,7 @@ model Character {
   havens          CharacterHaven[]
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
-  @@map("character")
+
 }
 
 model AttributeDefinition {
@@ -66,7 +66,7 @@ model AttributeDefinition {
   updatedAt           DateTime             @updatedAt
 
   @@unique([name, type])
-  @@map("attributedefinition")
+
 }
 
 model CharacterAttribute {
@@ -80,7 +80,7 @@ model CharacterAttribute {
   description String?             @db.Text
 
   @@unique([characterId, attributeId])
-  @@map("characterattribute")
+
 }
 
 model SkillDefinition {
@@ -93,7 +93,7 @@ model SkillDefinition {
   updatedAt       DateTime         @updatedAt
 
   @@unique([name, type])
-  @@map("skilldefinition")
+
 }
 
 model CharacterSkill {
@@ -107,7 +107,7 @@ model CharacterSkill {
   description String?         @db.Text
 
   @@unique([characterId, skillId])
-  @@map("characterskill")
+
 }
 
 model StatusDefinition {
@@ -122,7 +122,7 @@ model StatusDefinition {
   updatedAt           DateTime          @updatedAt
 
   @@unique([name, gameStyle])
-  @@map("statusdefinition")
+
 }
 
 model CharacterStatus {
@@ -134,7 +134,7 @@ model CharacterStatus {
   value       Int              @default(0)
 
   @@unique([characterId, statusId])
-  @@map("characterstatus")
+
 }
 
 enum PowerType {
@@ -156,7 +156,7 @@ model PowerDefinition {
   updatedAt       DateTime               @updatedAt
 
   @@unique([name, gameStyle])
-  @@map("powerdefinition")
+
 }
 
 model PowerLevelDefinition {
@@ -172,7 +172,7 @@ model PowerLevelDefinition {
   updatedAt           DateTime                  @updatedAt
 
   @@unique([powerDefinitionId, level, name])
-  @@map("powerleveldefinition")
+
 }
 
 model CharacterPower {
@@ -185,7 +185,7 @@ model CharacterPower {
   selections        CharacterPowerSelection[]
 
   @@unique([characterId, powerDefinitionId])
-  @@map("characterpower")
+
 }
 
 model CharacterPowerSelection {
@@ -196,7 +196,7 @@ model CharacterPowerSelection {
   powerLevelDefinition   PowerLevelDefinition @relation(fields: [powerLevelDefinitionId], references: [id], onDelete: Cascade)
 
   @@unique([characterPowerId, powerLevelDefinitionId])
-  @@map("characterpowerselection")
+
 }
 
 enum MeritFlawType {
@@ -220,7 +220,7 @@ model MeritFlawDefinition {
   updatedAt       DateTime             @updatedAt
 
   @@unique([name, gameStyle, type])
-  @@map("meritflawdefinition")
+
 }
 
 model CharacterMeritFlaw {
@@ -233,7 +233,7 @@ model CharacterMeritFlaw {
   description String?             @db.Text
 
   @@unique([characterId, meritFlawId])
-  @@map("charactermeritflaw")
+
 }
 
 model ItemDefinition {
@@ -248,7 +248,7 @@ model ItemDefinition {
   characterItems CharacterItem[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  @@map("itemdefinition")
+
 }
 
 model CharacterItem {
@@ -261,7 +261,7 @@ model CharacterItem {
   description    String?        @db.Text
 
   @@unique([characterId, itemId])
-  @@map("characteritem")
+
 }
 
 model Region {
@@ -289,7 +289,7 @@ model Region {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  @@map("region")
+
 }
 
 // ----- Tabelas de Perfil (Os "Tipos" das Coisas) -----
@@ -303,7 +303,7 @@ model DemographicProfile {
   regions     RegionDemographic[]
 
   @@unique([species, socialClass, profession])
-  @@map("demographicprofile")
+
 }
 
 model Criminality {
@@ -312,7 +312,7 @@ model Criminality {
   severity    String // Ex: Alto, Médio, Baixo
   description String?             @db.Text
   regions     RegionCriminality[]
-  @@map("criminality")
+
 }
 
 model MediaVisibility {
@@ -321,7 +321,7 @@ model MediaVisibility {
   severity    String // Alto, Médio, Baixo
   description String?                 @db.Text
   regions     RegionMediaVisibility[]
-  @@map("mediavisibility")
+
 }
 
 model PublicSecurity {
@@ -329,7 +329,7 @@ model PublicSecurity {
   securityType String // Ex: GCM, PM, Segurança Privada
   description  String?                @db.Text
   regions      RegionPublicSecurity[]
-  @@map("publicsecurity")
+
 }
 
 model Wealth {
@@ -337,7 +337,7 @@ model Wealth {
   wealthType  String // Ex: Pobreza Extrema, Classe Média, Luxo
   description String?        @db.Text
   regions     RegionWealth[]
-  @@map("wealth")
+
 }
 
 // ----- Tabelas Associativas (O Estado Atual da Região) -----
@@ -351,7 +351,7 @@ model RegionDemographic {
   demographicProfile DemographicProfile @relation(fields: [demographicProfileId], references: [id], onDelete: Cascade)
 
   @@id([regionId, demographicProfileId])
-  @@map("regiondemographic")
+
 }
 
 model RegionCriminality {
@@ -363,7 +363,7 @@ model RegionCriminality {
   criminality Criminality @relation(fields: [criminalityId], references: [id], onDelete: Cascade)
 
   @@id([regionId, criminalityId])
-  @@map("regioncriminality")
+
 }
 
 model RegionMediaVisibility {
@@ -375,7 +375,7 @@ model RegionMediaVisibility {
   mediaVisibility MediaVisibility @relation(fields: [mediaVisibilityId], references: [id], onDelete: Cascade)
 
   @@id([regionId, mediaVisibilityId])
-  @@map("regionmediavisibility")
+
 }
 
 model RegionPublicSecurity {
@@ -387,7 +387,7 @@ model RegionPublicSecurity {
   publicSecurity PublicSecurity @relation(fields: [publicSecurityId], references: [id], onDelete: Cascade)
 
   @@id([regionId, publicSecurityId])
-  @@map("regionpublicsecurity")
+
 }
 
 model RegionWealth {
@@ -399,7 +399,7 @@ model RegionWealth {
   wealth Wealth @relation(fields: [wealthId], references: [id], onDelete: Cascade)
 
   @@id([regionId, wealthId])
-  @@map("regionwealth")
+
 }
 
 model BackgroundDefinition {
@@ -412,7 +412,7 @@ model BackgroundDefinition {
   updatedAt            DateTime              @updatedAt
 
   @@unique([name, gameStyle])
-  @@map("backgrounddefinition")
+
 }
 
 model CharacterBackground {
@@ -424,7 +424,7 @@ model CharacterBackground {
   level        Int                  @default(1)
 
   @@unique([characterId, backgroundId])
-  @@map("characterbackground")
+
 }
 
 model HavenDefinition {
@@ -439,7 +439,7 @@ model HavenDefinition {
   characterHavens      CharacterHaven[]
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
-  @@map("havendefinition")
+
 }
 
 model CharacterHaven {
@@ -450,7 +450,7 @@ model CharacterHaven {
   havenDefinition   HavenDefinition @relation(fields: [havenDefinitionId], references: [id], onDelete: Cascade)
   regionId          String
   region            Region          @relation(fields: [regionId], references: [id])
-  @@map("characterhaven")
+
 }
 
 // ----- Módulo de Aventuras Interativas (Livro-Jogo / Acervo M:N) -----
@@ -463,7 +463,7 @@ model Adventure {
   scenes      AdventureScene[] // Relacionamento M:N
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
-  @@map("adventure")
+
 }
 
 // Acervo de Cenas Independentes
@@ -486,7 +486,7 @@ model Scene {
 
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  @@map("scene")
+
 }
 
 // Acervo de Ações Genéricas/Específicas Independentes
@@ -502,7 +502,7 @@ model Action {
 
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  @@map("action")
+
 }
 
 // Tabela Associativa M:N (Adventure <-> Scene)
@@ -517,7 +517,7 @@ model AdventureScene {
   order       Int       @default(0)
 
   @@unique([adventureId, sceneId])
-  @@map("adventurescene")
+
 }
 
 // Tabela Associativa M:N (Scene <-> Action)
@@ -539,5 +539,5 @@ model SceneAction {
   order          Int     @default(0)
 
   @@unique([sceneId, actionId])
-  @@map("sceneaction")
+
 }
