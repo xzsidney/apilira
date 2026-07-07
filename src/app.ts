@@ -110,8 +110,10 @@ app.get("/teste", async (req: Request, res: Response) => {
 // Rota manual para forçar o reinício da API (Útil para recuperar o Prisma)
 app.get("/resetQA", (req: Request, res: Response) => {
   console.log("Reinício manual solicitado via /resetQA");
-  res.json({ message: "Servidor reiniciando em 1 segundo..." });
   
+  let resultMessage = "Comando de restart enviado.";
+  let errorDetails = null;
+
   // Tenta tocar o arquivo restart.txt padrão do Phusion Passenger
   try {
     const fs = require('fs');
@@ -121,11 +123,20 @@ app.get("/resetQA", (req: Request, res: Response) => {
       fs.mkdirSync(path.dirname(restartFile), { recursive: true });
     }
     fs.writeFileSync(restartFile, new Date().toISOString());
-  } catch (e) {
-    // ignore
+    resultMessage = "Arquivo tmp/restart.txt atualizado com sucesso. O Phusion Passenger vai reiniciar a aplicação.";
+  } catch (e: any) {
+    errorDetails = e.message || String(e);
+    resultMessage = "Falha ao criar o arquivo tmp/restart.txt. Usando apenas process.exit(1).";
   }
 
-  // E também força a saída do processo
+  res.json({ 
+    status: errorDetails ? "warning" : "success",
+    message: resultMessage, 
+    error: errorDetails,
+    action: "O processo será morto (process.exit) em 1 segundo para forçar reinício."
+  });
+
+  // Força a saída do processo
   setTimeout(() => process.exit(1), 1000);
 });
 
