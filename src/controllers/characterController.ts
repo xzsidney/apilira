@@ -112,7 +112,7 @@ export const listCharacters = async (req: AuthenticatedRequest, res: Response) =
     const characters = await prisma.character.findMany({
       where: { userId: req.userId },
       include: {
-        attributes: true,
+        attributes: { include: { attribute: true } },
         skills: true,
         statuses: { include: { status: true } },
         powers: {
@@ -149,7 +149,7 @@ export const getCharacter = async (req: AuthenticatedRequest, res: Response) => 
         userId: req.userId,
       },
       include: {
-        attributes: true,
+        attributes: { include: { attribute: true } },
         skills: true,
         statuses: { include: { status: true } },
         powers: {
@@ -322,7 +322,7 @@ export const updateCharacter = async (req: AuthenticatedRequest, res: Response) 
       return await tx.character.findUnique({
         where: { id },
         include: {
-          attributes: true,
+          attributes: { include: { attribute: true } },
           skills: true,
           statuses: { include: { status: true } },
           powers: {

@@ -34,6 +34,10 @@ if (process.env.NODE_ENV !== "production") {
   setupSwagger(app);
 }
 
+// Serve static files for uploaded images
+import path from "path";
+app.use("/uploads", express.static(path.join(__dirname, "../../public/uploads")));
+
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/characters", characterRoutes);
