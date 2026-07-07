@@ -21,25 +21,6 @@ import prisma from "./config/db";
 
 const app = express();
 
-// Workaround for Hostinger/Phusion Passenger freezing Node.js and causing Prisma panics
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const originalJson = res.json;
-  res.json = function (body) {
-    try {
-      const bodyString = JSON.stringify(body);
-      if (bodyString.includes("timer has gone away") || bodyString.includes("Query engine exited with code")) {
-        console.error("FATAL: Prisma Engine Panic Detected! Forcing Node.js restart to recover...");
-        // Schedule a process exit so Passenger restarts the app with a fresh Prisma instance
-        setTimeout(() => process.exit(1), 100);
-      }
-    } catch (e) {
-      // ignore stringify errors
-    }
-    return originalJson.call(this, body);
-  };
-  next();
-});
-
 // Security and utility middlewares
 app.use(helmet());
 app.use(cors({
@@ -105,39 +86,6 @@ app.get("/teste", async (req: Request, res: Response) => {
       stack: error.stack
     });
   }
-});
-
-// Rota manual para forçar o reinício da API (Útil para recuperar o Prisma)
-app.get("/resetQA", (req: Request, res: Response) => {
-  console.log("Reinício manual solicitado via /resetQA");
-  
-  let resultMessage = "Comando de restart enviado.";
-  let errorDetails = null;
-
-  // Tenta tocar o arquivo restart.txt padrão do Phusion Passenger
-  try {
-    const fs = require('fs');
-    const path = require('path');
-    const restartFile = path.join(__dirname, '../../tmp/restart.txt');
-    if (!fs.existsSync(path.dirname(restartFile))) {
-      fs.mkdirSync(path.dirname(restartFile), { recursive: true });
-    }
-    fs.writeFileSync(restartFile, new Date().toISOString());
-    resultMessage = "Arquivo tmp/restart.txt atualizado com sucesso. O Phusion Passenger vai reiniciar a aplicação.";
-  } catch (e: any) {
-    errorDetails = e.message || String(e);
-    resultMessage = "Falha ao criar o arquivo tmp/restart.txt. Usando apenas process.exit(1).";
-  }
-
-  res.json({ 
-    status: errorDetails ? "warning" : "success",
-    message: resultMessage, 
-    error: errorDetails,
-    action: "O processo será morto (process.exit) em 1 segundo para forçar reinício."
-  });
-
-  // Força a saída do processo
-  setTimeout(() => process.exit(1), 1000);
 });
 
 // Global Error Handler
