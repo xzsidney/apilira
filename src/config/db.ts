@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+// Arquivo de compatibilidade — exporta a instância do Sequelize
+// Anteriormente exportava o PrismaClient, agora exporta o Sequelize
+import sequelize from "./database";
 
-const prisma = new PrismaClient();
-
-export default prisma;
+export default sequelize;

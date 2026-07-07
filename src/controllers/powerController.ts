@@ -1,17 +1,14 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { characterPowerInputSchema } from "../schemas/powerSchemas";
 import { z } from "zod";
+import { CharacterPower, CharacterPowerSelection, sequelize } from "../models";
 
 export const getCharacterPowers = async (req: Request, res: Response): Promise<void> => {
   try {
     const { characterId } = req.params;
-    const records = await prisma.characterPower.findMany({
+    const records = await CharacterPower.findAll({
       where: { characterId },
-      include: { 
-        powerDefinition: { include: { powerLevels: true } },
-        selections: { include: { powerLevelDefinition: true } }
-      },
+      include: { all: true, nested: true }
     });
     res.json(records);
   } catch (error) {
@@ -25,8 +22,8 @@ export const assignCharacterPower = async (req: Request, res: Response): Promise
     const { characterId } = req.params;
     const data = characterPowerInputSchema.parse(req.body);
 
-    const existing = await prisma.characterPower.findUnique({
-      where: { characterId_powerDefinitionId: { characterId, powerDefinitionId: data.powerDefinitionId } }
+    const existing = await CharacterPower.findOne({
+      where: { characterId, powerDefinitionId: data.powerDefinitionId }
     });
 
     if (existing) {
@@ -34,22 +31,34 @@ export const assignCharacterPower = async (req: Request, res: Response): Promise
       return;
     }
 
-    const newRecord = await prisma.characterPower.create({
-      data: {
+    const t = await sequelize.transaction();
+    try {
+      const newRecord = await CharacterPower.create({
         characterId,
         powerDefinitionId: data.powerDefinitionId,
         level: data.level,
-        selections: {
-          create: data.selections
-        }
-      },
-      include: { 
-        powerDefinition: { include: { powerLevels: true } },
-        selections: { include: { powerLevelDefinition: true } }
-      }
-    });
+      } as any, { transaction: t });
 
-    res.status(201).json(newRecord);
+      if (data.selections && data.selections.length > 0) {
+        await CharacterPowerSelection.bulkCreate(
+          data.selections.map(s => ({
+            characterPowerId: newRecord.id,
+            powerLevelDefinitionId: s.powerLevelDefinitionId
+          })) as any,
+          { transaction: t }
+        );
+      }
+
+      await t.commit();
+      
+      const record = await CharacterPower.findByPk(newRecord.id, {
+        include: { all: true, nested: true }
+      });
+      res.status(201).json(record);
+    } catch (e) {
+      await t.rollback();
+      throw e;
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ errors: error.errors });
@@ -65,32 +74,33 @@ export const updateCharacterPower = async (req: Request, res: Response): Promise
     const { id } = req.params; 
     const data = characterPowerInputSchema.partial().parse(req.body);
 
-    const updated = await prisma.$transaction(async (tx) => {
+    const t = await sequelize.transaction();
+    try {
       if (data.selections) {
-        await tx.characterPowerSelection.deleteMany({ where: { characterPowerId: id }});
+        await CharacterPowerSelection.destroy({ where: { characterPowerId: id }, transaction: t });
         if (data.selections.length > 0) {
-          await tx.characterPowerSelection.createMany({
-            data: data.selections.map(s => ({
+          await CharacterPowerSelection.bulkCreate(
+            data.selections.map(s => ({
               characterPowerId: id,
               powerLevelDefinitionId: s.powerLevelDefinitionId
-            }))
-          });
+            })) as any,
+            { transaction: t }
+          );
         }
       }
 
-      return await tx.characterPower.update({
-        where: { id },
-        data: {
-          level: data.level
-        },
-        include: { 
-          powerDefinition: { include: { powerLevels: true } },
-          selections: { include: { powerLevelDefinition: true } }
-        }
+      await CharacterPower.update({ level: data.level } as any, { where: { id }, transaction: t });
+      
+      await t.commit();
+      
+      const updated = await CharacterPower.findByPk(id, {
+        include: { all: true, nested: true }
       });
-    });
-
-    res.json(updated);
+      res.json(updated);
+    } catch (e) {
+      await t.rollback();
+      throw e;
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ errors: error.errors });
@@ -104,7 +114,7 @@ export const updateCharacterPower = async (req: Request, res: Response): Promise
 export const unassignCharacterPower = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.characterPower.delete({ where: { id } });
+    await CharacterPower.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

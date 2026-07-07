@@ -1,14 +1,13 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { createActionSchema, linkSceneToActionSchema } from '../schemas/adventureSchemas';
 import { z } from 'zod';
+import { Action, SceneAction } from "../models";
 
-const prisma = new PrismaClient();
 
 export const createAction = async (req: Request, res: Response): Promise<void> => {
   try {
     const data = createActionSchema.parse(req.body);
-    const action = await prisma.action.create({ data });
+    const action = await Action.create(data as any);
     res.status(201).json(action);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -21,7 +20,7 @@ export const createAction = async (req: Request, res: Response): Promise<void> =
 
 export const getActions = async (req: Request, res: Response): Promise<void> => {
   try {
-    const actions = await prisma.action.findMany();
+    const actions = await Action.findAll();
     res.json(actions);
   } catch (error) {
     res.status(500).json({ error: 'Erro ao buscar ações' });
@@ -33,7 +32,7 @@ export const linkActionToScene = async (req: Request, res: Response): Promise<vo
     const { sceneId, actionId } = req.params;
     const data = linkSceneToActionSchema.parse(req.body);
 
-    const link = await prisma.sceneAction.create({
+    const link = await SceneAction.create({
       data: {
         sceneId,
         actionId,

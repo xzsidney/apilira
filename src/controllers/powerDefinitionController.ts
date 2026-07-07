@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { powerDefinitionSchema } from "../schemas/powerSchemas";
 import { z } from "zod";
+import { PowerDefinition, PowerLevelDefinition } from "../models";
 
 export const getPowerDefinitions = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -14,9 +14,9 @@ export const getPowerDefinitions = async (req: Request, res: Response): Promise<
       };
     }
     
-    const definitions = await prisma.powerDefinition.findMany({ 
+    const definitions = await PowerDefinition.findAll({ 
       where: whereClause,
-      include: { powerLevels: true }
+      include: [{ model: PowerLevelDefinition, as: 'powerLevels' }]
     });
     res.json(definitions);
   } catch (error) {
@@ -29,8 +29,8 @@ export const createPowerDefinition = async (req: Request, res: Response): Promis
   try {
     const data = powerDefinitionSchema.parse(req.body);
     
-    const existing = await prisma.powerDefinition.findUnique({
-      where: { name_gameStyle: { name: data.name, gameStyle: data.gameStyle } }
+    const existing = await PowerDefinition.findOne({
+      where: { name: data.name, gameStyle: data.gameStyle }
     });
     
     if (existing) {
@@ -40,14 +40,14 @@ export const createPowerDefinition = async (req: Request, res: Response): Promis
 
     const { powerLevels, ...defData } = data;
 
-    const newDef = await prisma.powerDefinition.create({ 
+    const newDef = await PowerDefinition.create({ 
       data: {
         ...defData,
         powerLevels: {
           create: powerLevels || []
         }
       },
-      include: { powerLevels: true }
+      include: [{ model: PowerLevelDefinition, as: 'powerLevels' }]
     });
     res.status(201).json(newDef);
   } catch (error) {
@@ -68,11 +68,7 @@ export const updatePowerDefinition = async (req: Request, res: Response): Promis
     const { powerLevels, ...defData } = data;
 
     // To properly update, we'll just update the top level fields. Updating nested array is complex and beyond simple CRUD here, but could be added.
-    const updatedDef = await prisma.powerDefinition.update({
-      where: { id },
-      data: defData,
-      include: { powerLevels: true }
-    });
+    const updatedDef = await PowerDefinition.update(data as any, { where: { id } });
     res.json(updatedDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -87,7 +83,7 @@ export const updatePowerDefinition = async (req: Request, res: Response): Promis
 export const deletePowerDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.powerDefinition.delete({ where: { id } });
+    await PowerDefinition.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

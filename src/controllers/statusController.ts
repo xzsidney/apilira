@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { characterStatusSchema, characterStatusUpdateSchema } from "../schemas/statusSchemas";
 import { z } from "zod";
+import { CharacterStatus, StatusDefinition } from "../models";
 
 export const getCharacterStatuses = async (req: Request, res: Response): Promise<void> => {
   try {
     const { characterId } = req.params;
-    const records = await prisma.characterStatus.findMany({
+    const records = await CharacterStatus.findAll({
       where: { characterId },
-      include: { status: true },
+      include: [{ model: StatusDefinition, as: 'status' }],
     });
     res.json(records);
   } catch (error) {
@@ -22,11 +22,7 @@ export const updateCharacterStatus = async (req: Request, res: Response): Promis
     const { id } = req.params; // this is the ID of CharacterStatus
     const data = characterStatusUpdateSchema.parse(req.body);
 
-    const updated = await prisma.characterStatus.update({
-      where: { id },
-      data,
-      include: { status: true }
-    });
+    const updated = await CharacterStatus.update(data as any, { where: { id } });
 
     res.json(updated);
   } catch (error) {

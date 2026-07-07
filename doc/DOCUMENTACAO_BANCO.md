@@ -1,6 +1,9 @@
 # LiraRPG - Documentação do Banco de Dados e API
 
-Este documento serve como mapa definitivo da estrutura do banco de dados (Prisma/MySQL) do sistema. O banco é desenhado usando o padrão de **Catálogos Globais** (Definitions) para permitir escalabilidade e suporte a infinitos sistemas (Vampiro, Lobisomem, Mago, etc.) sem alterar o código-fonte.
+Este documento serve como mapa definitivo da estrutura do banco de dados (**Sequelize / MySQL**) do sistema. Anteriormente baseado em Prisma, o motor do banco foi totalmente migrado para o Sequelize (com driver `mysql2`), resolvendo problemas de conexão e quedas ("PANIC: timer has gone away") ocorridos na Hostinger e em hospedagens compartilhadas. O banco é desenhado usando o padrão de **Catálogos Globais** (Definitions) para permitir escalabilidade e suporte a infinitos sistemas (Vampiro, Lobisomem, Mago, etc.) sem alterar o código-fonte.
+
+> [!NOTE]
+> A API conecta-se ao banco instanciando o Singleton exportado em `src/config/db.ts`. O esquema do banco não utiliza mais o `schema.prisma`. Qualquer alteração nas tabelas deve ser feita diretamente nas classes (Models) localizadas na pasta `src/models/`.
 
 ---
 
@@ -21,11 +24,14 @@ A entidade central do jogador. Ela não armazena pontos de Atributos ou Itens di
 - **`id`** *(String, UUID)*: Identificador único do personagem.
 - **`name`** *(String)*: Nome do personagem no jogo.
 - **`gameStyle`** *(Enum)*: Sistema ao qual pertence (`VAMPIRE`, `WEREWOLF`, `MAGE`, `HUNTER`). Define quais regras se aplicam.
+- **`avatarUrl`** *(String, Opcional)*: URL da imagem/retrato do personagem (upload).
+- **`clanId`** *(String, FK, Opcional)*: Chave estrangeira que aponta para a tabela `ClanDefinition`.
 - **`experienceTotal`** *(Int)*: Experiência total ganha.
 - **`experienceSpent`** *(Int)*: Experiência gasta.
 - **`isNpc`** *(Boolean)*: Define se a ficha é controlada pelo Mestre (Verdadeiro) ou por um Jogador (Falso). Permite reaproveitar 100% da arquitetura da ficha para os monstros da crônica.
 - **`isTemplate`** *(Boolean)*: Define se a ficha é um "Molde" (ex: "Policial Genérico") que pode ser clonado várias vezes.
 - **`userId`** *(String, FK)*: Chave estrangeira que aponta para o `User` dono da ficha.
+- **`createdAt` / `updatedAt`** *(DateTime)*: Datas de auditoria.
 - **`createdAt` / `updatedAt`** *(DateTime)*: Datas de auditoria.
 
 ---
@@ -39,6 +45,13 @@ As estatísticas base do sistema (Ex: Força, Destreza, Vigor, Carisma).
 - **`name`** *(String)*: Nome do atributo (ex: "Inteligência").
 - **`type`** *(String)*: Categoria, útil para separar se é um atributo universal ou específico (Ex: "UNIVERSAL").
 - **`description`** *(String, Opcional)*: Texto explicativo.
+
+### **`ClanDefinition`**
+Os Clãs ou tribos aos quais o personagem pertence (Ex: Brujah, Ventrue).
+- **`id`** *(String, UUID)*: Identificador.
+- **`name`** *(String)*: Nome do clã.
+- **`gameStyle`** *(String)*: Sistema (Ex: "VAMPIRE").
+- **`description`** *(String, Opcional)*: Texto explicativo e lore.
 
 ### **`SkillDefinition`**
 As habilidades e conhecimentos técnicos (Ex: Furtividade, Sobrevivência, Medicina).
@@ -139,8 +152,16 @@ Se o jogador tem Rapidez Nível 2 na tabela `CharacterPower`, ele terá 2 linhas
 
 ---
 
-## 4. Como Navegar na API
+## 4. Como Navegar na API e Conectar
 Todas essas entidades podem ser testadas e modificadas acessando:
 🔗 **`http://localhost:3001/api-docs`**
 
-Ao acessar o Swagger, você terá a lista com todas as descrições e botões para executar as rotas diretamente do navegador (Basta fazer o login e clicar em "Authorize" com o Token).
+Ao acessar o Swagger, você terá a lista detalhada com todas as descrições dos endpoints, esquemas de entrada (JSON), e botões "Try it out" para executar as rotas diretamente do navegador sem precisar do Postman. (Basta fazer o login na rota `/api/auth/login` e clicar em "Authorize" colando o Token).
+
+> [!IMPORTANT]
+> A URL do painel de administração / hospedagem do Hostinger usa a credencial `mysql://u328169675_sidmax:XZspl5127912@127.0.0.1:3306/u328169675_rpgnew`. Ao rodar a aplicação em ambiente de produção, garanta que a variável `DATABASE_URL` no `.env` possua essa formatação exata ou preencha as variáveis particionadas (`DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`).
+
+### Testando a conexão com o banco
+Foi criada uma rota leve de "ping" no banco de dados, ignorando a sobrecarga do ORM para verificar falhas na nuvem:
+- `GET /teste`
+Retorna uma mensagem de sucesso garantindo que a comunicação entre Node e MySQL2 está funcionando corretamente.

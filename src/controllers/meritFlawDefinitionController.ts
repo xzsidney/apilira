@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { meritFlawDefinitionSchema } from "../schemas/meritFlawSchemas";
 import { z } from "zod";
+import { MeritFlawDefinition } from "../models";
 
 export const getMeritFlawDefinitions = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -14,7 +14,7 @@ export const getMeritFlawDefinitions = async (req: Request, res: Response): Prom
       };
     }
     
-    const definitions = await prisma.meritFlawDefinition.findMany({ where: whereClause });
+    const definitions = await MeritFlawDefinition.findAll({ where: whereClause });
     res.json(definitions);
   } catch (error) {
     console.error(error);
@@ -26,8 +26,8 @@ export const createMeritFlawDefinition = async (req: Request, res: Response): Pr
   try {
     const data = meritFlawDefinitionSchema.parse(req.body);
     
-    const existing = await prisma.meritFlawDefinition.findUnique({
-      where: { name_gameStyle_type: { name: data.name, gameStyle: data.gameStyle, type: data.type } }
+    const existing = await MeritFlawDefinition.findOne({
+      where: { name: data.name, gameStyle: data.gameStyle, type: data.type }
     });
     
     if (existing) {
@@ -35,7 +35,7 @@ export const createMeritFlawDefinition = async (req: Request, res: Response): Pr
       return;
     }
 
-    const newDef = await prisma.meritFlawDefinition.create({ data });
+    const newDef = await MeritFlawDefinition.create(data as any);
     res.status(201).json(newDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -52,10 +52,8 @@ export const updateMeritFlawDefinition = async (req: Request, res: Response): Pr
     const { id } = req.params;
     const data = meritFlawDefinitionSchema.partial().parse(req.body);
 
-    const updatedDef = await prisma.meritFlawDefinition.update({
-      where: { id },
-      data,
-    });
+    await MeritFlawDefinition.update(data as any, { where: { id } });
+    const updatedDef = await MeritFlawDefinition.findByPk(id);
     res.json(updatedDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -70,7 +68,7 @@ export const updateMeritFlawDefinition = async (req: Request, res: Response): Pr
 export const deleteMeritFlawDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.meritFlawDefinition.delete({ where: { id } });
+    await MeritFlawDefinition.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

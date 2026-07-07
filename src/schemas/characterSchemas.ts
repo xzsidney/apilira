@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { GameStyle } from "@prisma/client";
+import { GameStyle } from "../types/enums";
 import { characterPowerInputSchema } from "./powerSchemas";
 
 const characterAttributeInputSchema = z.object({

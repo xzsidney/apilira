@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import prisma from '../config/db';
 import { havenDefinitionSchema, havenDefinitionUpdateSchema } from '../schemas/havenDefinitionSchemas';
+import { HavenDefinition } from "../models";
 
 export const getHavenDefinitions = async (req: Request, res: Response): Promise<void> => {
   try {
-    const havens = await prisma.havenDefinition.findMany();
+    const havens = await HavenDefinition.findAll();
     res.json(havens);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch HavenDefinitions' });
@@ -14,7 +14,7 @@ export const getHavenDefinitions = async (req: Request, res: Response): Promise<
 export const getHavenDefinitionById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const haven = await prisma.havenDefinition.findUnique({
+    const haven = await HavenDefinition.findOne({
       where: { id },
     });
     if (!haven) {
@@ -30,9 +30,7 @@ export const getHavenDefinitionById = async (req: Request, res: Response): Promi
 export const createHavenDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const parsedData = havenDefinitionSchema.parse(req.body);
-    const newHaven = await prisma.havenDefinition.create({
-      data: parsedData,
-    });
+    const newHaven = await HavenDefinition.create(parsedData as any);
     res.status(201).json(newHaven);
   } catch (error: any) {
     if (error.name === 'ZodError') {
@@ -47,10 +45,7 @@ export const updateHavenDefinition = async (req: Request, res: Response): Promis
   try {
     const { id } = req.params;
     const parsedData = havenDefinitionUpdateSchema.parse(req.body);
-    const updatedHaven = await prisma.havenDefinition.update({
-      where: { id },
-      data: parsedData,
-    });
+    const updatedHaven = await HavenDefinition.update(parsedData as any, { where: { id } });
     res.json(updatedHaven);
   } catch (error: any) {
     if (error.name === 'ZodError') {
@@ -64,9 +59,7 @@ export const updateHavenDefinition = async (req: Request, res: Response): Promis
 export const deleteHavenDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.havenDefinition.delete({
-      where: { id },
-    });
+    await HavenDefinition.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete HavenDefinition' });

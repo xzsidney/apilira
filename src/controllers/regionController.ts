@@ -1,19 +1,12 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { regionSchema } from "../schemas/regionSchemas";
 import { z } from "zod";
+import { Region, Criminality, MediaVisibility, PublicSecurity, Wealth, DemographicProfile, sequelize } from "../models";
 
 export const getRegions = async (req: Request, res: Response): Promise<void> => {
   try {
-    const regions = await prisma.region.findMany({
-      include: {
-        childRegions: true,
-        criminalities: { include: { criminality: true } },
-        mediaVisibilities: { include: { mediaVisibility: true } },
-        publicSecurities: { include: { publicSecurity: true } },
-        wealths: { include: { wealth: true } },
-        demographics: { include: { demographicProfile: true } },
-      },
+    const regions = await Region.findAll({
+      include: { all: true, nested: true }
     });
     res.json(regions);
   } catch (error) {
@@ -27,17 +20,34 @@ export const createRegion = async (req: Request, res: Response): Promise<void> =
     const data = regionSchema.parse(req.body);
     const { criminalities, mediaVisibilities, publicSecurities, wealths, demographics, ...regionData } = data;
     
-    const newRegion = await prisma.region.create({ 
-      data: {
-        ...regionData,
-        criminalities: criminalities ? { create: criminalities } : undefined,
-        mediaVisibilities: mediaVisibilities ? { create: mediaVisibilities } : undefined,
-        publicSecurities: publicSecurities ? { create: publicSecurities } : undefined,
-        wealths: wealths ? { create: wealths } : undefined,
-        demographics: demographics ? { create: demographics } : undefined,
-      } 
-    });
-    res.status(201).json(newRegion);
+    const t = await sequelize.transaction();
+    try {
+      const newRegion = await Region.create(regionData as any, { transaction: t });
+      
+      if (criminalities) {
+        await Criminality.bulkCreate(criminalities.map(c => ({ ...c, regionId: newRegion.id })) as any, { transaction: t });
+      }
+      if (mediaVisibilities) {
+        await MediaVisibility.bulkCreate(mediaVisibilities.map(m => ({ ...m, regionId: newRegion.id })) as any, { transaction: t });
+      }
+      if (publicSecurities) {
+        await PublicSecurity.bulkCreate(publicSecurities.map(p => ({ ...p, regionId: newRegion.id })) as any, { transaction: t });
+      }
+      if (wealths) {
+        await Wealth.bulkCreate(wealths.map(w => ({ ...w, regionId: newRegion.id })) as any, { transaction: t });
+      }
+      if (demographics) {
+        await DemographicProfile.bulkCreate(demographics.map(d => ({ ...d, regionId: newRegion.id })) as any, { transaction: t });
+      }
+
+      await t.commit();
+      
+      const createdRegion = await Region.findByPk(newRegion.id, { include: { all: true, nested: true } });
+      res.status(201).json(createdRegion);
+    } catch (e) {
+      await t.rollback();
+      throw e;
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ errors: error.errors });
@@ -54,18 +64,39 @@ export const updateRegion = async (req: Request, res: Response): Promise<void> =
     const data = regionSchema.partial().parse(req.body);
     const { criminalities, mediaVisibilities, publicSecurities, wealths, demographics, ...regionData } = data;
 
-    const updatedRegion = await prisma.region.update({
-      where: { id },
-      data: {
-        ...regionData,
-        ...(criminalities && { criminalities: { deleteMany: {}, create: criminalities } }),
-        ...(mediaVisibilities && { mediaVisibilities: { deleteMany: {}, create: mediaVisibilities } }),
-        ...(publicSecurities && { publicSecurities: { deleteMany: {}, create: publicSecurities } }),
-        ...(wealths && { wealths: { deleteMany: {}, create: wealths } }),
-        ...(demographics && { demographics: { deleteMany: {}, create: demographics } }),
-      },
-    });
-    res.json(updatedRegion);
+    const t = await sequelize.transaction();
+    try {
+      await Region.update(regionData as any, { where: { id }, transaction: t });
+
+      if (criminalities) {
+        await Criminality.destroy({ where: { regionId: id }, transaction: t });
+        await Criminality.bulkCreate(criminalities.map(c => ({ ...c, regionId: id })) as any, { transaction: t });
+      }
+      if (mediaVisibilities) {
+        await MediaVisibility.destroy({ where: { regionId: id }, transaction: t });
+        await MediaVisibility.bulkCreate(mediaVisibilities.map(m => ({ ...m, regionId: id })) as any, { transaction: t });
+      }
+      if (publicSecurities) {
+        await PublicSecurity.destroy({ where: { regionId: id }, transaction: t });
+        await PublicSecurity.bulkCreate(publicSecurities.map(p => ({ ...p, regionId: id })) as any, { transaction: t });
+      }
+      if (wealths) {
+        await Wealth.destroy({ where: { regionId: id }, transaction: t });
+        await Wealth.bulkCreate(wealths.map(w => ({ ...w, regionId: id })) as any, { transaction: t });
+      }
+      if (demographics) {
+        await DemographicProfile.destroy({ where: { regionId: id }, transaction: t });
+        await DemographicProfile.bulkCreate(demographics.map(d => ({ ...d, regionId: id })) as any, { transaction: t });
+      }
+
+      await t.commit();
+      
+      const updatedRegion = await Region.findByPk(id, { include: { all: true, nested: true } });
+      res.json(updatedRegion);
+    } catch (e) {
+      await t.rollback();
+      throw e;
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ errors: error.errors });
@@ -79,7 +110,7 @@ export const updateRegion = async (req: Request, res: Response): Promise<void> =
 export const deleteRegion = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.region.delete({ where: { id } });
+    await Region.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

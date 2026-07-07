@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { characterMeritFlawSchema, updateCharacterMeritFlawSchema } from "../schemas/meritFlawSchemas";
 import { z } from "zod";
+import { CharacterMeritFlaw, Character, MeritFlawDefinition } from "../models";
 
 export const getCharacterMeritFlaws = async (req: Request, res: Response): Promise<void> => {
   try {
     const { characterId } = req.params;
-    const records = await prisma.characterMeritFlaw.findMany({
+    const records = await CharacterMeritFlaw.findAll({
       where: { characterId },
-      include: { meritFlaw: true },
+      include: [{ model: MeritFlawDefinition, as: 'meritFlaw' }],
     });
     res.json(records);
   } catch (error) {
@@ -22,44 +22,42 @@ export const assignCharacterMeritFlaw = async (req: Request, res: Response): Pro
     const { characterId } = req.params;
     const data = characterMeritFlawSchema.parse(req.body);
 
-    const character = await prisma.character.findUnique({ where: { id: characterId } });
+    const character = await Character.findByPk(characterId);
     if (!character) {
       res.status(404).json({ error: "Personagem não encontrado." });
       return;
     }
 
-    const def = await prisma.meritFlawDefinition.findUnique({ where: { id: data.meritFlawId } });
+    const def = await MeritFlawDefinition.findOne({ where: { id: data.meritFlawId } });
     if (!def) {
       res.status(404).json({ error: "Definição não encontrada." });
       return;
     }
 
-    const existing = await prisma.characterMeritFlaw.findUnique({
-      where: { characterId_meritFlawId: { characterId, meritFlawId: data.meritFlawId } }
+    const existing = await CharacterMeritFlaw.findOne({
+      where: { characterId, meritFlawId: data.meritFlawId }
     });
 
     if (existing) {
-      const updated = await prisma.characterMeritFlaw.update({
-        where: { id: existing.id },
-        data: { 
+      const updated = await CharacterMeritFlaw.update({
+       
           points: data.points,
           description: data.description
-        },
-        include: { meritFlaw: true }
-      });
+        
+    }, { where: { id: existing.id } });
       res.status(200).json(updated);
       return;
     }
 
-    const record = await prisma.characterMeritFlaw.create({
-      data: {
+    const record = await CharacterMeritFlaw.create({
+      
         characterId,
         meritFlawId: data.meritFlawId,
         points: data.points,
         description: data.description,
-      },
-      include: { meritFlaw: true }
-    });
+      
+    } as any);
+    // Eager loading ignored by create, typically fetched after.;
     
     res.status(201).json(record);
   } catch (error) {
@@ -77,11 +75,7 @@ export const updateCharacterMeritFlaw = async (req: Request, res: Response): Pro
     const { id } = req.params;
     const data = updateCharacterMeritFlawSchema.parse(req.body);
 
-    const updated = await prisma.characterMeritFlaw.update({
-      where: { id },
-      data,
-      include: { meritFlaw: true }
-    });
+    const updated = await CharacterMeritFlaw.update(data as any, { where: { id } });
 
     res.json(updated);
   } catch (error) {
@@ -97,7 +91,7 @@ export const updateCharacterMeritFlaw = async (req: Request, res: Response): Pro
 export const unassignCharacterMeritFlaw = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.characterMeritFlaw.delete({ where: { id } });
+    await CharacterMeritFlaw.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

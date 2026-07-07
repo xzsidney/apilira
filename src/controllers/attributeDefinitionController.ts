@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { attributeDefinitionSchema } from "../schemas/attributeSchemas";
 import { z } from "zod";
+import { AttributeDefinition } from "../models";
 
 export const getAttributeDefinitions = async (req: Request, res: Response): Promise<void> => {
   try {
     const { type } = req.query;
     const where = type ? { type: String(type) } : {};
     
-    const definitions = await prisma.attributeDefinition.findMany({ where });
+    const definitions = await AttributeDefinition.findAll({ where });
     res.json(definitions);
   } catch (error) {
     console.error(error);
@@ -21,8 +21,8 @@ export const createAttributeDefinition = async (req: Request, res: Response): Pr
     const data = attributeDefinitionSchema.parse(req.body);
     
     // Check if already exists
-    const existing = await prisma.attributeDefinition.findUnique({
-      where: { name_type: { name: data.name, type: data.type } }
+    const existing = await AttributeDefinition.findOne({
+      where: { name: data.name, type: data.type }
     });
     
     if (existing) {
@@ -30,7 +30,7 @@ export const createAttributeDefinition = async (req: Request, res: Response): Pr
       return;
     }
 
-    const newDef = await prisma.attributeDefinition.create({ data });
+    const newDef = await AttributeDefinition.create(data as any);
     res.status(201).json(newDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -47,10 +47,8 @@ export const updateAttributeDefinition = async (req: Request, res: Response): Pr
     const { id } = req.params;
     const data = attributeDefinitionSchema.partial().parse(req.body);
 
-    const updatedDef = await prisma.attributeDefinition.update({
-      where: { id },
-      data,
-    });
+    await AttributeDefinition.update(data as any, { where: { id } });
+    const updatedDef = await AttributeDefinition.findByPk(id);
     res.json(updatedDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -65,7 +63,7 @@ export const updateAttributeDefinition = async (req: Request, res: Response): Pr
 export const deleteAttributeDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.attributeDefinition.delete({ where: { id } });
+    await AttributeDefinition.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

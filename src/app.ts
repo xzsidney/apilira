@@ -17,7 +17,8 @@ import adventureRoutes from "./routes/adventureRoutes";
 import sceneRoutes from "./routes/sceneRoutes";
 import actionRoutes from "./routes/actionRoutes";
 import { setupSwagger } from "./config/swagger";
-import prisma from "./config/db";
+import sequelize from "./config/db";
+import { QueryTypes } from "sequelize";
 
 const app = express();
 
@@ -59,9 +60,10 @@ app.use("/api/actions", actionRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.json({
     message: "LiraRPG API",
-    version: "1.0.0",
+    version: "2.0.0",
     status: "online",
-    description: "Servidor de backend para o sistema LiraRPG."
+    description: "Servidor de backend para o sistema LiraRPG. (Sequelize)",
+    engine: "Sequelize + MySQL2 (sem Prisma)"
   });
 });
 
@@ -72,10 +74,10 @@ app.get("/health", (req: Request, res: Response) => {
 app.get("/teste", async (req: Request, res: Response) => {
   try {
     // Tenta executar uma query super leve no banco de dados
-    await prisma.$queryRaw`SELECT 1`;
+    await sequelize.query("SELECT 1 AS result", { type: QueryTypes.SELECT });
     res.json({ 
       status: "success", 
-      message: "Conexão com o banco de dados estabelecida com sucesso!" 
+      message: "Conexão com o banco de dados estabelecida com sucesso! (Sequelize)" 
     });
   } catch (error: any) {
     console.error("Erro no teste de banco:", error);

@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
+import { StatusDefinition } from "../models";
 import { statusDefinitionSchema } from "../schemas/statusSchemas";
 import { z } from "zod";
+import { Op } from "sequelize";
 
 export const getStatusDefinitions = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -10,11 +11,11 @@ export const getStatusDefinitions = async (req: Request, res: Response): Promise
     let whereClause = {};
     if (type) {
       whereClause = {
-        gameStyle: { in: [String(type), "UNIVERSAL"] }
+        gameStyle: { [Op.in]: [String(type), "UNIVERSAL"] }
       };
     }
     
-    const definitions = await prisma.statusDefinition.findMany({ where: whereClause });
+    const definitions = await StatusDefinition.findAll({ where: whereClause });
     res.json(definitions);
   } catch (error) {
     console.error(error);
@@ -26,8 +27,8 @@ export const createStatusDefinition = async (req: Request, res: Response): Promi
   try {
     const data = statusDefinitionSchema.parse(req.body);
     
-    const existing = await prisma.statusDefinition.findUnique({
-      where: { name_gameStyle: { name: data.name, gameStyle: data.gameStyle } }
+    const existing = await StatusDefinition.findOne({
+      where: { name: data.name, gameStyle: data.gameStyle }
     });
     
     if (existing) {
@@ -35,7 +36,7 @@ export const createStatusDefinition = async (req: Request, res: Response): Promi
       return;
     }
 
-    const newDef = await prisma.statusDefinition.create({ data });
+    const newDef = await StatusDefinition.create(data as any);
     res.status(201).json(newDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -52,10 +53,10 @@ export const updateStatusDefinition = async (req: Request, res: Response): Promi
     const { id } = req.params;
     const data = statusDefinitionSchema.partial().parse(req.body);
 
-    const updatedDef = await prisma.statusDefinition.update({
+    await StatusDefinition.update(data as any, {
       where: { id },
-      data,
     });
+    const updatedDef = await StatusDefinition.findByPk(id);
     res.json(updatedDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -70,7 +71,7 @@ export const updateStatusDefinition = async (req: Request, res: Response): Promi
 export const deleteStatusDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.statusDefinition.delete({ where: { id } });
+    await StatusDefinition.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

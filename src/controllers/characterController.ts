@@ -1,8 +1,18 @@
 import { Response } from "express";
-import prisma from "../config/db";
 import { createCharacterSchema, updateCharacterSchema } from "../schemas/characterSchemas";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
-import { GameStyle, PowerType } from "@prisma/client";
+import { GameStyle, PowerType } from "../types/enums";
+import { 
+  Character, 
+  CharacterAttribute, 
+  CharacterSkill, 
+  CharacterStatus, 
+  CharacterPower, 
+  CharacterPowerSelection, 
+  CharacterMeritFlaw, 
+  CharacterItem, 
+  sequelize 
+} from "../models";
 
 // Helper to map GameStyle to its PowerType
 const getPowerType = (style: GameStyle): PowerType => {
@@ -15,6 +25,8 @@ const getPowerType = (style: GameStyle): PowerType => {
       return PowerType.SPHERE;
     case GameStyle.HUNTER:
       return PowerType.EDGE;
+    default:
+      return PowerType.DISCIPLINE;
   }
 };
 
@@ -31,72 +43,89 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
 
     const { name, gameStyle, isNpc, isTemplate, attributes, skills, statuses, powers, meritsFlaws, items, backgrounds, havens } = validated.data;
 
-    // Prisma nested creation inside a single transaction
-    const character = await prisma.character.create({
-      data: {
+    const t = await sequelize.transaction();
+    try {
+      const character = await Character.create({
         name,
         gameStyle,
         isNpc: isNpc ?? false,
         isTemplate: isTemplate ?? false,
         userId: req.userId,
-        attributes: {
-          create: attributes,
-        },
-        skills: {
-          create: skills?.map((s) => ({
-            skillId: s.skillId,
-            value: s.value,
-            specialty: s.specialty,
-            description: s.description,
-          })) || [],
-        },
-        statuses: {
-          create: statuses?.map((s) => ({
-            statusId: s.statusId,
-            value: s.value,
-          })) || [],
-        },
-        powers: {
-          create: powers?.map((p) => ({
-            powerDefinitionId: p.powerDefinitionId,
-            level: p.level,
-            selections: {
-              create: p.selections?.map(s => ({
-                powerLevelDefinitionId: s.powerLevelDefinitionId
-              })) || []
-            }
-          })) || [],
-        },
-        meritsFlaws: {
-          create: meritsFlaws?.map((m) => ({
-            meritFlawId: m.meritFlawId,
-            points: m.points,
-            description: m.description,
-          })) || [],
-        },
-        items: {
-          create: items,
-        },
-        backgrounds: {
-          create: backgrounds,
-        },
-        havens: {
-          create: havens,
-        },
-      },
-      include: {
-        attributes: true,
-        skills: true,
-        statuses: true,
-        powers: true,
-        meritsFlaws: true,
-        items: true,
-        backgrounds: true,
-        havens: true,
-      },
-    });
+      } as any, { transaction: t });
 
-    return res.status(201).json(character);
+      const charId = character.id;
+
+      if (attributes && attributes.length > 0) {
+        await CharacterAttribute.bulkCreate(attributes.map(a => ({
+          characterId: charId,
+          attributeId: a.attributeId,
+          value: a.value || 1,
+          specialty: a.specialty,
+          description: a.description
+        })) as any, { transaction: t });
+      }
+
+      if (skills && skills.length > 0) {
+        await CharacterSkill.bulkCreate(skills.map(s => ({
+          characterId: charId,
+          skillId: s.skillId,
+          value: s.value,
+          specialty: s.specialty,
+          description: s.description
+        })) as any, { transaction: t });
+      }
+
+      if (statuses && statuses.length > 0) {
+        await CharacterStatus.bulkCreate(statuses.map(s => ({
+          characterId: charId,
+          statusId: s.statusId,
+          value: s.value
+        })) as any, { transaction: t });
+      }
+
+      if (powers && powers.length > 0) {
+        for (const p of powers) {
+          const cp = await CharacterPower.create({
+            characterId: charId,
+            powerDefinitionId: p.powerDefinitionId,
+            level: p.level
+          } as any, { transaction: t });
+
+          if (p.selections && p.selections.length > 0) {
+            await CharacterPowerSelection.bulkCreate(p.selections.map(s => ({
+              characterPowerId: cp.id,
+              powerLevelDefinitionId: s.powerLevelDefinitionId
+            })) as any, { transaction: t });
+          }
+        }
+      }
+
+      if (meritsFlaws && meritsFlaws.length > 0) {
+        await CharacterMeritFlaw.bulkCreate(meritsFlaws.map(m => ({
+          characterId: charId,
+          meritFlawId: m.meritFlawId,
+          points: m.points,
+          description: m.description
+        })) as any, { transaction: t });
+      }
+
+      if (items && items.length > 0) {
+        await CharacterItem.bulkCreate(items.map(i => ({
+          characterId: charId,
+          itemId: i.itemId,
+          quantity: i.quantity,
+          description: i.description
+        })) as any, { transaction: t });
+      }
+
+      await t.commit();
+      
+      const createdChar = await Character.findByPk(charId, { include: { all: true, nested: true } });
+      return res.status(201).json(createdChar);
+    } catch (err) {
+      await t.rollback();
+      throw err;
+    }
   } catch (error) {
     console.error("Erro ao criar personagem:", error);
     return res.status(500).json({ error: "Erro interno no servidor ao criar o personagem" });
@@ -109,25 +138,7 @@ export const listCharacters = async (req: AuthenticatedRequest, res: Response) =
       return res.status(401).json({ error: "Não autorizado" });
     }
 
-    const characters = await prisma.character.findMany({
-      where: { userId: req.userId },
-      include: {
-        attributes: { include: { attribute: true } },
-        skills: true,
-        statuses: { include: { status: true } },
-        powers: {
-          include: {
-            powerDefinition: { include: { powerLevels: true } },
-            selections: { include: { powerLevelDefinition: true } }
-          }
-        },
-        meritsFlaws: true,
-        items: true,
-        backgrounds: true,
-        havens: true,
-      },
-    });
-
+    const characters = await Character.findAll({ include: { all: true, nested: true } });
     return res.json(characters);
   } catch (error) {
     console.error("Erro ao listar personagens:", error);
@@ -143,27 +154,7 @@ export const getCharacter = async (req: AuthenticatedRequest, res: Response) => 
 
     const { id } = req.params;
 
-    const character = await prisma.character.findFirst({
-      where: {
-        id,
-        userId: req.userId,
-      },
-      include: {
-        attributes: { include: { attribute: true } },
-        skills: true,
-        statuses: { include: { status: true } },
-        powers: {
-          include: {
-            powerDefinition: { include: { powerLevels: true } },
-            selections: { include: { powerLevelDefinition: true } }
-          }
-        },
-        meritsFlaws: true,
-        items: true,
-        backgrounds: true,
-        havens: true,
-      },
-    });
+    const character = await Character.findByPk(id, { include: { all: true, nested: true } });
 
     if (!character) {
       return res.status(404).json({ error: "Personagem não encontrado" });
@@ -189,13 +180,7 @@ export const updateCharacter = async (req: AuthenticatedRequest, res: Response) 
       return res.status(400).json({ errors: validated.error.errors });
     }
 
-    // Verify ownership and get current gameStyle
-    const character = await prisma.character.findFirst({
-      where: {
-        id,
-        userId: req.userId,
-      },
-    });
+    const character = await Character.findByPk(id);
 
     if (!character) {
       return res.status(404).json({ error: "Personagem não encontrado ou não pertence a este usuário" });
@@ -203,141 +188,108 @@ export const updateCharacter = async (req: AuthenticatedRequest, res: Response) 
 
     const { name, experienceTotal, experienceSpent, isNpc, isTemplate, attributes, skills, statuses, powers, meritsFlaws, items } = validated.data;
 
-    // Use transaction to update base table and replace lists
-    const updatedCharacter = await prisma.$transaction(async (tx) => {
-      // 1. Update base character fields
-      await tx.character.update({
-        where: { id },
-        data: {
-          name,
-          experienceTotal,
-          experienceSpent,
-          isNpc,
-          isTemplate,
-        },
-      });
+    const t = await sequelize.transaction();
+    try {
+      await Character.update({
+        name,
+        experienceTotal,
+        experienceSpent,
+        isNpc,
+        isTemplate,
+      } as any, { where: { id }, transaction: t });
 
-      // 2. Replace Skills if provided
       if (skills !== undefined) {
-        await tx.characterSkill.deleteMany({ where: { characterId: id } });
+        await CharacterSkill.destroy({ where: { characterId: id }, transaction: t });
         if (skills.length > 0) {
-          await tx.characterSkill.createMany({
-            data: skills.map((s) => ({
-              characterId: id,
-              skillId: s.skillId,
-              value: s.value,
-              specialty: s.specialty,
-              description: s.description,
-            })),
-          });
+          await CharacterSkill.bulkCreate(skills.map(s => ({
+            characterId: id,
+            skillId: s.skillId,
+            value: s.value,
+            specialty: s.specialty,
+            description: s.description
+          })) as any, { transaction: t });
         }
       }
 
-      // 5. Replace Powers if provided
-      if (powers !== undefined) {
-        // Find existing character powers to delete their selections
-        const existingPowers = await tx.characterPower.findMany({ where: { characterId: id } });
-        for (const ep of existingPowers) {
-          await tx.characterPowerSelection.deleteMany({ where: { characterPowerId: ep.id } });
+      if (attributes !== undefined) {
+        await CharacterAttribute.destroy({ where: { characterId: id }, transaction: t });
+        if (attributes.length > 0) {
+          await CharacterAttribute.bulkCreate(attributes.map(a => ({
+            characterId: id,
+            attributeId: a.attributeId,
+            value: a.value || 1,
+            specialty: a.specialty,
+            description: a.description
+          })) as any, { transaction: t });
         }
-        await tx.characterPower.deleteMany({ where: { characterId: id } });
+      }
+
+      if (meritsFlaws !== undefined) {
+        await CharacterMeritFlaw.destroy({ where: { characterId: id }, transaction: t });
+        if (meritsFlaws.length > 0) {
+          await CharacterMeritFlaw.bulkCreate(meritsFlaws.map(m => ({
+            characterId: id,
+            meritFlawId: m.meritFlawId,
+            points: m.points,
+            description: m.description
+          })) as any, { transaction: t });
+        }
+      }
+
+      if (statuses !== undefined) {
+        await CharacterStatus.destroy({ where: { characterId: id }, transaction: t });
+        if (statuses.length > 0) {
+          await CharacterStatus.bulkCreate(statuses.map(s => ({
+            characterId: id,
+            statusId: s.statusId,
+            value: s.value
+          })) as any, { transaction: t });
+        }
+      }
+
+      if (items !== undefined) {
+        await CharacterItem.destroy({ where: { characterId: id }, transaction: t });
+        if (items.length > 0) {
+          await CharacterItem.bulkCreate(items.map(i => ({
+            characterId: id,
+            itemId: i.itemId,
+            quantity: i.quantity,
+            description: i.description
+          })) as any, { transaction: t });
+        }
+      }
+
+      if (powers !== undefined) {
+        const existingPowers = await CharacterPower.findAll({ where: { characterId: id }, transaction: t });
+        for (const ep of existingPowers) {
+          await CharacterPowerSelection.destroy({ where: { characterPowerId: ep.id }, transaction: t });
+        }
+        await CharacterPower.destroy({ where: { characterId: id }, transaction: t });
         
         for (const p of powers) {
-          await tx.characterPower.create({
-            data: {
-              characterId: id,
-              powerDefinitionId: p.powerDefinitionId,
-              level: p.level,
-              selections: {
-                create: p.selections?.map(s => ({
-                  powerLevelDefinitionId: s.powerLevelDefinitionId
-                })) || []
-              }
-            }
-          });
+          const cp = await CharacterPower.create({
+            characterId: id,
+            powerDefinitionId: p.powerDefinitionId,
+            level: p.level
+          } as any, { transaction: t });
+
+          if (p.selections && p.selections.length > 0) {
+            await CharacterPowerSelection.bulkCreate(p.selections.map(s => ({
+              characterPowerId: cp.id,
+              powerLevelDefinitionId: s.powerLevelDefinitionId
+            })) as any, { transaction: t });
+          }
         }
       }
 
-      // 2.5. Replace Attributes if provided
-      if (attributes !== undefined) {
-        await tx.characterAttribute.deleteMany({ where: { characterId: id } });
-        if (attributes.length > 0) {
-          await tx.characterAttribute.createMany({
-            data: attributes.map((attr) => ({
-              characterId: id,
-              attributeId: attr.attributeId,
-              value: attr.value || 1,
-              specialty: attr.specialty,
-              description: attr.description,
-            })),
-          });
-        }
-      }
-
-      // 2. Replace Merits/Flaws if provided
-      if (meritsFlaws !== undefined) {
-        await tx.characterMeritFlaw.deleteMany({ where: { characterId: id } });
-        if (meritsFlaws.length > 0) {
-          await tx.characterMeritFlaw.createMany({
-            data: meritsFlaws.map((m) => ({
-              characterId: id,
-              meritFlawId: m.meritFlawId,
-              points: m.points,
-              description: m.description,
-            })),
-          });
-        }
-      }
-
-      // 3. Replace Statuses if provided
-      if (statuses !== undefined) {
-        await tx.characterStatus.deleteMany({ where: { characterId: id } });
-        if (statuses.length > 0) {
-          await tx.characterStatus.createMany({
-            data: statuses.map((s) => ({
-              characterId: id,
-              statusId: s.statusId,
-              value: s.value,
-            })),
-          });
-        }
-      }
-
-      // 4. Replace Items if provided
-      if (items !== undefined) {
-        await tx.characterItem.deleteMany({ where: { characterId: id } });
-        if (items.length > 0) {
-          await tx.characterItem.createMany({
-            data: items.map((item) => ({
-              characterId: id,
-              itemId: item.itemId,
-              quantity: item.quantity,
-              description: item.description,
-            })),
-          });
-        }
-      }
-
-      // Fetch final updated character
-      return await tx.character.findUnique({
-        where: { id },
-        include: {
-          attributes: { include: { attribute: true } },
-          skills: true,
-          statuses: { include: { status: true } },
-          powers: {
-            include: {
-              powerDefinition: { include: { powerLevels: true } },
-              selections: { include: { powerLevelDefinition: true } }
-            }
-          },
-          meritsFlaws: true,
-          items: true,
-        },
-      });
-    });
-
-    return res.json(updatedCharacter);
+      await t.commit();
+      
+      const updatedCharacter = await Character.findByPk(id, { include: { all: true, nested: true } });
+      return res.json(updatedCharacter);
+    } catch (err) {
+      await t.rollback();
+      throw err;
+    }
   } catch (error) {
     console.error("Erro ao atualizar personagem:", error);
     return res.status(500).json({ error: "Erro interno no servidor ao atualizar personagem" });
@@ -352,22 +304,13 @@ export const deleteCharacter = async (req: AuthenticatedRequest, res: Response) 
 
     const { id } = req.params;
 
-    // Verify ownership
-    const character = await prisma.character.findFirst({
-      where: {
-        id,
-        userId: req.userId,
-      },
-    });
+    const character = await Character.findByPk(id);
 
     if (!character) {
       return res.status(404).json({ error: "Personagem não encontrado ou não pertence a este usuário" });
     }
 
-    // Cascade delete via Prisma configuration
-    await prisma.character.delete({
-      where: { id },
-    });
+    await Character.destroy({ where: { id } });
 
     return res.json({ message: "Personagem deletado com sucesso" });
   } catch (error) {

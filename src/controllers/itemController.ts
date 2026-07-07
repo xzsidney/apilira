@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { characterItemSchema, updateCharacterItemSchema } from "../schemas/itemSchemas";
 import { z } from "zod";
+import { CharacterItem, Character, ItemDefinition } from "../models";
 
 export const getCharacterItems = async (req: Request, res: Response): Promise<void> => {
   try {
     const { characterId } = req.params;
-    const items = await prisma.characterItem.findMany({
+    const items = await CharacterItem.findAll({
       where: { characterId },
-      include: { itemDefinition: true },
+      include: [{ model: ItemDefinition, as: 'itemDefinition' }],
     });
     res.json(items);
   } catch (error) {
@@ -22,45 +22,49 @@ export const assignCharacterItem = async (req: Request, res: Response): Promise<
     const { characterId } = req.params;
     const data = characterItemSchema.parse(req.body);
 
-    const character = await prisma.character.findUnique({ where: { id: characterId } });
+    const character = await Character.findByPk(characterId);
     if (!character) {
       res.status(404).json({ error: "Personagem não encontrado." });
       return;
     }
 
-    const itemDef = await prisma.itemDefinition.findUnique({ where: { id: data.itemId } });
+    const itemDef = await ItemDefinition.findByPk(data.itemId);
     if (!itemDef) {
       res.status(404).json({ error: "Definição de item não encontrada." });
       return;
     }
 
     // Check if the character already has this item
-    const existing = await prisma.characterItem.findUnique({
-      where: { characterId_itemId: { characterId, itemId: data.itemId } }
+    const existing = await CharacterItem.findOne({
+      where: { characterId, itemId: data.itemId }
     });
 
     if (existing) {
       // Just increment quantity if they re-add the same item
-      const updated = await prisma.characterItem.update({
-        where: { id: existing.id },
-        data: { quantity: existing.quantity + data.quantity },
-        include: { itemDefinition: true }
+      await CharacterItem.update(
+        { quantity: existing.quantity + data.quantity },
+        { where: { id: existing.id } }
+      );
+      const updated = await CharacterItem.findByPk(existing.id, {
+        include: [{ model: ItemDefinition, as: 'itemDefinition' }]
       });
       res.status(200).json(updated);
       return;
     }
 
-    const charItem = await prisma.characterItem.create({
-      data: {
-        characterId,
-        itemId: data.itemId,
-        quantity: data.quantity,
-        description: data.description,
-      },
-      include: { itemDefinition: true }
+    const charItem = await CharacterItem.create({
+      characterId,
+      itemId: data.itemId,
+      quantity: data.quantity,
+      description: data.description,
+    } as any);
+    
+    // Sequelize create doesn't support eager loading, so we fetch it again
+    const charItemWithDef = await CharacterItem.findByPk(charItem.id, {
+      include: [{ model: ItemDefinition, as: 'itemDefinition' }]
     });
     
-    res.status(201).json(charItem);
+    res.status(201).json(charItemWithDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ errors: error.errors });
@@ -76,10 +80,10 @@ export const updateCharacterItem = async (req: Request, res: Response): Promise<
     const { id } = req.params; 
     const data = updateCharacterItemSchema.parse(req.body);
 
-    const updated = await prisma.characterItem.update({
-      where: { id },
-      data,
-      include: { itemDefinition: true }
+    await CharacterItem.update(data as any, { where: { id } });
+    
+    const updated = await CharacterItem.findByPk(id, {
+      include: [{ model: ItemDefinition, as: 'itemDefinition' }]
     });
 
     res.json(updated);
@@ -96,7 +100,7 @@ export const updateCharacterItem = async (req: Request, res: Response): Promise<
 export const unassignCharacterItem = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.characterItem.delete({ where: { id } });
+    await CharacterItem.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

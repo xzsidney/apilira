@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { skillDefinitionSchema } from "../schemas/skillSchemas";
 import { z } from "zod";
+import { SkillDefinition } from "../models";
 
 export const getSkillDefinitions = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -15,7 +15,7 @@ export const getSkillDefinitions = async (req: Request, res: Response): Promise<
       };
     }
     
-    const definitions = await prisma.skillDefinition.findMany({ where: whereClause });
+    const definitions = await SkillDefinition.findAll({ where: whereClause });
     res.json(definitions);
   } catch (error) {
     console.error(error);
@@ -27,8 +27,8 @@ export const createSkillDefinition = async (req: Request, res: Response): Promis
   try {
     const data = skillDefinitionSchema.parse(req.body);
     
-    const existing = await prisma.skillDefinition.findUnique({
-      where: { name_type: { name: data.name, type: data.type } }
+    const existing = await SkillDefinition.findOne({
+      where: { name: data.name, type: data.type }
     });
     
     if (existing) {
@@ -36,7 +36,7 @@ export const createSkillDefinition = async (req: Request, res: Response): Promis
       return;
     }
 
-    const newDef = await prisma.skillDefinition.create({ data });
+    const newDef = await SkillDefinition.create(data as any);
     res.status(201).json(newDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -53,10 +53,8 @@ export const updateSkillDefinition = async (req: Request, res: Response): Promis
     const { id } = req.params;
     const data = skillDefinitionSchema.partial().parse(req.body);
 
-    const updatedDef = await prisma.skillDefinition.update({
-      where: { id },
-      data,
-    });
+    await SkillDefinition.update(data as any, { where: { id } });
+    const updatedDef = await SkillDefinition.findByPk(id);
     res.json(updatedDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -71,7 +69,7 @@ export const updateSkillDefinition = async (req: Request, res: Response): Promis
 export const deleteSkillDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.skillDefinition.delete({ where: { id } });
+    await SkillDefinition.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

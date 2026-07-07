@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PowerType } from "@prisma/client";
+import { PowerType } from "../types/enums";
 
 export const powerLevelDefinitionInputSchema = z.object({
   level: z.number().int().min(1).max(10),

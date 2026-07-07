@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { itemDefinitionSchema } from "../schemas/itemSchemas";
 import { z } from "zod";
+import { ItemDefinition } from "../models";
 
 export const getItemDefinitions = async (req: Request, res: Response): Promise<void> => {
   try {
-    const definitions = await prisma.itemDefinition.findMany();
+    const definitions = await ItemDefinition.findAll();
     res.json(definitions);
   } catch (error) {
     console.error(error);
@@ -18,7 +18,7 @@ export const createItemDefinition = async (req: Request, res: Response): Promise
     const data = itemDefinitionSchema.parse(req.body);
     
     // Check if already exists
-    const existing = await prisma.itemDefinition.findUnique({
+    const existing = await ItemDefinition.findOne({
       where: { name: data.name }
     });
     
@@ -27,7 +27,7 @@ export const createItemDefinition = async (req: Request, res: Response): Promise
       return;
     }
 
-    const newDef = await prisma.itemDefinition.create({ data });
+    const newDef = await ItemDefinition.create(data as any);
     res.status(201).json(newDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -44,10 +44,8 @@ export const updateItemDefinition = async (req: Request, res: Response): Promise
     const { id } = req.params;
     const data = itemDefinitionSchema.partial().parse(req.body);
 
-    const updatedDef = await prisma.itemDefinition.update({
-      where: { id },
-      data,
-    });
+    await ItemDefinition.update(data as any, { where: { id } });
+    const updatedDef = await ItemDefinition.findByPk(id);
     res.json(updatedDef);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -62,7 +60,7 @@ export const updateItemDefinition = async (req: Request, res: Response): Promise
 export const deleteItemDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.itemDefinition.delete({ where: { id } });
+    await ItemDefinition.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);

@@ -1,9 +1,9 @@
 import { Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import prisma from "../config/db";
 import { registerSchema, loginSchema } from "../schemas/authSchemas";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { User } from "../models";
 
 const generateToken = (userId: string, role: string): string => {
   const secret = process.env.JWT_SECRET || "lirarpg_super_secret_key_2026_971b8d43";
@@ -20,7 +20,7 @@ export const register = async (req: AuthenticatedRequest, res: Response) => {
     const { name, email, password, role } = validated.data;
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ error: "Email já está cadastrado" });
     }
@@ -29,20 +29,11 @@ export const register = async (req: AuthenticatedRequest, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role: role as any,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role as any,
     });
 
     const token = generateToken(user.id, user.role);
@@ -64,7 +55,7 @@ export const login = async (req: AuthenticatedRequest, res: Response) => {
     const { email, password } = validated.data;
 
     // Find user
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(400).json({ error: "Credenciais inválidas" });
     }
@@ -99,14 +90,8 @@ export const profile = async (req: AuthenticatedRequest, res: Response) => {
       return res.status(401).json({ error: "Não autorizado" });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: req.userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
-      },
+    const user = await User.findByPk(req.userId, {
+      attributes: ['id', 'name', 'email', 'createdAt']
     });
 
     if (!user) {

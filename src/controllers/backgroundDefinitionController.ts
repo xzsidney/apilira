@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import prisma from '../config/db';
 import { backgroundDefinitionSchema, backgroundDefinitionUpdateSchema } from '../schemas/backgroundDefinitionSchemas';
+import { BackgroundDefinition } from "../models";
 
 export const getBackgroundDefinitions = async (req: Request, res: Response): Promise<void> => {
   try {
-    const backgrounds = await prisma.backgroundDefinition.findMany();
+    const backgrounds = await BackgroundDefinition.findAll();
     res.json(backgrounds);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch BackgroundDefinitions' });
@@ -14,7 +14,7 @@ export const getBackgroundDefinitions = async (req: Request, res: Response): Pro
 export const getBackgroundDefinitionById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const background = await prisma.backgroundDefinition.findUnique({
+    const background = await BackgroundDefinition.findOne({
       where: { id },
     });
     if (!background) {
@@ -30,9 +30,7 @@ export const getBackgroundDefinitionById = async (req: Request, res: Response): 
 export const createBackgroundDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const parsedData = backgroundDefinitionSchema.parse(req.body);
-    const newBackground = await prisma.backgroundDefinition.create({
-      data: parsedData,
-    });
+    const newBackground = await BackgroundDefinition.create(parsedData as any);
     res.status(201).json(newBackground);
   } catch (error: any) {
     if (error.name === 'ZodError') {
@@ -47,10 +45,7 @@ export const updateBackgroundDefinition = async (req: Request, res: Response): P
   try {
     const { id } = req.params;
     const parsedData = backgroundDefinitionUpdateSchema.parse(req.body);
-    const updatedBackground = await prisma.backgroundDefinition.update({
-      where: { id },
-      data: parsedData,
-    });
+    const updatedBackground = await BackgroundDefinition.update(parsedData as any, { where: { id } });
     res.json(updatedBackground);
   } catch (error: any) {
     if (error.name === 'ZodError') {
@@ -64,9 +59,7 @@ export const updateBackgroundDefinition = async (req: Request, res: Response): P
 export const deleteBackgroundDefinition = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.backgroundDefinition.delete({
-      where: { id },
-    });
+    await BackgroundDefinition.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete BackgroundDefinition' });

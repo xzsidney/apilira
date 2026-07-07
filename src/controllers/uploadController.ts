@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import prisma from "../config/db";
+import { Character } from "../models";
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, "../../public/uploads");
@@ -53,7 +53,7 @@ export const uploadCharacterAvatar = async (req: Request, res: Response): Promis
       return;
     }
 
-    const character = await prisma.character.findUnique({ where: { id } });
+    const character = await Character.findByPk(id);
     
     if (!character) {
       res.status(404).json({ error: "Personagem não encontrado." });
@@ -64,14 +64,12 @@ export const uploadCharacterAvatar = async (req: Request, res: Response): Promis
     const avatarUrl = `/uploads/${req.file.filename}`;
 
     // Update character with new avatarUrl
-    const updatedChar = await prisma.character.update({
-      where: { id },
-      data: { avatarUrl }
-    });
+    await Character.update({ avatarUrl }, { where: { id } });
+    const updatedCharacter = await Character.findByPk(id);
 
-    res.status(200).json({ 
-      message: "Avatar atualizado com sucesso", 
-      avatarUrl: updatedChar.avatarUrl 
+    res.json({
+      message: "Avatar atualizado com sucesso",
+      avatarUrl: updatedCharacter?.avatarUrl,
     });
 
   } catch (error) {

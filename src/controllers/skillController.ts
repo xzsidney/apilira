@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import prisma from "../config/db";
 import { characterSkillSchema, updateCharacterSkillSchema } from "../schemas/skillSchemas";
 import { z } from "zod";
+import { CharacterSkill, Character, SkillDefinition } from "../models";
 
 export const getCharacterSkills = async (req: Request, res: Response): Promise<void> => {
   try {
     const { characterId } = req.params;
-    const skills = await prisma.characterSkill.findMany({
+    const skills = await CharacterSkill.findAll({
       where: { characterId },
-      include: { skill: true },
+      include: [{ model: SkillDefinition, as: 'skill' }],
     });
     res.json(skills);
   } catch (error) {
@@ -22,47 +22,45 @@ export const assignCharacterSkill = async (req: Request, res: Response): Promise
     const { characterId } = req.params;
     const data = characterSkillSchema.parse(req.body);
 
-    const character = await prisma.character.findUnique({ where: { id: characterId } });
+    const character = await Character.findByPk(characterId);
     if (!character) {
       res.status(404).json({ error: "Personagem não encontrado." });
       return;
     }
 
-    const skillDef = await prisma.skillDefinition.findUnique({ where: { id: data.skillId } });
+    const skillDef = await SkillDefinition.findOne({ where: { id: data.skillId } });
     if (!skillDef) {
       res.status(404).json({ error: "Definição de habilidade não encontrada." });
       return;
     }
 
     // Upsert so if it exists, it updates the value
-    const existing = await prisma.characterSkill.findUnique({
-      where: { characterId_skillId: { characterId, skillId: data.skillId } }
+    const existing = await CharacterSkill.findOne({
+      where: { characterId, skillId: data.skillId }
     });
 
     if (existing) {
-      const updated = await prisma.characterSkill.update({
-        where: { id: existing.id },
-        data: { 
+      const updated = await CharacterSkill.update({
+       
           value: data.value,
           specialty: data.specialty,
           description: data.description
-        },
-        include: { skill: true }
-      });
+        
+    }, { where: { id: existing.id } });
       res.status(200).json(updated);
       return;
     }
 
-    const charSkill = await prisma.characterSkill.create({
-      data: {
+    const charSkill = await CharacterSkill.create({
+      
         characterId,
         skillId: data.skillId,
         value: data.value,
         specialty: data.specialty,
         description: data.description,
-      },
-      include: { skill: true }
-    });
+      
+    } as any);
+    // Eager loading ignored by create, typically fetched after.;
     
     res.status(201).json(charSkill);
   } catch (error) {
@@ -80,11 +78,7 @@ export const updateCharacterSkill = async (req: Request, res: Response): Promise
     const { id } = req.params;
     const data = updateCharacterSkillSchema.parse(req.body);
 
-    const updated = await prisma.characterSkill.update({
-      where: { id },
-      data,
-      include: { skill: true }
-    });
+    const updated = await CharacterSkill.update(data as any, { where: { id } });
 
     res.json(updated);
   } catch (error) {
@@ -100,7 +94,7 @@ export const updateCharacterSkill = async (req: Request, res: Response): Promise
 export const unassignCharacterSkill = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await prisma.characterSkill.delete({ where: { id } });
+    await CharacterSkill.destroy({ where: { id } });
     res.status(204).send();
   } catch (error) {
     console.error(error);
