@@ -36,7 +36,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Serve static files for uploaded images
-app.use("/uploads", express.static(path.join(__dirname, "../../public/uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 // API Routes
 app.use("/api/auth", authRoutes);

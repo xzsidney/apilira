@@ -6,8 +6,12 @@ import prisma from "../config/db";
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, "../../public/uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.error("Warning: Cannot create upload directory on startup:", err);
 }
 
 // Configure multer storage
