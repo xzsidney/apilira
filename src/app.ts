@@ -22,7 +22,11 @@ const app = express();
 
 // Security and utility middlewares
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: ["https://liragames.com.br", "https://www.liragames.com.br", "http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  credentials: true
+}));
 app.use(express.json());
 
 // Configure Swagger documentation
