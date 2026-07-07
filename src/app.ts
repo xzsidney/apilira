@@ -107,6 +107,28 @@ app.get("/teste", async (req: Request, res: Response) => {
   }
 });
 
+// Rota manual para forçar o reinício da API (Útil para recuperar o Prisma)
+app.get("/resetQA", (req: Request, res: Response) => {
+  console.log("Reinício manual solicitado via /resetQA");
+  res.json({ message: "Servidor reiniciando em 1 segundo..." });
+  
+  // Tenta tocar o arquivo restart.txt padrão do Phusion Passenger
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const restartFile = path.join(__dirname, '../../tmp/restart.txt');
+    if (!fs.existsSync(path.dirname(restartFile))) {
+      fs.mkdirSync(path.dirname(restartFile), { recursive: true });
+    }
+    fs.writeFileSync(restartFile, new Date().toISOString());
+  } catch (e) {
+    // ignore
+  }
+
+  // E também força a saída do processo
+  setTimeout(() => process.exit(1), 1000);
+});
+
 // Global Error Handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error("Erro global capturado:", err);
