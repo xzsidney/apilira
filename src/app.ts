@@ -21,6 +21,25 @@ import prisma from "./config/db";
 
 const app = express();
 
+// Workaround for Hostinger/Phusion Passenger freezing Node.js and causing Prisma panics
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const originalJson = res.json;
+  res.json = function (body) {
+    try {
+      const bodyString = JSON.stringify(body);
+      if (bodyString.includes("timer has gone away") || bodyString.includes("Query engine exited with code")) {
+        console.error("FATAL: Prisma Engine Panic Detected! Forcing Node.js restart to recover...");
+        // Schedule a process exit so Passenger restarts the app with a fresh Prisma instance
+        setTimeout(() => process.exit(1), 100);
+      }
+    } catch (e) {
+      // ignore stringify errors
+    }
+    return originalJson.call(this, body);
+  };
+  next();
+});
+
 // Security and utility middlewares
 app.use(helmet());
 app.use(cors({
