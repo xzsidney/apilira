@@ -23,7 +23,7 @@ const app = express();
 // Security and utility middlewares
 app.use(helmet());
 app.use(cors({
-  origin: ["https://liragames.com.br", "https://www.liragames.com.br", "http://localhost:3000"],
+  origin: ["https://liragames.com.br", "https://www.liragames.com.br", "http://localhost:3000", "http://localhost:5173"],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true
 }));
