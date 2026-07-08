@@ -8,6 +8,7 @@ const skillController_1 = require("../controllers/skillController");
 const meritFlawController_1 = require("../controllers/meritFlawController");
 const statusController_1 = require("../controllers/statusController");
 const powerController_1 = require("../controllers/powerController");
+const uploadController_1 = require("../controllers/uploadController");
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 /**
  * @swagger
@@ -124,6 +125,35 @@ router.put("/:id", characterController_1.updateCharacter);
  *         description: Character deleted successfully
  */
 router.delete("/:id", characterController_1.deleteCharacter);
+/**
+ * @swagger
+ * /api/characters/{id}/avatar:
+ *   post:
+ *     summary: Upload character avatar image
+ *     tags: [Characters]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Avatar updated successfully
+ */
+router.post("/:id/avatar", uploadController_1.uploadAvatarMiddleware, uploadController_1.uploadCharacterAvatar);
 // Nested routes for attributes
 router.get("/:characterId/attributes", attributeController_1.getCharacterAttributes);
 router.post("/:characterId/attributes", attributeController_1.assignCharacterAttribute);

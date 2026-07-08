@@ -40,6 +40,7 @@ import {
   updateCharacterPower,
   unassignCharacterPower
 } from "../controllers/powerController";
+import { uploadAvatarMiddleware, uploadCharacterAvatar } from "../controllers/uploadController";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
 /**
@@ -164,6 +165,36 @@ router.put("/:id", updateCharacter);
  *         description: Character deleted successfully
  */
 router.delete("/:id", deleteCharacter);
+
+/**
+ * @swagger
+ * /api/characters/{id}/avatar:
+ *   post:
+ *     summary: Upload character avatar image
+ *     tags: [Characters]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Avatar updated successfully
+ */
+router.post("/:id/avatar", uploadAvatarMiddleware, uploadCharacterAvatar);
 
 // Nested routes for attributes
 router.get("/:characterId/attributes", getCharacterAttributes);
