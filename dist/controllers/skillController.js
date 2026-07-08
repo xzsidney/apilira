@@ -9,7 +9,7 @@ const getCharacterSkills = async (req, res) => {
         const { characterId } = req.params;
         const skills = await models_1.CharacterSkill.findAll({
             where: { characterId },
-            include: [{ model: models_1.SkillDefinition, as: 'skill' }],
+            include: [{ model: models_1.SkillDefinition, as: 'skillDefinition' }],
         });
         res.json(skills);
     }

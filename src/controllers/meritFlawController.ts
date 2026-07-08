@@ -8,7 +8,7 @@ export const getCharacterMeritFlaws = async (req: Request, res: Response): Promi
     const { characterId } = req.params;
     const records = await CharacterMeritFlaw.findAll({
       where: { characterId },
-      include: [{ model: MeritFlawDefinition, as: 'meritFlaw' }],
+      include: [{ model: MeritFlawDefinition, as: 'meritFlawDefinition' }],
     });
     res.json(records);
   } catch (error) {

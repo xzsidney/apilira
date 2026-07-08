@@ -9,7 +9,7 @@ const getCharacterAttributes = async (req, res) => {
         const { characterId } = req.params;
         const attributes = await models_1.CharacterAttribute.findAll({
             where: { characterId },
-            include: [{ model: models_1.AttributeDefinition, as: 'attribute' }],
+            include: [{ model: models_1.AttributeDefinition, as: 'attributeDefinition' }],
         });
         res.json(attributes);
     }

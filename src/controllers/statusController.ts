@@ -8,7 +8,7 @@ export const getCharacterStatuses = async (req: Request, res: Response): Promise
     const { characterId } = req.params;
     const records = await CharacterStatus.findAll({
       where: { characterId },
-      include: [{ model: StatusDefinition, as: 'status' }],
+      include: [{ model: StatusDefinition, as: 'statusDefinition' }],
     });
     res.json(records);
   } catch (error) {

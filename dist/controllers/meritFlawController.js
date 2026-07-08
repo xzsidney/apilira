@@ -9,7 +9,7 @@ const getCharacterMeritFlaws = async (req, res) => {
         const { characterId } = req.params;
         const records = await models_1.CharacterMeritFlaw.findAll({
             where: { characterId },
-            include: [{ model: models_1.MeritFlawDefinition, as: 'meritFlaw' }],
+            include: [{ model: models_1.MeritFlawDefinition, as: 'meritFlawDefinition' }],
         });
         res.json(records);
     }

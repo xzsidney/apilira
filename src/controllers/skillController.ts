@@ -8,7 +8,7 @@ export const getCharacterSkills = async (req: Request, res: Response): Promise<v
     const { characterId } = req.params;
     const skills = await CharacterSkill.findAll({
       where: { characterId },
-      include: [{ model: SkillDefinition, as: 'skill' }],
+      include: [{ model: SkillDefinition, as: 'skillDefinition' }],
     });
     res.json(skills);
   } catch (error) {

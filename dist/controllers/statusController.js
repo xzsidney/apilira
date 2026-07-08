@@ -9,7 +9,7 @@ const getCharacterStatuses = async (req, res) => {
         const { characterId } = req.params;
         const records = await models_1.CharacterStatus.findAll({
             where: { characterId },
-            include: [{ model: models_1.StatusDefinition, as: 'status' }],
+            include: [{ model: models_1.StatusDefinition, as: 'statusDefinition' }],
         });
         res.json(records);
     }

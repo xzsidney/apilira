@@ -8,7 +8,7 @@ export const getCharacterAttributes = async (req: Request, res: Response): Promi
     const { characterId } = req.params;
     const attributes = await CharacterAttribute.findAll({
       where: { characterId },
-      include: [{ model: AttributeDefinition, as: 'attribute' }],
+      include: [{ model: AttributeDefinition, as: 'attributeDefinition' }],
     });
     res.json(attributes);
   } catch (error) {
