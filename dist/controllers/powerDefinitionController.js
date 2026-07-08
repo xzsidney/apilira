@@ -15,7 +15,7 @@ const getPowerDefinitions = async (req, res) => {
         }
         const definitions = await models_1.PowerDefinition.findAll({
             where: whereClause,
-            include: [{ model: models_1.PowerLevelDefinition, as: 'powerLevels' }]
+            include: [{ model: models_1.PowerLevelDefinition, as: 'levels' }]
         });
         res.json(definitions);
     }
@@ -43,7 +43,7 @@ const createPowerDefinition = async (req, res) => {
                     create: powerLevels || []
                 }
             },
-            include: [{ model: models_1.PowerLevelDefinition, as: 'powerLevels' }]
+            include: [{ model: models_1.PowerLevelDefinition, as: 'levels' }]
         });
         res.status(201).json(newDef);
     }
