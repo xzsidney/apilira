@@ -1,14 +1,18 @@
 import { Request, Response } from "express";
 import { characterPowerInputSchema } from "../schemas/powerSchemas";
 import { z } from "zod";
-import { CharacterPower, CharacterPowerSelection, sequelize } from "../models";
+import { CharacterPower, CharacterPowerSelection, PowerDefinition, PowerLevelDefinition, sequelize } from "../models";
 
 export const getCharacterPowers = async (req: Request, res: Response): Promise<void> => {
   try {
     const { characterId } = req.params;
     const records = await CharacterPower.findAll({
       where: { characterId },
-      include: { all: true, nested: true }
+      include: [
+        { model: PowerDefinition, as: 'powerDefinition' },
+        { model: PowerLevelDefinition, as: 'powerLevelDefinition' },
+        { model: CharacterPowerSelection, as: 'selections' }
+      ]
     });
     res.json(records);
   } catch (error) {

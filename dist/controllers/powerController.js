@@ -9,7 +9,11 @@ const getCharacterPowers = async (req, res) => {
         const { characterId } = req.params;
         const records = await models_1.CharacterPower.findAll({
             where: { characterId },
-            include: { all: true, nested: true }
+            include: [
+                { model: models_1.PowerDefinition, as: 'powerDefinition' },
+                { model: models_1.PowerLevelDefinition, as: 'powerLevelDefinition' },
+                { model: models_1.CharacterPowerSelection, as: 'selections' }
+            ]
         });
         res.json(records);
     }
