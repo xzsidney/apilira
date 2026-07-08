@@ -10,9 +10,26 @@ import {
   CharacterPower, 
   CharacterPowerSelection, 
   CharacterMeritFlaw, 
-  CharacterItem, 
+  CharacterItem,
+  CharacterBackground,
+  CharacterHaven,
   sequelize 
 } from "../models";
+
+const characterIncludes = [
+  { model: CharacterAttribute, as: 'attributes', include: ['attributeDefinition'] },
+  { model: CharacterSkill, as: 'skills', include: ['skillDefinition'] },
+  { model: CharacterStatus, as: 'statuses', include: ['statusDefinition'] },
+  { model: CharacterPower, as: 'powers', include: [
+      'powerDefinition',
+      { model: CharacterPowerSelection, as: 'selections', include: ['powerLevelDefinition'] }
+    ]
+  },
+  { model: CharacterMeritFlaw, as: 'meritsFlaws', include: ['meritFlawDefinition'] },
+  { model: CharacterItem, as: 'items', include: ['itemDefinition'] },
+  { model: CharacterBackground, as: 'backgrounds', include: ['backgroundDefinition'] },
+  { model: CharacterHaven, as: 'havens', include: ['havenDefinition'] }
+];
 
 // Helper to map GameStyle to its PowerType
 const getPowerType = (style: GameStyle): PowerType => {
@@ -120,7 +137,7 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
 
       await t.commit();
       
-      const createdChar = await Character.findByPk(charId, { include: { all: true, nested: true } });
+      const createdChar = await Character.findByPk(charId, { include: characterIncludes });
       return res.status(201).json(createdChar);
     } catch (err) {
       await t.rollback();
@@ -138,7 +155,7 @@ export const listCharacters = async (req: AuthenticatedRequest, res: Response) =
       return res.status(401).json({ error: "Não autorizado" });
     }
 
-    const characters = await Character.findAll({ include: { all: true, nested: true } });
+    const characters = await Character.findAll({ include: characterIncludes });
     return res.json(characters);
   } catch (error) {
     console.error("Erro ao listar personagens:", error);
@@ -154,7 +171,7 @@ export const getCharacter = async (req: AuthenticatedRequest, res: Response) => 
 
     const { id } = req.params;
 
-    const character = await Character.findByPk(id, { include: { all: true, nested: true } });
+    const character = await Character.findByPk(id, { include: characterIncludes });
 
     if (!character) {
       return res.status(404).json({ error: "Personagem não encontrado" });
@@ -284,7 +301,7 @@ export const updateCharacter = async (req: AuthenticatedRequest, res: Response) 
 
       await t.commit();
       
-      const updatedCharacter = await Character.findByPk(id, { include: { all: true, nested: true } });
+      const updatedCharacter = await Character.findByPk(id, { include: characterIncludes });
       return res.json(updatedCharacter);
     } catch (err) {
       await t.rollback();
