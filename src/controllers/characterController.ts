@@ -159,6 +159,24 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
         })) as any, { transaction: t });
       }
 
+      if (backgrounds && backgrounds.length > 0) {
+        await CharacterBackground.bulkCreate(backgrounds.map(b => ({
+          characterId: charId,
+          backgroundDefinitionId: b.backgroundDefinitionId,
+          value: b.value,
+          description: b.description
+        })) as any, { transaction: t });
+      }
+
+      if (havens && havens.length > 0) {
+        await CharacterHaven.bulkCreate(havens.map(h => ({
+          characterId: charId,
+          havenDefinitionId: h.havenDefinitionId,
+          value: h.value,
+          description: h.description
+        })) as any, { transaction: t });
+      }
+
       await t.commit();
       
       const createdChar = await Character.findByPk(charId, { include: characterIncludes });
