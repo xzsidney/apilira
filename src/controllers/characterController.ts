@@ -166,9 +166,8 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
       if (backgrounds && backgrounds.length > 0) {
         await CharacterBackground.bulkCreate(backgrounds.map(b => ({
           characterId: charId,
-          backgroundDefinitionId: b.backgroundDefinitionId,
-          value: b.value,
-          description: b.description
+          backgroundDefinitionId: b.backgroundId,
+          level: b.level
         })) as any, { transaction: t });
       }
 
@@ -176,8 +175,7 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
         await CharacterHaven.bulkCreate(havens.map(h => ({
           characterId: charId,
           havenDefinitionId: h.havenDefinitionId,
-          value: h.value,
-          description: h.description
+          regionId: h.regionId
         })) as any, { transaction: t });
       }
 
