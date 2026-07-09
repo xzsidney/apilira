@@ -1,0 +1,298 @@
+{
+  "skill_definitions": [
+    {
+      "nome": "Armas Brancas",
+      "tipo": "Físico",
+      "descricao": "Combate corpo a corpo utilizando objetos como espadas, facas, machados ou bastões.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Armas de Fogo",
+      "tipo": "Físico",
+      "descricao": "Manuseio, mira, manutenção, precisão e conhecimento geral sobre armamentos balísticos e projéteis.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Atletismo",
+      "tipo": "Físico",
+      "descricao": "Capacidades físicas gerais como correr, saltar, escalar, nadar e esquivar-se de projéteis.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Esportes",
+      "tipo": "Físico",
+      "descricao": "Capacidades atléticas e esportivas gerais, corrida e coordenação corporal mística.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Briga",
+      "tipo": "Físico",
+      "descricao": "Combate desarmado utilizando o próprio corpo, como socos, chutes, chaves, mordidas e garras.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Condução",
+      "tipo": "Físico",
+      "descricao": "Habilidade e perícia para pilotar e controlar veículos terrestres ou aquáticos sob estresse ou perseguição.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Condução (Mago)",
+      "tipo": "Físico",
+      "descricao": "Perícia clássica para operar veículos civis comuns e transportes mundanos.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Furtividade",
+      "tipo": "Físico",
+      "descricao": "Capacidade de se mover em silêncio, esconder-se nas sombras, camuflar-se e agir sem ser detectado.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Ladroagem",
+      "tipo": "Físico",
+      "descricao": "Bater carteiras, arrombar fechaduras mecânicas, desarmar sistemas físicos de alarme e agilidade manual ilícita.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Ladroagem (Mago)",
+      "tipo": "Físico",
+      "descricao": "Habilidade clássica de prestidigitação, abertura de travas e furtos manuais discretos.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Ofícios",
+      "tipo": "Físico",
+      "descricao": "Capacidade de construir, consertar, forjar e criar itens mecânicos, manuais ou estruturas físicas.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Ofícios (Mago)",
+      "tipo": "Físico",
+      "descricao": "Habilidade de manufatura clássica, carpintaria, reparos de laboratório e criação de objetos materiais.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Sobrevivência",
+      "tipo": "Físico",
+      "descricao": "Rastreamento em ambientes selvagens, caça, capacidade de encontrar abrigo, água e resistir a climas severos.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Empatia com Animais",
+      "tipo": "Social",
+      "descricao": "Compreender o comportamento animal, acalmar bestas ferais, domesticar e treinar criaturas nativas.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Etiqueta",
+      "tipo": "Social",
+      "descricao": "Entendimento das normas sociais, protocolo diplomático e comportamento polido em jantares ou cortes nobres.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Etiqueta (Mago)",
+      "tipo": "Social",
+      "descricao": "Conhecimento de cortesias sociais tradicionais e comportamento protocolar formal de alta sociedade.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Intimidação",
+      "tipo": "Social",
+      "descricao": "Coagir alvos, quebrar vontades e extrair obediência através de medo físico, autoridade moral ou ameaças.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Liderança",
+      "tipo": "Social",
+      "descricao": "Capacidade de inspirar confiança, comandar subordinados, guiar matilhas/células e organizar grupos.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Liderança (Mago)",
+      "tipo": "Social",
+      "descricao": "Capacidade clássica de coordenar equipes, guiar discursos inspiradores e comandar ordens mundanas.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Manha",
+      "tipo": "Social",
+      "descricao": "Conhecimento das ruas, contatos do mercado negro, redes de contrabando, gangues e gírias urbanas.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Performance",
+      "tipo": "Social",
+      "descricao": "Cantar, atuar, discursar em público, tocar instrumentos ou se expressar artisticamente no palco.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Artes",
+      "tipo": "Social",
+      "descricao": "Expressão artística clássica, pintura, escultura, música instrumental e fomento estético tradicional.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Persuasão",
+      "tipo": "Social",
+      "descricao": "Convencer os outros através de argumentos lógicos estruturados, apelo emocional legítimo ou retórica comercial.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Lábia",
+      "tipo": "Social",
+      "descricao": "Retórica enganosa, charme conversacional, sedução mundana e capacidade de distorcer fatos em discussões.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Sagacidade",
+      "tipo": "Social",
+      "descricao": "Empatia imediata, intuição psicológica rápida e capacidade de ler as reais intenções e linguagem corporal de um alvo.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Subterfúgio",
+      "tipo": "Social",
+      "descricao": "Ocultar as próprias intenções com perfeição, mentir sem deixar pistas físicas e detectar mentiras alheias.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Ciência",
+      "tipo": "Mental",
+      "descricao": "Compreensão e aplicação prática de disciplinas acadêmicas exatas como física, química, matemática e biologia.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Erudição",
+      "tipo": "Mental",
+      "descricao": "Domínio amplo de ciências humanas, história geral, literatura clássica, antropologia e artes liberais.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Acadêmicos",
+      "tipo": "Mental",
+      "descricao": "Estudo aprofundado de ciências humanas tradicionais, história e literatura acadêmica formal.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Finanças",
+      "tipo": "Mental",
+      "descricao": "Entendimento do mercado financeiro, contabilidade corporativa, investimentos, fraudes e lavagem de capitais.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Investigação",
+      "tipo": "Mental",
+      "descricao": "Capacidade técnica de analisar cenas de crimes, cruzar dados, buscar registros públicos e achar pistas ocultas.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Medicina",
+      "tipo": "Mental",
+      "descricao": "Diagnóstico clínico de traumas e doenças, tratamentos cirúrgicos, primeiros socorros e anatomia geral.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Medicina (Mago)",
+      "tipo": "Mental",
+      "descricao": "Conhecimento cirúrgico, farmacêutico e de anatomia humana clássica de pronto-atendimento.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Ocultismo",
+      "tipo": "Mental",
+      "descricao": "Estudo teórico e prático sobre o sobrenatural, rituais profanos, lendas de criaturas da noite e mitos esquecidos.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Percepção",
+      "tipo": "Mental",
+      "descricao": "Atenção instintiva a detalhes no ambiente, agudeza dos sentidos físicos e detecção precoce de emboscadas.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Política",
+      "tipo": "Mental",
+      "descricao": "Entendimento das engrenagens burocráticas estatais, funcionamento de governos mundanos e diplomacia partidária.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Tecnologia",
+      "tipo": "Mental",
+      "descricao": "Conhecimento de infraestrutura de redes corporativas, hardware de segurança, criptografia e automação.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Computação",
+      "tipo": "Mental",
+      "descricao": "Domínio técnico de programação, invasão de servidores digitais, engenharia de software e ciberespaço.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Prontidão",
+      "tipo": "Mental",
+      "descricao": "Reflexos de percepção e atenção situacional instantânea a perigos ocultos em combates rápidos.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Consciência",
+      "tipo": "Mental",
+      "descricao": "Intuição psicológica profunda, conexão ética subjetiva e percepção intuitiva da integridade de ações.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Empatia",
+      "tipo": "Social",
+      "descricao": "Compreensão profunda das motivações emocionais humanas, dores psicológicas e identificação de traumas de alvos.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Expressão",
+      "tipo": "Social",
+      "descricao": "Capacidade de redigir manifestos, teses, poemas e transmitir ideias de alto impacto de forma escrita ou verbal.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Artes Marciais",
+      "tipo": "Físico",
+      "descricao": "Estilos de combate desarmado disciplinados orientais ou ocidentais focados no fluxo de energia interna.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Meditação",
+      "tipo": "Mental",
+      "descricao": "Técnicas de transe ascético, purificação mental, controle de estresse físico e realinhamento interior.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Pesquisa",
+      "tipo": "Mental",
+      "descricao": "Agilidade acadêmica para varrer arquivos mortos de bibliotecas e rastrear microfilmes ou registros históricos.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Cosmologia",
+      "tipo": "Mental",
+      "descricao": "Estudo das esferas dimensionais, zonas umbrais, reinos espirituais e a tapeçaria invisível que compõe o cosmo místico.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Enigmas",
+      "tipo": "Mental",
+      "descricao": "Decifrar quebra-cabeças arcanos, criptogramas esotéricos e problemas complexos de lógica ritual antiga.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Esoterismo",
+      "tipo": "Mental",
+      "descricao": "Conhecimento especializado em astrologia, hermetismo tradicional, alquimia de laboratório e caminhos ocultistas ocultos.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Direito",
+      "tipo": "Mental",
+      "descricao": "Domínio técnico de códigos civis e criminais nacionais, brechas na constituição e defesa formal em tribunais humanos.",
+      "gameStyle": ["MAGE"]
+    }
+  ]
+}

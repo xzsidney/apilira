@@ -6,6 +6,7 @@ export class AttributeDefinition extends Model {
   declare name: string;
   declare type: string;
   declare description: string | null;
+  declare gameStyle: object | null;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -28,6 +29,10 @@ export function initAttributeDefinition(sequelize: Sequelize) {
       },
       description: {
         type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      gameStyle: {
+        type: DataTypes.JSON,
         allowNull: true,
       },
     },

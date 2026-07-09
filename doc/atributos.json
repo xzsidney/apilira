@@ -1,0 +1,64 @@
+{
+  "attribute_definitions": [
+    {
+      "nome": "Força",
+      "tipo": "Físico",
+      "descricao": "Mede o poder físico bruto, capacidade de erguer pesos, causar dano e empurrar.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Destreza",
+      "tipo": "Físico",
+      "descricao": "Mede a agilidade, coordenação motora, reflexos físicos e velocidade de reação.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Vigor",
+      "tipo": "Físico",
+      "descricao": "Mede a resistência física, tolerância à dor, saúde e capacidade de absorver traumas.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Carisma",
+      "tipo": "Social",
+      "descricao": "Mede o charme natural, a capacidade de atrair as pessoas e exercer magnetismo pessoal.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Manipulação",
+      "tipo": "Social",
+      "descricao": "Mede a lábia, capacidade de persuasão, controle social e habilidade de fazer os outros agirem como você quer.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Autocontrole",
+      "tipo": "Social",
+      "descricao": "Mede a compostura emocional, capacidade de manter a calma sob pressão e esconder intenções.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    },
+    {
+      "nome": "Aparência",
+      "tipo": "Social",
+      "descricao": "Mede o apelo visual bruto, simetria e o impacto da primeira impressão estética do personagem.",
+      "gameStyle": ["MAGE"]
+    },
+    {
+      "nome": "Inteligência",
+      "tipo": "Mental",
+      "descricao": "Mede a capacidade de raciocínio lógico, memória, discernimento e processamento de dados intelectuais.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Raciocínio",
+      "tipo": "Mental",
+      "descricao": "Mede a velocidade de pensamento, capacidade de improvisar e responder a ameaças mentais rápidas.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "MAGE", "HUNTER"]
+    },
+    {
+      "nome": "Determinação",
+      "tipo": "Mental",
+      "descricao": "Mede a resiliência mental, foco inabalável, força de vontade psicológica e teimosia.",
+      "gameStyle": ["VAMPIRE", "WEREWOLF", "HUNTER"]
+    }
+  ]
+}

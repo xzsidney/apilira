@@ -1,0 +1,54 @@
+import fs from 'fs';
+import path from 'path';
+import { sequelize } from './models';
+import { AttributeDefinition } from './models/AttributeDefinition';
+import { SkillDefinition } from './models/SkillDefinition';
+import { CharacterAttribute } from './models/CharacterAttribute';
+import { CharacterSkill } from './models/CharacterSkill';
+
+async function seed() {
+  await sequelize.authenticate();
+  console.log('Conectado ao banco de dados!');
+
+  // Atualiza as tabelas adicionando a nova coluna gameStyle
+  await sequelize.sync({ alter: true });
+  console.log('Tabelas sincronizadas (alteradas se necessário).');
+
+  // Apaga vínculos existentes para evitar erro de Foreign Key
+  await CharacterAttribute.destroy({ where: {} });
+  await CharacterSkill.destroy({ where: {} });
+
+  // Apaga definições antigas
+  await AttributeDefinition.destroy({ where: {} });
+  await SkillDefinition.destroy({ where: {} });
+  console.log('Tabelas de definição antigas foram limpas.');
+
+  // Insere Atributos
+  const attrData = JSON.parse(fs.readFileSync(path.join(__dirname, '../doc/atributos.json'), 'utf-8'));
+  for (const attr of attrData.attribute_definitions) {
+    await AttributeDefinition.create({
+      name: attr.nome,
+      type: attr.tipo.toUpperCase(), // ex: 'FÍSICO'
+      description: attr.descricao,
+      gameStyle: attr.gameStyle,
+    });
+  }
+  console.log(`Foram inseridos ${attrData.attribute_definitions.length} atributos com sucesso.`);
+
+  // Insere Habilidades
+  const skillData = JSON.parse(fs.readFileSync(path.join(__dirname, '../doc/HABILIDADES.json'), 'utf-8'));
+  for (const skill of skillData.skill_definitions) {
+    await SkillDefinition.create({
+      name: skill.nome,
+      type: skill.tipo.toUpperCase(), // ex: 'FÍSICO'
+      description: skill.descricao,
+      gameStyle: skill.gameStyle,
+    });
+  }
+  console.log(`Foram inseridas ${skillData.skill_definitions.length} habilidades com sucesso.`);
+
+  console.log('Migração finalizada com sucesso!');
+  process.exit(0);
+}
+
+seed().catch(console.error);
