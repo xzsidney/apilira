@@ -10,50 +10,53 @@ async function seed() {
   await sequelize.authenticate();
   console.log('Conectado ao banco de dados!');
 
-  // Atualiza as tabelas adicionando a nova coluna gameStyle
+  // Atualiza as tabelas adicionando colunas faltantes
   await sequelize.sync({ alter: true });
   console.log('Tabelas sincronizadas (alteradas se necessário).');
 
-  // Apaga vínculos existentes para evitar erro de Foreign Key
-  await CharacterAttribute.destroy({ where: {} });
-  await CharacterSkill.destroy({ where: {} });
-
-  // Apaga definições antigas
-  await AttributeDefinition.destroy({ where: {} });
-  await SkillDefinition.destroy({ where: {} });
-  console.log('Tabelas de definição antigas foram limpas.');
-
-  // Insere Atributos
+  // Insere Atributos (Sem deletar)
   const attrData = JSON.parse(fs.readFileSync(path.join(__dirname, '../doc/atributos.json'), 'utf-8'));
   for (const attr of attrData.attribute_definitions) {
-    await AttributeDefinition.create({
-      name: attr.nome,
-      type: attr.tipo.toUpperCase(), // ex: 'FÍSICO'
-      description: attr.descricao,
-      gameStyle: attr.gameStyle,
+    const [record, created] = await AttributeDefinition.findOrCreate({
+      where: { name: attr.nome, type: attr.tipo.toUpperCase() },
+      defaults: {
+        description: attr.descricao,
+        gameStyle: attr.gameStyle,
+      }
     });
+    if (!created) {
+      await record.update({
+        description: attr.descricao,
+        gameStyle: attr.gameStyle,
+      });
+    }
   }
-  console.log(`Foram inseridos ${attrData.attribute_definitions.length} atributos com sucesso.`);
+  console.log(`Foram atualizados/inseridos ${attrData.attribute_definitions.length} atributos com sucesso.`);
 
-  // Insere Habilidades
+  // Insere Habilidades (Sem deletar)
   const skillData = JSON.parse(fs.readFileSync(path.join(__dirname, '../doc/HABILIDADES.json'), 'utf-8'));
   for (const skill of skillData.skill_definitions) {
-    await SkillDefinition.create({
-      name: skill.nome,
-      type: skill.tipo.toUpperCase(), // ex: 'FÍSICO'
-      description: skill.descricao,
-      gameStyle: skill.gameStyle,
+    const [record, created] = await SkillDefinition.findOrCreate({
+      where: { name: skill.nome, type: skill.tipo.toUpperCase() },
+      defaults: {
+        description: skill.descricao,
+        gameStyle: skill.gameStyle,
+      }
     });
+    if (!created) {
+      await record.update({
+        description: skill.descricao,
+        gameStyle: skill.gameStyle,
+      });
+    }
   }
-  console.log(`Foram inseridas ${skillData.skill_definitions.length} habilidades com sucesso.`);
+  console.log(`Foram atualizadas/inseridas ${skillData.skill_definitions.length} habilidades com sucesso.`);
 
-  // Insere Predadores
+  // Insere Predadores (Sem deletar)
   const predData = JSON.parse(fs.readFileSync(path.join(__dirname, '../doc/Predador.json'), 'utf-8'));
   const { VampirePredatorDefinition } = require('./models');
-  // Apaga predadores antigos se quiser limpar
-  await VampirePredatorDefinition.destroy({ where: {} });
   for (const pred of predData.predator_definitions) {
-    await VampirePredatorDefinition.create({
+    await VampirePredatorDefinition.upsert({
       id: pred.id,
       nome: pred.nome,
       descricao: pred.descricao,
@@ -68,12 +71,11 @@ async function seed() {
   }
   console.log(`Foram inseridos ${predData.predator_definitions.length} predadores com sucesso.`);
 
-  // Insere Ressonâncias
+  // Insere Ressonâncias (Sem deletar)
   const resData = JSON.parse(fs.readFileSync(path.join(__dirname, '../doc/ressonancias_vampiricas.json'), 'utf-8'));
   const { VampireResonanceDefinition } = require('./models');
-  await VampireResonanceDefinition.destroy({ where: {} });
   for (const res of resData.ressonancias_vampiricas) {
-    await VampireResonanceDefinition.create({
+    await VampireResonanceDefinition.upsert({
       id: res.id,
       nome: res.nome,
       humor_associado: res.humor_associado,
@@ -82,7 +84,7 @@ async function seed() {
       exemplos_presas: res.exemplos_presas,
     });
   }
-  console.log(`Foram inseridas ${resData.ressonancias_vampiricas.length} ressonâncias com sucesso.`);
+  console.log(`Foram atualizadas/inseridas ${resData.ressonancias_vampiricas.length} ressonâncias com sucesso.`);
 
   console.log('Migração finalizada com sucesso!');
   process.exit(0);

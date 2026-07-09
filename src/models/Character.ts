@@ -36,6 +36,10 @@ export class Character extends Model {
   declare vampirePredatorId: string | null;
   declare vampireResonanceId: string | null;
   declare vampireGeneration: number | null;
+  declare vampireSire: string | null;
+  declare vampireHunger: number | null;
+  declare vampireAmbition: string | null;
+  declare vampireDesire: string | null;
 
   declare createdAt: Date;
   declare updatedAt: Date;
@@ -91,6 +95,23 @@ export function initCharacter(sequelize: Sequelize) {
       },
       vampireGeneration: {
         type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      vampireSire: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      vampireHunger: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 1,
+      },
+      vampireAmbition: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      vampireDesire: {
+        type: DataTypes.STRING,
         allowNull: true,
       },
       avatarUrl: {

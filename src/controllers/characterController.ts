@@ -72,6 +72,10 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
     const vampirePredatorId = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampirePredatorId : null;
     const vampireResonanceId = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireResonanceId : null;
     const vampireGeneration = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireGeneration : null;
+    const vampireSire = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireSire : null;
+    const vampireHunger = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireHunger : null;
+    const vampireAmbition = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireAmbition : null;
+    const vampireDesire = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireDesire : null;
 
     const t = await sequelize.transaction();
     try {
@@ -83,6 +87,10 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
         vampirePredatorId: vampirePredatorId,
         vampireResonanceId: vampireResonanceId,
         vampireGeneration: vampireGeneration,
+        vampireSire: vampireSire,
+        vampireHunger: vampireHunger,
+        vampireAmbition: vampireAmbition,
+        vampireDesire: vampireDesire,
         werewolfTribeId: gameStyle === GameStyle.WEREWOLF ? (validated.data as any).werewolfTribeId : null,
         mageTraditionId: gameStyle === GameStyle.MAGE ? (validated.data as any).mageTraditionId : null,
         hunterCreedId: gameStyle === GameStyle.HUNTER ? (validated.data as any).hunterCreedId : null,
