@@ -7,6 +7,10 @@ import sequelize from '../config/database';
 // ==================== Importação dos modelos ====================
 import { User, initUser } from './User';
 import { Character, initCharacter } from './Character';
+import { VampireClaDefinition, initVampireClaDefinition } from './VampireClaDefinition';
+import { WerewolfTribeDefinition, initWerewolfTribeDefinition } from './WerewolfTribeDefinition';
+import { MageTraditionDefinition, initMageTraditionDefinition } from './MageTraditionDefinition';
+import { HunterCreedDefinition, initHunterCreedDefinition } from './HunterCreedDefinition';
 import { AttributeDefinition, initAttributeDefinition } from './AttributeDefinition';
 import { CharacterAttribute, initCharacterAttribute } from './CharacterAttribute';
 import { SkillDefinition, initSkillDefinition } from './SkillDefinition';
@@ -45,6 +49,10 @@ import { SceneAction, initSceneAction } from './SceneAction';
 // ==================== Inicialização dos modelos ====================
 initUser(sequelize);
 initCharacter(sequelize);
+initVampireClaDefinition(sequelize);
+initWerewolfTribeDefinition(sequelize);
+initMageTraditionDefinition(sequelize);
+initHunterCreedDefinition(sequelize);
 initAttributeDefinition(sequelize);
 initCharacterAttribute(sequelize);
 initSkillDefinition(sequelize);
@@ -85,6 +93,19 @@ initSceneAction(sequelize);
 // --- User <-> Character ---
 User.hasMany(Character, { foreignKey: 'userId', as: 'characters', onDelete: 'CASCADE' });
 Character.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// --- Factions <-> Character ---
+VampireClaDefinition.hasMany(Character, { foreignKey: 'vampireClaId', as: 'vampireCharacters', onDelete: 'SET NULL' });
+Character.belongsTo(VampireClaDefinition, { foreignKey: 'vampireClaId', as: 'vampireCla' });
+
+WerewolfTribeDefinition.hasMany(Character, { foreignKey: 'werewolfTribeId', as: 'werewolfCharacters', onDelete: 'SET NULL' });
+Character.belongsTo(WerewolfTribeDefinition, { foreignKey: 'werewolfTribeId', as: 'werewolfTribe' });
+
+MageTraditionDefinition.hasMany(Character, { foreignKey: 'mageTraditionId', as: 'mageCharacters', onDelete: 'SET NULL' });
+Character.belongsTo(MageTraditionDefinition, { foreignKey: 'mageTraditionId', as: 'mageTradition' });
+
+HunterCreedDefinition.hasMany(Character, { foreignKey: 'hunterCreedId', as: 'hunterCharacters', onDelete: 'SET NULL' });
+Character.belongsTo(HunterCreedDefinition, { foreignKey: 'hunterCreedId', as: 'hunterCreed' });
 
 // --- Character <-> CharacterAttribute ---
 Character.hasMany(CharacterAttribute, { foreignKey: 'characterId', as: 'attributes', onDelete: 'CASCADE' });
@@ -232,6 +253,10 @@ export {
   sequelize,
   User,
   Character,
+  VampireClaDefinition,
+  WerewolfTribeDefinition,
+  MageTraditionDefinition,
+  HunterCreedDefinition,
   AttributeDefinition,
   CharacterAttribute,
   SkillDefinition,

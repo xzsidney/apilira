@@ -1,0 +1,139 @@
+{
+  "tradicoes_misticas": [
+    {
+      "nome": "Adeptos da Virtualidade",
+      "nome_ingles": "Virtual Adepts",
+      "descricao": "Tecnómagos e hackers que entendem a realidade como um código de computador passível de ser 'hackeado'[cite: 1]. Dominam a infraestrutura digital e redes ocultas[cite: 17].",
+      "esfera_afinidade": "Correspondência",
+      "foco_instrumentos": [
+        "Notebook Tecnomante Customizado",
+        "Drones de Vigilância Térmica",
+        "Algoritmos e Hardware de Santa Ifigênia"
+      ],
+      "falha_paradigma": {
+        "nome": "Dependência de Hardware / Foco Rígido",
+        "descricao": "Sua magia é intrinsecamente ligada à tecnologia. Se o Mago for privado de computadores ou rede de dados, sua dificuldade de conjuração é severamente penalizada."
+      }
+    },
+    {
+      "nome": "Coro Celestial",
+      "nome_ingles": "Celestial Chorus",
+      "descricao": "Buscam o divino por meio da crença e da devoção em uma força unificada[cite: 1]. Operam em santuários e basílicas tradicionais da cidade[cite: 17].",
+      "esfera_afinidade": "Primórdio",
+      "foco_instrumentos": [
+        "Orações, Cânticos e Hinos",
+        "Símbolos Religiosos Sagrados",
+        "Incensos e Velas Rituais"
+      ],
+      "falha_paradigma": {
+        "nome": "Dogmatismo Rígido",
+        "descricao": "Seus feitiços exigem pureza de intenção e fé. Caso execute ações que entrem em contradição direta com seus votos morais, o Paradoxo ricocheteia com o dobro de agressividade[cite: 1, 4]."
+      }
+    },
+    {
+      "nome": "Culto do Êxtase",
+      "nome_ingles": "Cult of Ecstasy",
+      "descricao": "Buscam a iluminação através dos sentidos, emoções, meditação e alteração da percepção e do tempo[cite: 1].",
+      "esfera_afinidade": "Tempo",
+      "foco_instrumentos": [
+        "Músicas Dinâmicas / Dança",
+        "Estimulantes e Substâncias Alteradoras",
+        "Meditação Sensorial Intensa"
+      ],
+      "falha_paradigma": {
+        "nome": "Alheamento Temporal / Distração",
+        "descricao": "Sua manipulação constante da linha do tempo gera desorientação. Sofrem penalidades em rolagens de Prontidão e Iniciativa ao saírem de feitiços de transe temporal[cite: 4]."
+      }
+    },
+    {
+      "nome": "Eutanatos",
+      "nome_ingles": "Euthanatoi",
+      "descricao": "Sacerdotes da morte, do destino e do renascimento. Controlam o ciclo de almas através da entropia[cite: 1] e vigiam os cemitérios urbanos[cite: 17].",
+      "esfera_afinidade": "Entropia",
+      "foco_instrumentos": [
+        "Dados, Moedas e Jogos de Azar",
+        "Adagas Rituais",
+        "Cinzas e Símbolos de Decomposição"
+      ],
+      "falha_paradigma": {
+        "nome": "O Peso do Destino / Máscara Fúnebre",
+        "descricao": "Lidar com o decaimento torna sua aura pesada. Humanas comuns sentem repulsa inconsciente, aplicando penalidades em testes sociais de primeira impressão (Lábia/Etiqueta)[cite: 4]."
+      }
+    },
+    {
+      "nome": "Filhos do Éter",
+      "nome_ingles": "Sons of Ether",
+      "descricao": "Cientistas idealistas, rebeldes e inventores que utilizam a eter-ciência em vez da ortodoxia Tecnocrática[cite: 1]. Operam em laboratórios e galpões secretos[cite: 17].",
+      "esfera_afinidade": "Matéria",
+      "foco_instrumentos": [
+        "Gambiarras de Engenharia / Óculos Táticos",
+        "Raios de Plasma e Bobinas Personalizadas",
+        "Manuais Científicos Alternativos"
+      ],
+      "falha_paradigma": {
+        "nome": "Instabilidade da Invenção",
+        "descricao": "Seus aparatos científicos desafiam o Consenso Público de forma vulgar. Falhas em seus testes de Matéria frequentemente explodem as engenhocas, causando dano físico direto ao Mago[cite: 1, 4]."
+      }
+    },
+    {
+      "nome": "Irmandade de Akasha",
+      "nome_ingles": "Akashic Brotherhood",
+      "descricao": "Monges guerreiros focados no domínio da mente e do corpo por meio de energia interior[cite: 1]. Concentrados na região tradicional da Liberdade[cite: 17].",
+      "esfera_afinidade": "Mente",
+      "foco_instrumentos": [
+        "Exercícios de Respiração (Pranayama)",
+        "Movimentos de Artes Marciais / Katana",
+        "Meditação Ascética Concentrada"
+      ],
+      "falha_paradigma": {
+        "nome": "Rigidez Marcial / Necessidade de Foco",
+        "descricao": "Sua magia exige equilíbrio biológico e mental. Estar sob efeito de venenos, ferimentos graves ou ambientes de barulho caótico (Marginais) obstaculiza o uso de seus poderes interiores[cite: 4]."
+      }
+    },
+    {
+      "nome": "Oradores dos Sonhos",
+      "nome_ingles": "Dreamspeakers",
+      "descricao": "Xamãs que servem como pontes entre o mundo material, espiritual e os ancestrais[cite: 1]. Infiltrados nas reservas e matas periféricas.",
+      "esfera_afinidade": "Espírito",
+      "foco_instrumentos": [
+        "Tambores e Chocalhos Rituais",
+        "Ervas Queimadas e Defumações",
+        "Pactos de Sangue com Espíritos Locais"
+      ],
+      "falha_paradigma": {
+        "nome": "Magnetismo Espiritual",
+        "descricao": "Sua proximidade com o Véu faz com que entidades da Umbra fiquem constantemente atraídas pelo seu rastro, aumentando as chances de encontros perigosos com o invisível durante as patrulhas[cite: 4]."
+      }
+    },
+    {
+      "nome": "Ordem de Hermes",
+      "nome_ingles": "Order of Hermes",
+      "descricao": "Mestres clássicos de rituais, invocação e numerologia esotérica. Baseiam-se em textos e pactos antigos[cite: 1]. Operam na Capela Central de Perdizes[cite: 17].",
+      "esfera_afinidade": "Forças",
+      "foco_instrumentos": [
+        "Grimórios Antigos e Pergaminhos",
+        "Palavras de Comando em Enochiano",
+        "Cálculos Matemáticos Planificados"
+      ],
+      "falha_paradigma": {
+        "nome": "Complexidade Ritual / Verbose",
+        "descricao": "Seus feitiços exigem gestos precisos e entonação perfeita de palavras arcanas. São incapazes de lançar feitiços de forma silenciosa ou totalmente paralisados, sob risco de sofrerem Choque de Retorno imediato[cite: 1, 4]."
+      }
+    },
+    {
+      "nome": "Verbena",
+      "nome_ingles": "Verbena",
+      "descricao": "Bruxos pagãos primitivos e druidas que manipulam os fluxos de vida e sangue da natureza[cite: 1]. Escondem-se nas matas fechadas do Mandaqui e Cantareira[cite: 17].",
+      "esfera_afinidade": "Vida",
+      "foco_instrumentos": [
+        "Sacrifício de Sangue Próprio ou Animal",
+        "Ervas Silvestres, Raízes e Caldeirões",
+        "Entalhes em Madeira e Runas da Casca de Árvore"
+      ],
+      "falha_paradigma": {
+        "nome": "Paradoxo da Carne / Dano Primitivo",
+        "descricao": "Sua magia é visceral, orgânica e sangrenta. O uso de rituais de transmutação biológica em locais públicos gera repulsa imediata no Consenso, gerando anomalias físicas grotescas na região[cite: 1, 4]."
+      }
+    }
+  ]
+}

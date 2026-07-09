@@ -1,0 +1,233 @@
+{
+  "clas_vampiricos": [
+    {
+      "nome": "Banu Haqim",
+      "apelido": "Juízes / Feiticeiros de Assam",
+      "descricao": "Guerreiros, juízes e estudiosos que operavam nas sombras do Oriente Médio. São movidos por um senso estrito de justiça e uma fome focada no sangue de outros vampiros.",
+      "alinhamento_seita": "Camarilla",
+      "disciplinas_principais": [
+        "Ofuscação",
+        "Rapidez",
+        "Feitiçaria de Sangue"
+      ],
+      "fraqueza": {
+        "nome": "Fome de Julgamento / Vício em Vitáe",
+        "descricao": "Quando um Banu Haqim bebe o sangue de outro vampiro, ele deve fazer um teste para não entrar em um frenesi de fome, impulsionado pelo desejo de drenar o alvo completamente.",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Brujah",
+      "apelido": "A Ralé",
+      "descricao": "A Ralé, rebeldes e insurgentes, lutando com paixão por suas causas desesperadas. Os Brujah sonham com uma sociedade perfeita para os vampiros[cite: 15].",
+      "alinhamento_seita": "Anarquistas",
+      "disciplinas_principais": [
+        "Presença",
+        "Rapidez",
+        "Potência"
+      ],
+      "fraqueza": {
+        "nome": "Paixão Ardente",
+        "descricao": "A dificuldade dos testes para se evitar o frenesi é dois níveis mais alta para os membros do clã Brujah[cite: 15].",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Gangrel",
+      "apelido": "Forasteiro",
+      "descricao": "Os nômades Forasteiros são ferozes e selvagens. Estes errantes solitários são a fonte de muitas das histórias que comparam os vampiros a bestas sombrias[cite: 15].",
+      "alinhamento_seita": "Anarquistas",
+      "disciplinas_principais": [
+        "Fortitude",
+        "Metamorfose",
+        "Animalismo"
+      ],
+      "fraqueza": {
+        "nome": "Marcas da Besta",
+        "descricao": "Toda vez que um Gangrel entra em estado de frenesi ele ganha uma característica animalesca permanente. Para cada cinco características adquiridas, o Gangrel perde um ponto em um Atributo Social[cite: 15].",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Malkavianos",
+      "apelido": "Lunáticos",
+      "descricao": "Abençoados e amaldiçoados com uma percepção fragmentada da realidade. A loucura do clã esconde verdades ocultas que os outros membros são incapazes de enxergar.",
+      "alinhamento_seita": "Camarilla",
+      "disciplinas_principais": [
+        "Auspícios",
+        "Ofuscação",
+        "Demência"
+      ],
+      "fraqueza": {
+        "nome": "Perturbação Mental",
+        "descricao": "Todo Malkaviano possui uma psicose ou distúrbio mental permanente que se manifesta de forma mais agressiva quando o personagem sofre falhas críticas ou surtos de estresse.",
+        "exemplos_restricao": [
+          "Paranoia Obsessiva",
+          "Visões e Alucinações Auditivas"
+        ]
+      }
+    },
+    {
+      "nome": "Ministério",
+      "apelido": "As Serpentes / Ministry",
+      "descricao": "Antigos Seguidores de Set. São mestres da mentira, subversão, corrupção espiritual e quebra de dogmas sociais[cite: 17]. Operam como os donos dos segredos e prazeres ilícitos da noite.",
+      "alinhamento_seita": "Anarquistas",
+      "disciplinas_principais": [
+        "Ofuscação",
+        "Presença",
+        "Metamorfose"
+      ],
+      "fraqueza": {
+        "nome": "Aversão à Luz / Corrupção da Carne",
+        "descricao": "As Serpentes sofrem penalidades severas em seus dados de ação e testes físicos se expostas a luzes artificiais intensas, holofotes ou chamas diretas.",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Nosferatu",
+      "apelido": "Rato de Esgoto",
+      "descricao": "Deformados e reclusos, os horrorosos Ratos de Esgoto estão para sempre banidos da sociedade humana, mas guardam segredos sobre a escuridão que os esconde[cite: 15].",
+      "alinhamento_seita": "Camarilla",
+      "disciplinas_principais": [
+        "Ofuscação",
+        "Animalismo",
+        "Potência"
+      ],
+      "fraqueza": {
+        "nome": "Deformidade Repugnante",
+        "descricao": "Aparência permanentemente 0. A maioria das ações Sociais baseadas na primeira impressão falham automaticamente[cite: 15].",
+        "exemplos_restricao": [
+          "Carne e pele secas e quebradiças, deixando pequenos pedaços que parecem madeira seca pelo chão[cite: 15]",
+          "Nenhum pêlo no corpo e pele com a viscosidade de uma lesma, deixando muco onde encostar[cite: 15]"
+        ]
+      }
+    },
+    {
+      "nome": "Ravnos",
+      "apelido": "Malandros / Errantes",
+      "descricao": "Nômades mestres da ilusão, truques mentais e fuga de amarras sociais. São caçados pela sua reputação de ladrões e trapaceiros incuráveis do submundo.",
+      "alinhamento_seita": "Autônomos / Independentes",
+      "disciplinas_principais": [
+        "Animalismo",
+        "Ofuscação",
+        "Quimerismo / Presença"
+      ],
+      "fraqueza": {
+        "nome": "A Besta Inquieta / Vício do Estigma",
+        "descricao": "Um Ravnos não consegue permanecer no mesmo local por muito tempo. Se ele dormir no mesmo refúgio por mais de uma noite consecutiva, a Besta racha sua mente, drenando sua Força de Vontade.",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Salubri",
+      "apelido": "Ciclistas / Os De Três Olhos",
+      "descricao": "Uma linhagem caçada e quase extinta de curandeiros e guerreiros místicos. São marcados por possuírem um terceiro olho físico na testa e por carregar o peso do fardo espiritual da humanidade.",
+      "alinhamento_seita": "Autônomos / Independentes",
+      "disciplinas_principais": [
+        "Auspícios",
+        "Fortitude",
+        "Obeah / Valeren"
+      ],
+      "fraqueza": {
+        "nome": "Alimentação Dolorosa / O Terceiro Olho",
+        "descricao": "O terceiro olho do Salubri chora lágrimas de sangue quando ele usa seus poderes. Além disso, ele não consegue se alimentar de uma presa que não dê o sangue voluntariamente sem sofrer remorso mecânico.",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Toreador",
+      "apelido": "Degenerado",
+      "descricao": "Amantes da arte e da estética, os Degenerados estão presos na estagnação da não-vida. Os Toreador são apaixonados e decadentes[cite: 15].",
+      "alinhamento_seita": "Camarilla",
+      "disciplinas_principais": [
+        "Presença",
+        "Rapidez",
+        "Auspícios"
+      ],
+      "fraqueza": {
+        "nome": "Transe da Beleza / Fascinação",
+        "descricao": "Quando um Toreador vê algo realmente maravilhoso, precisa ser bem sucedido num teste de Autocontrole (dif. 6) ou se encantará. O Toreador será tomado por um êxtase de fascinação durante uma cena e não pode se defender se atacado[cite: 15].",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Tremere",
+      "apelido": "Feiticeiro",
+      "descricao": "Um clã de magos do sangue, os Feiticeiros não são nada confiáveis... e sim temíveis[cite: 15].",
+      "alinhamento_seita": "Camarilla",
+      "disciplinas_principais": [
+        "Feitiçaria de Sangue",
+        "Auspícios",
+        "Dominação"
+      ],
+      "fraqueza": {
+        "nome": "Laço de Sangue do Conselho",
+        "descricao": "Todo neófito Tremere tomou do sangue dos sete anciões do clã. A dificuldade de qualquer tentativa de Dominação feita por um superior do clã é reduzida em 1. Um Tremere é fiel ao clã acima de tudo[cite: 15].",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Tzimisce",
+      "apelido": "Demônios / Construtores de Carne",
+      "descricao": "Tiranos territoriais que dominavam os castelos do Leste Europeu. Possuem controle absoluto sobre a biologia e a ossatura, moldando a própria carne e a de suas vítimas como se fossem argila viva.",
+      "alinhamento_seita": "Autônomos / Independentes",
+      "disciplinas_principais": [
+        "Animalismo",
+        "Auspicíos",
+        "Vicissitude / Metamorfose"
+      ],
+      "fraqueza": {
+        "nome": "Vínculo Territorial / Sono da Terra Natal",
+        "descricao": "Um Tzimisce precisa dormir cercado por pelo menos um punhado de terra de um local de extrema importância histórica para ele (como sua terra natal ou seu local de refúgio inicial). Caso contrário, ele perde dados de ação a cada noite.",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Ventrue",
+      "apelido": "Sangue Azul",
+      "descricao": "Relutantes membros aristocratas, os de Sangue Azul se reconciliam com sua maldição impondo as Tradições e a Máscara[cite: 15].",
+      "alinhamento_seita": "Camarilla",
+      "disciplinas_principais": [
+        "Dominação",
+        "Fortitude",
+        "Presença"
+      ],
+      "fraqueza": {
+        "nome": "Paladar Exigente",
+        "descricao": "Cada Ventrue só pode se alimentar de um tipo de sangue mortal[cite: 15].",
+        "exemplos_restricao": [
+          "Sangue de garotas jovens embriagadas com vinho[cite: 15]",
+          "Sangue de adolescentes sob a influência de drogas[cite: 15]"
+        ]
+      }
+    },
+    {
+      "nome": "Sangues-Ralos",
+      "apelido": "Thin-Bloods / Décima Quinta Geração",
+      "descricao": "Vampiros de gerações muito distantes de Caim. O sangue deles é ralo e fraco[cite: 17]; eles são desprezados pelos anciões, mas possuem a capacidade única de andar sob o sol por alguns minutos e criar alquimia de sangue.",
+      "alinhamento_seita": "Autônomos / Banidos",
+      "disciplinas_principais": [
+        "Alquimia de Sangue-Ralo"
+      ],
+      "fraqueza": {
+        "nome": "Fragilidade Clínica / Rejeição do Sangue",
+        "descricao": "Não possuem clã ou disciplinas nativas estáveis[cite: 17]. Não conseguem criar carniçais ou laços de sangue normais e são caçados como anomalias pela Camarilla.",
+        "exemplos_restricao": null
+      }
+    },
+    {
+      "nome": "Caitiff",
+      "apelido": "Os Sem-Clã",
+      "descricao": "Vampiros abandonados ou cujos traços de sangue não manifestaram nenhuma característica de clã[cite: 17]. São vistos como bastardos e cidadãos de segunda classe na sociedade dos Membros.",
+      "alinhamento_seita": "Anarquistas / Autônomos",
+      "disciplinas_principais": [
+        "Qualquer (Custo de XP universalizado)"
+      ],
+      "fraqueza": {
+        "nome": "Estigma Social / Ausência de Linhagem",
+        "descricao": "Não possuem fraqueza biológica herdada, mas sofrem falha automática ou penalidades severas em testes de reputação, status e diplomacia com a Camarilla[cite: 17].",
+        "exemplos_restricao": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "tribos_garou": [
+    {
+      "nome": "Senhores das Sombras",
+      "nome_ingles": "Shadow Lords",
+      "nome_classico": null,
+      "descricao": "Mestres da política e da intimidação, operam através de manipulação e controle para liderar e expor a corrupção.",
+      "alinhamento_nacao": "Membros da Nação Garou",
+      "dons_principais": [
+        "Dons do Augúrio: Philodox",
+        "Dons Universais da Cidade"
+      ],
+      "falha_psicologica": {
+        "nome": "Orgulho Tirânico",
+        "descricao": "Sua obsessão por controle e hierarquia faz com que sofram penalidades em dados de Empatia caso precisem aceitar ordens de outrem ou demonstrar fraqueza social[cite: 4]."
+      }
+    },
+    {
+      "nome": "Crias de Fenris",
+      "nome_ingles": "Get of Fenris",
+      "nome_classico": null,
+      "descricao": "Guerreiros implacáveis cujo extremismo os levou a serem marginalizados ou expulsos da Nação Garou tradicional.",
+      "alinhamento_nacao": "Culto Extremista (Marginalizados / Expulsos)",
+      "dons_principais": [
+        "Dons do Augúrio: Ahroun"
+      ],
+      "falha_psicologica": {
+        "nome": "Hauglosk Fanático / Fúria Cega",
+        "descricao": "Devido ao seu extremismo de combate, a dificuldade para evitar o estado de Hauglosk (fanatismo cego) é agravada, atacando aliados que mostrem qualquer sinal de hesitação[cite: 1, 4]."
+      }
+    },
+    {
+      "nome": "Fúrias Negras",
+      "nome_ingles": "Black Furies",
+      "nome_classico": null,
+      "descricao": "Guerreiras ferozes dedicadas a proteger os inocentes e os lugares sagrados da natureza. Em São Paulo, atuam fortemente na proteção de minorias e mananciais[cite: 17].",
+      "alinhamento_nacao": "Membros da Nação Garou",
+      "dons_principais": [
+        "Dons do Augúrio: Ahroun",
+        "Vida"
+      ],
+      "falha_psicologica": {
+        "nome": "Vingança Justa / Fúria contra o Opressor",
+        "descricao": "Sofrem dificuldades aumentadas em rolagens de Autocontrole se testemunharem atos de opressão contra inocentes ou profanação de solo sagrado[cite: 4]."
+      }
+    },
+    {
+      "nome": "Portadores da Luz",
+      "nome_ingles": "Brought Light",
+      "nome_classico": "Crianças de Gaia",
+      "descricao": "Pacificadores e diplomatas que buscam a cura e a reconciliação no fragmentado submundo sobrenatural.",
+      "alinhamento_nacao": "Membros da Nação Garou",
+      "dons_principais": [
+        "Dons do Augúrio: Galliard",
+        "Vida"
+      ],
+      "falha_psicologica": {
+        "nome": "Aversão ao Conflito / Hesitação Pacifista",
+        "descricao": "Caso tentem iniciar um ataque físico surpresa ou uma ação letal direta desprovida de negociação prévia, perdem dados da pilha de ação[cite: 4]."
+      }
+    },
+    {
+      "nome": "Peregrinos Silenciosos",
+      "nome_ingles": "Silent Striders",
+      "nome_classico": null,
+      "descricao": "Viajantes místicos que atuam como mensageiros e lidam com os mortos. Estão sempre em movimento pelas rodovias e estradas.",
+      "alinhamento_nacao": "Membros da Nação Garou",
+      "dons_principais": [
+        "Rapidez",
+        "Correspondência / Espírito"
+      ],
+      "falha_psicologica": {
+        "nome": "Assombrado pelos Mortos",
+        "descricao": "Devido à sua proximidade com o além, fantasmas e aparições perturbam constantemente seu descanso no refúgio, gerando riscos de testes de Força de Vontade ao amanhecer[cite: 4]."
+      }
+    },
+    {
+      "nome": "Andarilhos do Asfalto",
+      "nome_ingles": "Glass Walkers",
+      "nome_classico": null,
+      "descricao": "Especialistas em tecnologia e urbanismo, adaptados à vida moderna. Controlam grandes territórios industriais e digitais em São Paulo[cite: 17].",
+      "alinhamento_nacao": "Membros da Nação Garou",
+      "dons_principais": [
+        "Dons Universais da Cidade",
+        "Tempo / Matéria"
+      ],
+      "falha_psicologica": {
+        "nome": "Desconexão com o Selvagem / Película Espessa",
+        "descricao": "Sua mente é altamente tecnológica e cética, o que aumenta em +2 a dificuldade de qualquer teste místico de travessia espiritual para a Umbra Selvagem[cite: 4]."
+      }
+    },
+    {
+      "nome": "Senhores da Presa",
+      "nome_ingles": "Silver Fangs",
+      "nome_classico": null,
+      "descricao": "A nobreza tradicional dos lobisomens, agora lutando para manter sua relevância em um mundo fragmentado.",
+      "alinhamento_nacao": "Líderes Tradicionais (Nação Garou)",
+      "dons_principais": [
+        "Dons do Augúrio: Philodox",
+        "Presença"
+      ],
+      "falha_psicologica": {
+        "nome": "Instabilidade da Linhagem / Decadência Nobre",
+        "descricao": "O peso da herança e da consanguinidade gera surtos de exaustão mental, forçando falhas automáticas em testes sob estresse caso sua autoridade seja questionada[cite: 4]."
+      }
+    },
+    {
+      "nome": "Roedores de Ossos",
+      "nome_ingles": "Bone Gnawers",
+      "nome_classico": null,
+      "descricao": "Sobreviventes urbanos que conhecem os segredos das ruas e os marginalizados. Habitam favelas e cortiços da cidade[cite: 17].",
+      "alinhamento_nacao": "Membros da Nação Garou",
+      "dons_principais": [
+        "Dons Universais da Cidade",
+        "Animalismo"
+      ],
+      "falha_psicologica": {
+        "nome": "Estigma de Sarjeta / Repulsão Social",
+        "descricao": "Vistos com nojo pela alta sociedade Garou e humana; falham automaticamente em primeiras impressões de Etiqueta ou diplomacia corporativa[cite: 4]."
+      }
+    },
+    {
+      "nome": "Filhos do Vento",
+      "nome_ingles": "Children of the Sun",
+      "nome_classico": "Uktena",
+      "descricao": "Guardiões de segredos místicos e espirituais profundos. Infiltrados em círculos de ocultismo urbano.",
+      "alinhamento_nacao": "Membros da Nação Garou",
+      "dons_principais": [
+        "Dons do Augúrio: Theurge",
+        "Entropia"
+      ],
+      "falha_psicologica": {
+        "nome": "Obsessão pelo Proibido / Segredo Sombrio",
+        "descricao": "Sua curiosidade insaciável por conhecimento corrompido aumenta as chances de contaminação espiritual por parasitas cósmicos[cite: 4]."
+      }
+    },
+    {
+      "nome": "Guardiões da Floresta",
+      "nome_ingles": "Wardens of the Forest",
+      "nome_classico": "Wendigo",
+      "descricao": "Defensores ferozes das terras selvagens e tradições ancestrais. Radicados nos extremos de preservação ambiental da Cantareira[cite: 17].",
+      "alinhamento_nacao": "Membros da Nação Garou",
+      "dons_principais": [
+        "Dons do Augúrio: Ahroun",
+        "Forças"
+      ],
+      "falha_psicologica": {
+        "nome": "Preconceito Ancestral / Isolacionismo",
+        "descricao": "Recusam-se a colaborar ou receber auxílio de personagens de linhagem puramente urbana (como os Andarilhos do Asfalto), sofrendo severas penalidades sociais[cite: 4]."
+      }
+    },
+    {
+      "nome": "Irmãos do Inverno",
+      "nome_ingles": "Winterwolves",
+      "nome_classico": "Rostos Prateados",
+      "descricao": "Adicionados como parte das reformulações de clãs. Sobreviventes implacáveis das franjas geladas ou isoladas da sociedade Garou.",
+      "alinhamento_nacao": "Independentes / Isolados",
+      "dons_principais": [
+        "Fortitude",
+        "Dons do Augúrio: Ragabash"
+      ],
+      "falha_psicologica": {
+        "nome": "Harano Inerente / Melancolia Espiritual",
+        "descricao": "São propensos a cair no estado de Harano (depressão espiritual do apocalipse) com muito mais facilidade ao término de aventuras fracassadas[cite: 1, 4]."
+      }
+    },
+    {
+      "nome": "Vozes da Terra",
+      "nome_ingles": "Earth-Voices",
+      "nome_classico": "Fidalgos de Vidro / Stargazers",
+      "descricao": "Filósofos e meditadores que buscam o equilíbrio e a iluminação. Operam como os conselheiros neutros das matilhas.",
+      "alinhamento_nacao": "Independentes / Conselheiros Autônomos",
+      "dons_principais": [
+        "Mente",
+        "Dons do Augúrio: Philodox"
+      ],
+      "falha_psicologica": {
+        "nome": "Desapego Prático / Alheamento da Realidade",
+        "descricao": "Sua busca por iluminação os torna distantes de urgências físicas mundanas; sofrem penalidades em rolagens de Prontidão ou Iniciativa de combate surpresa[cite: 4]."
+      }
+    }
+  ]
+}

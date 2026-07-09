@@ -3,7 +3,11 @@ import { createCharacterSchema, updateCharacterSchema } from "../schemas/charact
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { GameStyle, PowerType } from "../types/enums";
 import { 
-  Character, 
+  Character,
+  VampireClaDefinition,
+  WerewolfTribeDefinition,
+  MageTraditionDefinition,
+  HunterCreedDefinition,
   CharacterAttribute, 
   CharacterSkill, 
   CharacterStatus, 
@@ -17,6 +21,10 @@ import {
 } from "../models";
 
 const characterIncludes = [
+  { model: VampireClaDefinition, as: 'vampireCla' },
+  { model: WerewolfTribeDefinition, as: 'werewolfTribe' },
+  { model: MageTraditionDefinition, as: 'mageTradition' },
+  { model: HunterCreedDefinition, as: 'hunterCreed' },
   { model: CharacterAttribute, as: 'attributes', include: ['attributeDefinition'] },
   { model: CharacterSkill, as: 'skills', include: ['skillDefinition'] },
   { model: CharacterStatus, as: 'statuses', include: ['statusDefinition'] },
@@ -58,15 +66,31 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
       return res.status(400).json({ errors: validated.error.errors });
     }
 
-    const { name, gameStyle, isNpc, isTemplate, attributes, skills, statuses, powers, meritsFlaws, items, backgrounds, havens } = validated.data;
+    const { name, gameStyle, isNpc, isTemplate, concept, nature, demeanor, chronicle, history, roleplayHints, health, maxHealth, willpower, maxWillpower, energy, maxEnergy, attributes, skills, statuses, powers, meritsFlaws, items, backgrounds, havens } = validated.data;
 
     const t = await sequelize.transaction();
     try {
       const character = await Character.create({
         name,
         gameStyle,
+        vampireClaId: gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireClaId : null,
+        werewolfTribeId: gameStyle === GameStyle.WEREWOLF ? (validated.data as any).werewolfTribeId : null,
+        mageTraditionId: gameStyle === GameStyle.MAGE ? (validated.data as any).mageTraditionId : null,
+        hunterCreedId: gameStyle === GameStyle.HUNTER ? (validated.data as any).hunterCreedId : null,
         isNpc: isNpc ?? false,
         isTemplate: isTemplate ?? false,
+        concept,
+        nature,
+        demeanor,
+        chronicle,
+        history,
+        roleplayHints,
+        health,
+        maxHealth,
+        willpower,
+        maxWillpower,
+        energy,
+        maxEnergy,
         userId: req.userId,
       } as any, { transaction: t });
 
@@ -155,7 +179,14 @@ export const listCharacters = async (req: AuthenticatedRequest, res: Response) =
       return res.status(401).json({ error: "Não autorizado" });
     }
 
-    const characters = await Character.findAll({ include: characterIncludes });
+    const { gameStyle } = req.query;
+
+    const queryOptions: any = { include: characterIncludes };
+    if (gameStyle) {
+      queryOptions.where = { gameStyle };
+    }
+
+    const characters = await Character.findAll(queryOptions);
     return res.json(characters);
   } catch (error) {
     console.error("Erro ao listar personagens:", error);
@@ -203,7 +234,7 @@ export const updateCharacter = async (req: AuthenticatedRequest, res: Response) 
       return res.status(404).json({ error: "Personagem não encontrado ou não pertence a este usuário" });
     }
 
-    const { name, experienceTotal, experienceSpent, isNpc, isTemplate, attributes, skills, statuses, powers, meritsFlaws, items } = validated.data;
+    const { name, experienceTotal, experienceSpent, isNpc, isTemplate, concept, nature, demeanor, chronicle, history, roleplayHints, health, maxHealth, willpower, maxWillpower, energy, maxEnergy, attributes, skills, statuses, powers, meritsFlaws, items, vampireClaId, werewolfTribeId, mageTraditionId, hunterCreedId } = validated.data;
 
     const t = await sequelize.transaction();
     try {
@@ -213,6 +244,22 @@ export const updateCharacter = async (req: AuthenticatedRequest, res: Response) 
         experienceSpent,
         isNpc,
         isTemplate,
+        concept,
+        nature,
+        demeanor,
+        chronicle,
+        history,
+        roleplayHints,
+        health,
+        maxHealth,
+        willpower,
+        maxWillpower,
+        energy,
+        maxEnergy,
+        vampireClaId: character.gameStyle === GameStyle.VAMPIRE ? (vampireClaId !== undefined ? vampireClaId : character.vampireClaId) : null,
+        werewolfTribeId: character.gameStyle === GameStyle.WEREWOLF ? (werewolfTribeId !== undefined ? werewolfTribeId : character.werewolfTribeId) : null,
+        mageTraditionId: character.gameStyle === GameStyle.MAGE ? (mageTraditionId !== undefined ? mageTraditionId : character.mageTraditionId) : null,
+        hunterCreedId: character.gameStyle === GameStyle.HUNTER ? (hunterCreedId !== undefined ? hunterCreedId : character.hunterCreedId) : null,
       } as any, { where: { id }, transaction: t });
 
       if (skills !== undefined) {

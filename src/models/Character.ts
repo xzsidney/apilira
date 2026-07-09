@@ -11,6 +11,29 @@ export class Character extends Model {
   declare isTemplate: boolean;
   declare userId: string;
   declare avatarUrl: string | null;
+  
+  // Text and Lore
+  declare concept: string | null;
+  declare nature: string | null;
+  declare demeanor: string | null;
+  declare chronicle: string | null;
+  declare history: string | null;
+  declare roleplayHints: string | null;
+
+  // Pools
+  declare health: number;
+  declare maxHealth: number;
+  declare willpower: number;
+  declare maxWillpower: number;
+  declare energy: number;
+  declare maxEnergy: number;
+  
+  // Chaves Estrangeiras de Especialização
+  declare vampireClaId: string | null;
+  declare werewolfTribeId: string | null;
+  declare mageTraditionId: string | null;
+  declare hunterCreedId: string | null;
+
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -57,6 +80,76 @@ export function initCharacter(sequelize: Sequelize) {
       },
       avatarUrl: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      concept: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      nature: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      demeanor: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      chronicle: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      history: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      roleplayHints: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      health: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 7,
+      },
+      maxHealth: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 7,
+      },
+      willpower: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+      },
+      maxWillpower: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+      },
+      energy: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+      },
+      maxEnergy: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+      },
+      vampireClaId: {
+        type: DataTypes.STRING(36),
+        allowNull: true,
+      },
+      werewolfTribeId: {
+        type: DataTypes.STRING(36),
+        allowNull: true,
+      },
+      mageTraditionId: {
+        type: DataTypes.STRING(36),
+        allowNull: true,
+      },
+      hunterCreedId: {
+        type: DataTypes.STRING(36),
         allowNull: true,
       },
     },

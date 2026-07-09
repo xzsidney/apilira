@@ -31,6 +31,7 @@ export function initCharacterPowerSelection(sequelize: Sequelize) {
       timestamps: false,
       indexes: [
         {
+          name: 'idx_char_power_sel_unique',
           unique: true,
           fields: ['characterPowerId', 'powerLevelDefinitionId'],
         },
