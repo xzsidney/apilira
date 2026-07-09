@@ -33,6 +33,7 @@ export class Character extends Model {
   declare werewolfTribeId: string | null;
   declare mageTraditionId: string | null;
   declare hunterCreedId: string | null;
+  declare vampirePredatorId: string | null;
 
   declare createdAt: Date;
   declare updatedAt: Date;

@@ -55,6 +55,7 @@ const vampireCreationSchema = z.object({
   gameStyle: z.literal(GameStyle.VAMPIRE),
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(255),
   vampireClaId: z.string().uuid("ID de clã inválido").optional().nullable(),
+  vampirePredatorId: z.string().optional().nullable(),
   isNpc: z.boolean().optional(),
   isTemplate: z.boolean().optional(),
   concept: z.string().optional().nullable(),
@@ -260,6 +261,9 @@ const characterSkillUpdateInputSchema = z.object({
 
 const characterStatusUpdateInputSchema = z.object({
   statusId: z.string().uuid("ID de status inválido"),
+  vampireClaId: z.string().uuid().optional(),
+  vampirePredatorId: z.string().optional(),
+  werewolfTribeId: z.string().uuid().optional().nullable(),
   value: z.number().int().optional(),
   description: z.string().optional().nullable(),
 });

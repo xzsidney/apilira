@@ -47,6 +47,27 @@ async function seed() {
   }
   console.log(`Foram inseridas ${skillData.skill_definitions.length} habilidades com sucesso.`);
 
+  // Insere Predadores
+  const predData = JSON.parse(fs.readFileSync(path.join(__dirname, '../doc/Predador.json'), 'utf-8'));
+  const { VampirePredatorDefinition } = require('./models');
+  // Apaga predadores antigos se quiser limpar
+  await VampirePredatorDefinition.destroy({ where: {} });
+  for (const pred of predData.predator_definitions) {
+    await VampirePredatorDefinition.create({
+      id: pred.id,
+      nome: pred.nome,
+      descricao: pred.descricao,
+      restricao_clas: pred.restricao_clas,
+      reserva_dados: pred.reserva_dados,
+      especializacoes_opcoes: pred.especializacoes_opcoes,
+      disciplinas_bonus: pred.disciplinas_bonus,
+      modificador_humanidade: pred.modificador_humanidade,
+      vantagens_ganhas: pred.vantagens_ganhas,
+      defeitos_ganhos: pred.defeitos_ganhos,
+    });
+  }
+  console.log(`Foram inseridos ${predData.predator_definitions.length} predadores com sucesso.`);
+
   console.log('Migração finalizada com sucesso!');
   process.exit(0);
 }

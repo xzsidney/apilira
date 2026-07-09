@@ -8,6 +8,7 @@ import sequelize from '../config/database';
 import { User, initUser } from './User';
 import { Character, initCharacter } from './Character';
 import { VampireClaDefinition, initVampireClaDefinition } from './VampireClaDefinition';
+import { VampirePredatorDefinition, initVampirePredatorDefinition } from './VampirePredatorDefinition';
 import { WerewolfTribeDefinition, initWerewolfTribeDefinition } from './WerewolfTribeDefinition';
 import { MageTraditionDefinition, initMageTraditionDefinition } from './MageTraditionDefinition';
 import { HunterCreedDefinition, initHunterCreedDefinition } from './HunterCreedDefinition';
@@ -50,6 +51,7 @@ import { SceneAction, initSceneAction } from './SceneAction';
 initUser(sequelize);
 initCharacter(sequelize);
 initVampireClaDefinition(sequelize);
+initVampirePredatorDefinition(sequelize);
 initWerewolfTribeDefinition(sequelize);
 initMageTraditionDefinition(sequelize);
 initHunterCreedDefinition(sequelize);
@@ -97,6 +99,9 @@ Character.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 // --- Factions <-> Character ---
 VampireClaDefinition.hasMany(Character, { foreignKey: 'vampireClaId', as: 'vampireCharacters', onDelete: 'SET NULL' });
 Character.belongsTo(VampireClaDefinition, { foreignKey: 'vampireClaId', as: 'vampireCla' });
+
+VampirePredatorDefinition.hasMany(Character, { foreignKey: 'vampirePredatorId', as: 'vampirePredatorCharacters', onDelete: 'SET NULL' });
+Character.belongsTo(VampirePredatorDefinition, { foreignKey: 'vampirePredatorId', as: 'vampirePredator' });
 
 WerewolfTribeDefinition.hasMany(Character, { foreignKey: 'werewolfTribeId', as: 'werewolfCharacters', onDelete: 'SET NULL' });
 Character.belongsTo(WerewolfTribeDefinition, { foreignKey: 'werewolfTribeId', as: 'werewolfTribe' });
@@ -254,6 +259,7 @@ export {
   User,
   Character,
   VampireClaDefinition,
+  VampirePredatorDefinition,
   WerewolfTribeDefinition,
   MageTraditionDefinition,
   HunterCreedDefinition,

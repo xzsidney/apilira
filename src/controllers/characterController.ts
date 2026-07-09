@@ -5,6 +5,7 @@ import { GameStyle, PowerType } from "../types/enums";
 import { 
   Character,
   VampireClaDefinition,
+  VampirePredatorDefinition,
   WerewolfTribeDefinition,
   MageTraditionDefinition,
   HunterCreedDefinition,
@@ -22,6 +23,7 @@ import {
 
 const characterIncludes = [
   { model: VampireClaDefinition, as: 'vampireCla' },
+  { model: VampirePredatorDefinition, as: 'vampirePredator' },
   { model: WerewolfTribeDefinition, as: 'werewolfTribe' },
   { model: MageTraditionDefinition, as: 'mageTradition' },
   { model: HunterCreedDefinition, as: 'hunterCreed' },
@@ -67,6 +69,7 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
     }
 
     const { name, gameStyle, isNpc, isTemplate, concept, nature, demeanor, chronicle, history, roleplayHints, health, maxHealth, willpower, maxWillpower, energy, maxEnergy, attributes, skills, statuses, powers, meritsFlaws, items, backgrounds, havens } = validated.data;
+    const vampirePredatorId = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampirePredatorId : null;
 
     const t = await sequelize.transaction();
     try {
@@ -74,6 +77,7 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
         name,
         gameStyle,
         vampireClaId: gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireClaId : null,
+        vampirePredatorId: vampirePredatorId,
         werewolfTribeId: gameStyle === GameStyle.WEREWOLF ? (validated.data as any).werewolfTribeId : null,
         mageTraditionId: gameStyle === GameStyle.MAGE ? (validated.data as any).mageTraditionId : null,
         hunterCreedId: gameStyle === GameStyle.HUNTER ? (validated.data as any).hunterCreedId : null,

@@ -14,6 +14,7 @@ import regionRoutes from "./routes/regionRoutes";
 import backgroundDefinitionRoutes from "./routes/backgroundDefinitionRoutes";
 import havenDefinitionRoutes from "./routes/havenDefinitionRoutes";
 import vampireClaDefinitionRoutes from "./routes/vampireClaDefinitionRoutes";
+import vampirePredatorDefinitionRoutes from "./routes/vampirePredatorDefinitionRoutes";
 import adventureRoutes from "./routes/adventureRoutes";
 import sceneRoutes from "./routes/sceneRoutes";
 import actionRoutes from "./routes/actionRoutes";
@@ -53,6 +54,7 @@ app.use("/api/regions", regionRoutes);
 app.use("/api/background-definitions", backgroundDefinitionRoutes);
 app.use("/api/haven-definitions", havenDefinitionRoutes);
 app.use("/api/vampire-clas", vampireClaDefinitionRoutes);
+app.use("/api/vampire-predators", vampirePredatorDefinitionRoutes);
 
 app.use("/api/adventures", adventureRoutes);
 app.use("/api/scenes", sceneRoutes);
