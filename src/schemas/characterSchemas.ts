@@ -56,6 +56,7 @@ const vampireCreationSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(255),
   vampireClaId: z.string().uuid("ID de clã inválido").optional().nullable(),
   vampirePredatorId: z.string().optional().nullable(),
+  vampireGeneration: z.number().int().min(3).max(16).optional().nullable(),
   isNpc: z.boolean().optional(),
   isTemplate: z.boolean().optional(),
   concept: z.string().optional().nullable(),

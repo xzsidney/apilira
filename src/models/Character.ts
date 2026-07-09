@@ -34,6 +34,7 @@ export class Character extends Model {
   declare mageTraditionId: string | null;
   declare hunterCreedId: string | null;
   declare vampirePredatorId: string | null;
+  declare vampireGeneration: number | null;
 
   declare createdAt: Date;
   declare updatedAt: Date;
@@ -78,6 +79,14 @@ export function initCharacter(sequelize: Sequelize) {
       userId: {
         type: DataTypes.STRING(36),
         allowNull: false,
+      },
+      vampirePredatorId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      vampireGeneration: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
       avatarUrl: {
         type: DataTypes.STRING,
