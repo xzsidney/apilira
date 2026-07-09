@@ -68,6 +68,22 @@ async function seed() {
   }
   console.log(`Foram inseridos ${predData.predator_definitions.length} predadores com sucesso.`);
 
+  // Insere Ressonâncias
+  const resData = JSON.parse(fs.readFileSync(path.join(__dirname, '../doc/ressonancias_vampiricas.json'), 'utf-8'));
+  const { VampireResonanceDefinition } = require('./models');
+  await VampireResonanceDefinition.destroy({ where: {} });
+  for (const res of resData.ressonancias_vampiricas) {
+    await VampireResonanceDefinition.create({
+      id: res.id,
+      nome: res.nome,
+      humor_associado: res.humor_associado,
+      descricao: res.descricao,
+      disciplinas_amplificadas: res.disciplinas_amplificadas,
+      exemplos_presas: res.exemplos_presas,
+    });
+  }
+  console.log(`Foram inseridas ${resData.ressonancias_vampiricas.length} ressonâncias com sucesso.`);
+
   console.log('Migração finalizada com sucesso!');
   process.exit(0);
 }

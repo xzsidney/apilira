@@ -9,6 +9,7 @@ import { User, initUser } from './User';
 import { Character, initCharacter } from './Character';
 import { VampireClaDefinition, initVampireClaDefinition } from './VampireClaDefinition';
 import { VampirePredatorDefinition, initVampirePredatorDefinition } from './VampirePredatorDefinition';
+import { VampireResonanceDefinition, initVampireResonanceDefinition } from './VampireResonanceDefinition';
 import { WerewolfTribeDefinition, initWerewolfTribeDefinition } from './WerewolfTribeDefinition';
 import { MageTraditionDefinition, initMageTraditionDefinition } from './MageTraditionDefinition';
 import { HunterCreedDefinition, initHunterCreedDefinition } from './HunterCreedDefinition';
@@ -52,6 +53,7 @@ initUser(sequelize);
 initCharacter(sequelize);
 initVampireClaDefinition(sequelize);
 initVampirePredatorDefinition(sequelize);
+initVampireResonanceDefinition(sequelize);
 initWerewolfTribeDefinition(sequelize);
 initMageTraditionDefinition(sequelize);
 initHunterCreedDefinition(sequelize);
@@ -102,6 +104,9 @@ Character.belongsTo(VampireClaDefinition, { foreignKey: 'vampireClaId', as: 'vam
 
 VampirePredatorDefinition.hasMany(Character, { foreignKey: 'vampirePredatorId', as: 'vampirePredatorCharacters', onDelete: 'SET NULL' });
 Character.belongsTo(VampirePredatorDefinition, { foreignKey: 'vampirePredatorId', as: 'vampirePredator' });
+
+VampireResonanceDefinition.hasMany(Character, { foreignKey: 'vampireResonanceId', as: 'vampireResonanceCharacters', onDelete: 'SET NULL' });
+Character.belongsTo(VampireResonanceDefinition, { foreignKey: 'vampireResonanceId', as: 'vampireResonance' });
 
 WerewolfTribeDefinition.hasMany(Character, { foreignKey: 'werewolfTribeId', as: 'werewolfCharacters', onDelete: 'SET NULL' });
 Character.belongsTo(WerewolfTribeDefinition, { foreignKey: 'werewolfTribeId', as: 'werewolfTribe' });
@@ -260,6 +265,7 @@ export {
   Character,
   VampireClaDefinition,
   VampirePredatorDefinition,
+  VampireResonanceDefinition,
   WerewolfTribeDefinition,
   MageTraditionDefinition,
   HunterCreedDefinition,

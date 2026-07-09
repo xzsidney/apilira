@@ -70,6 +70,7 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
 
     const { name, gameStyle, isNpc, isTemplate, concept, nature, demeanor, chronicle, history, roleplayHints, health, maxHealth, willpower, maxWillpower, energy, maxEnergy, attributes, skills, statuses, powers, meritsFlaws, items, backgrounds, havens } = validated.data;
     const vampirePredatorId = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampirePredatorId : null;
+    const vampireResonanceId = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireResonanceId : null;
     const vampireGeneration = gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireGeneration : null;
 
     const t = await sequelize.transaction();
@@ -80,6 +81,7 @@ export const createCharacter = async (req: AuthenticatedRequest, res: Response) 
         gameStyle,
         vampireClaId: gameStyle === GameStyle.VAMPIRE ? (validated.data as any).vampireClaId : null,
         vampirePredatorId: vampirePredatorId,
+        vampireResonanceId: vampireResonanceId,
         vampireGeneration: vampireGeneration,
         werewolfTribeId: gameStyle === GameStyle.WEREWOLF ? (validated.data as any).werewolfTribeId : null,
         mageTraditionId: gameStyle === GameStyle.MAGE ? (validated.data as any).mageTraditionId : null,
