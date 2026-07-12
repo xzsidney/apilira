@@ -3,22 +3,6 @@ import cors from "cors";
 import helmet from "helmet";
 import path from "path";
 import authRoutes from "./routes/authRoutes";
-import characterRoutes from "./routes/characterRoutes";
-import attributeDefinitionRoutes from "./routes/attributeDefinitionRoutes";
-import itemDefinitionRoutes from "./routes/itemDefinitionRoutes";
-import skillDefinitionRoutes from "./routes/skillDefinitionRoutes";
-import meritFlawDefinitionRoutes from "./routes/meritFlawDefinitionRoutes";
-import statusDefinitionRoutes from "./routes/statusDefinitionRoutes";
-import powerDefinitionRoutes from "./routes/powerDefinitionRoutes";
-import resonanceDefinitionRoutes from "./routes/vampireResonanceDefinitionRoutes";
-import regionRoutes from "./routes/regionRoutes";
-import backgroundDefinitionRoutes from "./routes/backgroundDefinitionRoutes";
-import havenDefinitionRoutes from "./routes/havenDefinitionRoutes";
-import vampireClaDefinitionRoutes from "./routes/vampireClaDefinitionRoutes";
-import vampirePredatorDefinitionRoutes from "./routes/vampirePredatorDefinitionRoutes";
-import adventureRoutes from "./routes/adventureRoutes";
-import sceneRoutes from "./routes/sceneRoutes";
-import actionRoutes from "./routes/actionRoutes";
 import { setupSwagger } from "./config/swagger";
 import sequelize from "./config/db";
 import { QueryTypes } from "sequelize";
@@ -44,35 +28,15 @@ app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 // API Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/characters", characterRoutes);
-app.use("/api/attribute-definitions", attributeDefinitionRoutes);
-app.use("/api/item-definitions", itemDefinitionRoutes);
-app.use("/api/skill-definitions", skillDefinitionRoutes);
-app.use("/api/merit-flaw-definitions", meritFlawDefinitionRoutes);
-app.use("/api/status-definitions", statusDefinitionRoutes);
-app.use("/api/power-definitions", powerDefinitionRoutes);
-app.use("/api/vampire-resonances", resonanceDefinitionRoutes);
-app.use("/api/regions", regionRoutes);
-app.use("/api/background-definitions", backgroundDefinitionRoutes);
-app.use("/api/haven-definitions", havenDefinitionRoutes);
-app.use("/api/vampire-clas", vampireClaDefinitionRoutes);
-app.use("/api/vampire-predators", vampirePredatorDefinitionRoutes);
-
-app.use("/api/adventures", adventureRoutes);
-app.use("/api/scenes", sceneRoutes);
-app.use("/api/actions", actionRoutes);
-
-import testRoutes from "./routes/testRoutes";
-app.use("/api/test", testRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {
   res.json({
     message: "LiraRPG API",
-    version: "2.0.0",
+    version: "3.0.0",
     status: "online",
-    description: "Servidor de backend para o sistema LiraRPG. (Sequelize)",
-    engine: "Sequelize + MySQL2 (sem Prisma)"
+    description: "Servidor de backend limpo (apenas Autenticação)",
+    engine: "Sequelize + MySQL2"
   });
 });
 
@@ -82,7 +46,6 @@ app.get("/health", (req: Request, res: Response) => {
 
 app.get("/teste", async (req: Request, res: Response) => {
   try {
-    // Tenta executar uma query super leve no banco de dados
     await sequelize.query("SELECT 1 AS result", { type: QueryTypes.SELECT });
     res.json({ 
       status: "success", 
@@ -101,8 +64,8 @@ app.get("/teste", async (req: Request, res: Response) => {
 
 // Global Error Handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error("Erro global capturado:", err);
-  res.status(500).json({ error: "Erro interno no servidor" });
+  console.error("Erro Global:", err.stack);
+  res.status(500).json({ error: "Ocorreu um erro interno no servidor." });
 });
 
 export default app;
