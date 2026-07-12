@@ -1,17 +1,10 @@
-import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-const sequelize = new Sequelize(process.env.DATABASE_URL!, {
-  dialect: 'mysql',
-  logging: console.log,
-});
-
-// Import the populated models with associations
-import { User } from '../src/models'; 
-import '../src/models'; // This triggers index.ts which initializes and associates everything
+// Importa a instância do sequelize que JÁ TEM todos os models registrados
+import { sequelize } from '../src/models'; 
 
 async function sync() {
   try {
