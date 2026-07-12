@@ -8,6 +8,7 @@ import { initDefinitionEquipment, DefinitionEquipment } from './DefinitionEquipm
 import { initDefinitionBackground, DefinitionBackground } from './DefinitionBackground';
 import { initDefinitionClan, DefinitionClan } from './DefinitionClan';
 import { initDefinitionPredator, DefinitionPredator } from './DefinitionPredator';
+import { initDefinitionResonance, DefinitionResonance } from './DefinitionResonance';
 
 // Initialize models
 initUser(sequelize);
@@ -19,6 +20,7 @@ initDefinitionEquipment(sequelize);
 initDefinitionBackground(sequelize);
 initDefinitionClan(sequelize);
 initDefinitionPredator(sequelize);
+initDefinitionResonance(sequelize);
 
 // Export
 export { 
@@ -31,5 +33,6 @@ export {
   DefinitionEquipment,
   DefinitionBackground,
   DefinitionClan,
-  DefinitionPredator
+  DefinitionPredator,
+  DefinitionResonance
 };
