@@ -6,6 +6,7 @@ import { initDefinitionArchetype, DefinitionArchetype } from './DefinitionArchet
 import { initDefinitionMeritFlaw, DefinitionMeritFlaw } from './DefinitionMeritFlaw';
 import { initDefinitionEquipment, DefinitionEquipment } from './DefinitionEquipment';
 import { initDefinitionBackground, DefinitionBackground } from './DefinitionBackground';
+import { initDefinitionClan, DefinitionClan } from './DefinitionClan';
 
 // Initialize models
 initUser(sequelize);
@@ -15,6 +16,7 @@ initDefinitionArchetype(sequelize);
 initDefinitionMeritFlaw(sequelize);
 initDefinitionEquipment(sequelize);
 initDefinitionBackground(sequelize);
+initDefinitionClan(sequelize);
 
 // Export
 export { 
@@ -25,5 +27,6 @@ export {
   DefinitionArchetype, 
   DefinitionMeritFlaw,
   DefinitionEquipment,
-  DefinitionBackground
+  DefinitionBackground,
+  DefinitionClan
 };
