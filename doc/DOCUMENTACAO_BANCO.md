@@ -25,13 +25,22 @@ A entidade central do jogador. Ela não armazena pontos de Atributos ou Itens di
 - **`name`** *(String)*: Nome do personagem no jogo.
 - **`gameStyle`** *(Enum)*: Sistema ao qual pertence (`VAMPIRE`, `WEREWOLF`, `MAGE`, `HUNTER`). Define quais regras se aplicam.
 - **`avatarUrl`** *(String, Opcional)*: URL da imagem/retrato do personagem (upload).
-- **`clanId`** *(String, FK, Opcional)*: Chave estrangeira que aponta para a tabela `ClanDefinition`.
+- **`concept`** *(String, Opcional)*: Conceito geral do personagem.
+- **`nature`** / **`demeanor`** *(String, Opcional)*: Natureza e Comportamento (psicológico).
+- **Campos Específicos de Vampiro:**
+  - **`vampireClaId`** *(String, FK, Opcional)*: Aponta para a tabela `VampireClaDefinition`.
+  - **`vampirePredatorId`** *(String, FK, Opcional)*: Aponta para `VampirePredatorDefinition`.
+  - **`vampireResonanceId`** *(String, FK, Opcional)*: Aponta para `VampireResonanceDefinition`.
+  - **`vampireGeneration`** *(Int, Opcional)*: Geração do vampiro (ex: 13).
+  - **`vampireSire`** *(String, Opcional)*: Nome do Senhor que o Abraçou.
+  - **`vampireHunger`** *(Int, Opcional)*: Fome inicial/atual.
+  - **`vampireAmbition`** *(String, Opcional)*: Ambição de longo prazo.
+  - **`vampireDesire`** *(String, Opcional)*: Desejo de curto prazo (para a noite).
 - **`experienceTotal`** *(Int)*: Experiência total ganha.
 - **`experienceSpent`** *(Int)*: Experiência gasta.
 - **`isNpc`** *(Boolean)*: Define se a ficha é controlada pelo Mestre (Verdadeiro) ou por um Jogador (Falso). Permite reaproveitar 100% da arquitetura da ficha para os monstros da crônica.
 - **`isTemplate`** *(Boolean)*: Define se a ficha é um "Molde" (ex: "Policial Genérico") que pode ser clonado várias vezes.
 - **`userId`** *(String, FK)*: Chave estrangeira que aponta para o `User` dono da ficha.
-- **`createdAt` / `updatedAt`** *(DateTime)*: Datas de auditoria.
 - **`createdAt` / `updatedAt`** *(DateTime)*: Datas de auditoria.
 
 ---
