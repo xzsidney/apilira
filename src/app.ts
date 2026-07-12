@@ -33,6 +33,7 @@ import definitionMeritFlawRoutes from "./routes/definitionMeritFlawRoutes";
 import definitionEquipmentRoutes from "./routes/definitionEquipmentRoutes";
 import definitionBackgroundRoutes from "./routes/definitionBackgroundRoutes";
 import definitionClanRoutes from "./routes/definitionClanRoutes";
+import definitionPredatorRoutes from "./routes/definitionPredatorRoutes";
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -43,6 +44,7 @@ app.use("/api/definition-merit-flaws", definitionMeritFlawRoutes);
 app.use("/api/definition-equipments", definitionEquipmentRoutes);
 app.use("/api/definition-backgrounds", definitionBackgroundRoutes);
 app.use("/api/definition-clans", definitionClanRoutes);
+app.use("/api/definition-predators", definitionPredatorRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {

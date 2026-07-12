@@ -7,6 +7,7 @@ import { initDefinitionMeritFlaw, DefinitionMeritFlaw } from './DefinitionMeritF
 import { initDefinitionEquipment, DefinitionEquipment } from './DefinitionEquipment';
 import { initDefinitionBackground, DefinitionBackground } from './DefinitionBackground';
 import { initDefinitionClan, DefinitionClan } from './DefinitionClan';
+import { initDefinitionPredator, DefinitionPredator } from './DefinitionPredator';
 
 // Initialize models
 initUser(sequelize);
@@ -17,6 +18,7 @@ initDefinitionMeritFlaw(sequelize);
 initDefinitionEquipment(sequelize);
 initDefinitionBackground(sequelize);
 initDefinitionClan(sequelize);
+initDefinitionPredator(sequelize);
 
 // Export
 export { 
@@ -28,5 +30,6 @@ export {
   DefinitionMeritFlaw,
   DefinitionEquipment,
   DefinitionBackground,
-  DefinitionClan
+  DefinitionClan,
+  DefinitionPredator
 };
