@@ -62,6 +62,9 @@ app.use("/api/adventures", adventureRoutes);
 app.use("/api/scenes", sceneRoutes);
 app.use("/api/actions", actionRoutes);
 
+import testRoutes from "./routes/testRoutes";
+app.use("/api/test", testRoutes);
+
 // Base routes
 app.get("/", (req: Request, res: Response) => {
   res.json({
