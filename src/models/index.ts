@@ -4,6 +4,7 @@ import { initDefinitionAttribute, DefinitionAttribute } from './DefinitionAttrib
 import { initDefinitionSkill, DefinitionSkill } from './DefinitionSkill';
 import { initDefinitionArchetype, DefinitionArchetype } from './DefinitionArchetype';
 import { initDefinitionMeritFlaw, DefinitionMeritFlaw } from './DefinitionMeritFlaw';
+import { initDefinitionEquipment, DefinitionEquipment } from './DefinitionEquipment';
 
 // Initialize models
 initUser(sequelize);
@@ -11,6 +12,15 @@ initDefinitionAttribute(sequelize);
 initDefinitionSkill(sequelize);
 initDefinitionArchetype(sequelize);
 initDefinitionMeritFlaw(sequelize);
+initDefinitionEquipment(sequelize);
 
 // Export
-export { sequelize, User, DefinitionAttribute, DefinitionSkill, DefinitionArchetype, DefinitionMeritFlaw };
+export { 
+  sequelize, 
+  User, 
+  DefinitionAttribute, 
+  DefinitionSkill, 
+  DefinitionArchetype, 
+  DefinitionMeritFlaw,
+  DefinitionEquipment
+};
