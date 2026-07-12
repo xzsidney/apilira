@@ -9,6 +9,8 @@ import { initDefinitionBackground, DefinitionBackground } from './DefinitionBack
 import { initDefinitionClan, DefinitionClan } from './DefinitionClan';
 import { initDefinitionPredator, DefinitionPredator } from './DefinitionPredator';
 import { initDefinitionResonance, DefinitionResonance } from './DefinitionResonance';
+import { initDefinitionDiscipline, DefinitionDiscipline } from './DefinitionDiscipline';
+import { initDefinitionDisciplinePower, DefinitionDisciplinePower } from './DefinitionDisciplinePower';
 
 // Initialize models
 initUser(sequelize);
@@ -21,6 +23,12 @@ initDefinitionBackground(sequelize);
 initDefinitionClan(sequelize);
 initDefinitionPredator(sequelize);
 initDefinitionResonance(sequelize);
+initDefinitionDiscipline(sequelize);
+initDefinitionDisciplinePower(sequelize);
+
+// Associations
+DefinitionDiscipline.hasMany(DefinitionDisciplinePower, { foreignKey: 'definitionDisciplineId' });
+DefinitionDisciplinePower.belongsTo(DefinitionDiscipline, { foreignKey: 'definitionDisciplineId' });
 
 // Export
 export { 
@@ -34,5 +42,7 @@ export {
   DefinitionBackground,
   DefinitionClan,
   DefinitionPredator,
-  DefinitionResonance
+  DefinitionResonance,
+  DefinitionDiscipline,
+  DefinitionDisciplinePower
 };
