@@ -85,6 +85,31 @@ router.get('/viewer', (req: Request, res: Response) => {
       <script>
         let allChars = [];
         
+        function renderJSON(data) {
+          if (data === null) return '<em style="color:#999;">null</em>';
+          if (typeof data !== 'object') return '<span>' + data + '</span>';
+          
+          if (Array.isArray(data)) {
+            if (data.length === 0) return '<em style="color:#999;">Vazio</em>';
+            let html = '<div style="margin-left: 10px; border-left: 2px solid #007bff; padding-left: 10px;">';
+            data.forEach((item, index) => {
+              html += '<div style="margin-bottom: 10px;">' + renderJSON(item) + '</div>';
+            });
+            html += '</div>';
+            return html;
+          }
+          
+          let html = '<table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd; margin: 5px 0; font-size: 14px;">';
+          for (const key in data) {
+            html += '<tr>' +
+              '<td style="padding: 8px; border: 1px solid #ddd; background: #f4f4f4; width: 30%; font-weight: bold; vertical-align: top; color: #333;">' + key + '</td>' +
+              '<td style="padding: 8px; border: 1px solid #ddd; vertical-align: top; word-break: break-word;">' + renderJSON(data[key]) + '</td>' +
+            '</tr>';
+          }
+          html += '</table>';
+          return html;
+        }
+
         fetch('/api/test/characters')
           .then(res => res.json())
           .then(data => {
@@ -95,7 +120,8 @@ router.get('/viewer', (req: Request, res: Response) => {
               const li = document.createElement('li');
               li.textContent = c.name + " (" + (c.gameStyle || 'Desconhecido') + ")";
               li.onclick = () => {
-                document.getElementById('json-view').innerHTML = '<pre>' + JSON.stringify(allChars[index], null, 2) + '</pre>';
+                const header = '<h2>' + c.name + '</h2>';
+                document.getElementById('json-view').innerHTML = header + renderJSON(allChars[index]);
               };
               list.appendChild(li);
             });
