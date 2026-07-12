@@ -31,6 +31,7 @@ import definitionSkillRoutes from "./routes/definitionSkillRoutes";
 import definitionArchetypeRoutes from "./routes/definitionArchetypeRoutes";
 import definitionMeritFlawRoutes from "./routes/definitionMeritFlawRoutes";
 import definitionEquipmentRoutes from "./routes/definitionEquipmentRoutes";
+import definitionBackgroundRoutes from "./routes/definitionBackgroundRoutes";
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -39,6 +40,7 @@ app.use("/api/definition-skills", definitionSkillRoutes);
 app.use("/api/definition-archetypes", definitionArchetypeRoutes);
 app.use("/api/definition-merit-flaws", definitionMeritFlawRoutes);
 app.use("/api/definition-equipments", definitionEquipmentRoutes);
+app.use("/api/definition-backgrounds", definitionBackgroundRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {
