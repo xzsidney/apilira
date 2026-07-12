@@ -29,12 +29,14 @@ app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 import definitionAttributeRoutes from "./routes/definitionAttributeRoutes";
 import definitionSkillRoutes from "./routes/definitionSkillRoutes";
 import definitionArchetypeRoutes from "./routes/definitionArchetypeRoutes";
+import definitionMeritFlawRoutes from "./routes/definitionMeritFlawRoutes";
 
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/definition-attributes", definitionAttributeRoutes);
 app.use("/api/definition-skills", definitionSkillRoutes);
 app.use("/api/definition-archetypes", definitionArchetypeRoutes);
+app.use("/api/definition-merit-flaws", definitionMeritFlawRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {
