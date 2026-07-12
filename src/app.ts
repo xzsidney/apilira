@@ -37,6 +37,7 @@ import definitionPredatorRoutes from "./routes/definitionPredatorRoutes";
 import definitionResonanceRoutes from "./routes/definitionResonanceRoutes";
 import definitionDisciplineRoutes from "./routes/definitionDisciplineRoutes";
 import definitionBloodPotencyRoutes from "./routes/definitionBloodPotencyRoutes";
+import characterVampireRoutes from "./routes/characterVampireRoutes";
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -51,6 +52,8 @@ app.use("/api/definition-predators", definitionPredatorRoutes);
 app.use("/api/definition-resonances", definitionResonanceRoutes);
 app.use("/api/definition-disciplines", definitionDisciplineRoutes);
 app.use("/api/definition-blood-potencies", definitionBloodPotencyRoutes);
+
+app.use("/api/character-vampires", characterVampireRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {
