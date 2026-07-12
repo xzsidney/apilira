@@ -27,10 +27,12 @@ if (process.env.NODE_ENV !== "production") {
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 import definitionAttributeRoutes from "./routes/definitionAttributeRoutes";
+import definitionSkillRoutes from "./routes/definitionSkillRoutes";
 
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/definition-attributes", definitionAttributeRoutes);
+app.use("/api/definition-skills", definitionSkillRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {
