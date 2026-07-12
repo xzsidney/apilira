@@ -11,6 +11,7 @@ import { initDefinitionPredator, DefinitionPredator } from './DefinitionPredator
 import { initDefinitionResonance, DefinitionResonance } from './DefinitionResonance';
 import { initDefinitionDiscipline, DefinitionDiscipline } from './DefinitionDiscipline';
 import { initDefinitionDisciplinePower, DefinitionDisciplinePower } from './DefinitionDisciplinePower';
+import { initDefinitionBloodPotency, DefinitionBloodPotency } from './DefinitionBloodPotency';
 
 // Initialize models
 initUser(sequelize);
@@ -25,6 +26,7 @@ initDefinitionPredator(sequelize);
 initDefinitionResonance(sequelize);
 initDefinitionDiscipline(sequelize);
 initDefinitionDisciplinePower(sequelize);
+initDefinitionBloodPotency(sequelize);
 
 // Associations
 DefinitionDiscipline.hasMany(DefinitionDisciplinePower, { foreignKey: 'definitionDisciplineId' });
@@ -44,5 +46,6 @@ export {
   DefinitionPredator,
   DefinitionResonance,
   DefinitionDiscipline,
-  DefinitionDisciplinePower
+  DefinitionDisciplinePower,
+  DefinitionBloodPotency
 };

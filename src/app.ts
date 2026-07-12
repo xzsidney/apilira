@@ -36,6 +36,7 @@ import definitionClanRoutes from "./routes/definitionClanRoutes";
 import definitionPredatorRoutes from "./routes/definitionPredatorRoutes";
 import definitionResonanceRoutes from "./routes/definitionResonanceRoutes";
 import definitionDisciplineRoutes from "./routes/definitionDisciplineRoutes";
+import definitionBloodPotencyRoutes from "./routes/definitionBloodPotencyRoutes";
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -49,6 +50,7 @@ app.use("/api/definition-clans", definitionClanRoutes);
 app.use("/api/definition-predators", definitionPredatorRoutes);
 app.use("/api/definition-resonances", definitionResonanceRoutes);
 app.use("/api/definition-disciplines", definitionDisciplineRoutes);
+app.use("/api/definition-blood-potencies", definitionBloodPotencyRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {
