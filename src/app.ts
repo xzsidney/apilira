@@ -26,8 +26,11 @@ if (process.env.NODE_ENV !== "production") {
 // Serve static files for uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
+import definitionAttributeRoutes from "./routes/definitionAttributeRoutes";
+
 // API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/definition-attributes", definitionAttributeRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {

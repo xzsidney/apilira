@@ -1,8 +1,10 @@
 import sequelize from '../config/db';
 import { initUser, User } from './User';
+import { initDefinitionAttribute, DefinitionAttribute } from './DefinitionAttribute';
 
-// Initialize the only remaining model
+// Initialize models
 initUser(sequelize);
+initDefinitionAttribute(sequelize);
 
 // Export
-export { sequelize, User };
+export { sequelize, User, DefinitionAttribute };
