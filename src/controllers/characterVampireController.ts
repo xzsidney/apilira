@@ -110,7 +110,7 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
 
 export const getAllCharacterVampiresByUser = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id; // Pegando do authMiddleware
+    const userId = (req as any).user?.id; // Pegando do authMiddleware
     if (!userId) {
       return res.status(401).json({ error: 'Não autorizado' });
     }
