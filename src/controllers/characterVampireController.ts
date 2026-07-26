@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 import { sequelize } from '../models';
 import { CharacterVampire } from '../models/CharacterVampire';
 import { CharacterVampireAttribute } from '../models/CharacterVampireAttribute';
@@ -14,10 +15,15 @@ export const createCharacterVampire = async (req: Request, res: Response) => {
   const transaction = await sequelize.transaction();
 
   try {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.userId || req.body.userId;
+
     const {
       attributes, skills, disciplines, powers, meritsFlaws, backgrounds, equipments,
       ...characterData
     } = req.body;
+
+    characterData.userId = userId;
 
     // Cria o personagem principal
     const character = await CharacterVampire.create(characterData, { transaction });
@@ -110,7 +116,8 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
 
 export const getAllCharacterVampiresByUser = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.id; // Pegando do authMiddleware
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.userId || (req as any).user?.id; // Pegando do authMiddleware
     if (!userId) {
       return res.status(401).json({ error: 'Não autorizado' });
     }

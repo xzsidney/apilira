@@ -14,7 +14,10 @@ const models_2 = require("../models");
 const createCharacterVampire = async (req, res) => {
     const transaction = await models_1.sequelize.transaction();
     try {
+        const authReq = req;
+        const userId = authReq.userId || req.body.userId;
         const { attributes, skills, disciplines, powers, meritsFlaws, backgrounds, equipments, ...characterData } = req.body;
+        characterData.userId = userId;
         // Cria o personagem principal
         const character = await CharacterVampire_1.CharacterVampire.create(characterData, { transaction });
         // Insere as coleções nas tabelas associativas se existirem
@@ -97,7 +100,8 @@ const getCharacterVampireById = async (req, res) => {
 exports.getCharacterVampireById = getCharacterVampireById;
 const getAllCharacterVampiresByUser = async (req, res) => {
     try {
-        const userId = req.user?.id; // Pegando do authMiddleware
+        const authReq = req;
+        const userId = authReq.userId || req.user?.id; // Pegando do authMiddleware
         if (!userId) {
             return res.status(401).json({ error: 'Não autorizado' });
         }
