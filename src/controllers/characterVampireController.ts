@@ -86,11 +86,11 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
         { model: DefinitionBloodPotency, attributes: ['level', 'bloodSurge', 'mendAmount'] },
         { 
           model: CharacterVampireAttribute, 
-          include: [{ model: DefinitionAttribute, attributes: ['name', 'category'] }]
+          include: [{ model: DefinitionAttribute, attributes: ['name', 'type'] }]
         },
         { 
           model: CharacterVampireSkill, 
-          include: [{ model: DefinitionSkill, attributes: ['name', 'category'] }]
+          include: [{ model: DefinitionSkill, attributes: ['name', 'type'] }]
         },
         { 
           model: CharacterVampireDiscipline, 
