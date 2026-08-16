@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 import { sequelize } from '../models';
+import { Op } from 'sequelize';
 import { CharacterVampire } from '../models/CharacterVampire';
 import { CharacterVampireAttribute } from '../models/CharacterVampireAttribute';
 import { CharacterVampireSkill } from '../models/CharacterVampireSkill';
@@ -10,6 +11,31 @@ import { CharacterVampireMeritFlaw } from '../models/CharacterVampireMeritFlaw';
 import { CharacterVampireBackground } from '../models/CharacterVampireBackground';
 import { CharacterVampireEquipment } from '../models/CharacterVampireEquipment';
 import { DefinitionClan, DefinitionPredator, DefinitionResonance, DefinitionBloodPotency, DefinitionAttribute, DefinitionSkill, DefinitionDiscipline, DefinitionDisciplinePower } from '../models';
+
+export const getAvailableSires = async (req: Request, res: Response) => {
+  try {
+    const { clanId } = req.query;
+    if (!clanId) {
+      return res.status(400).json({ error: 'clanId é obrigatório' });
+    }
+    
+    // Busca NPCs ou Vampiros do mesmo clã que sejam de geração mais antiga (menor que 12, que é o padrão do neófito)
+    const sires = await CharacterVampire.findAll({
+      where: {
+        clanId: String(clanId),
+        generation: {
+          [Op.lt]: 12
+        }
+      },
+      attributes: ['id', 'name', 'generation', 'concept']
+    });
+
+    res.json(sires);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar senhores disponíveis' });
+  }
+};
 
 export const createCharacterVampire = async (req: Request, res: Response) => {
   const transaction = await sequelize.transaction();

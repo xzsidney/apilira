@@ -1,0 +1,34 @@
+[
+  {
+    "id": "amb_001",
+    "title": "O Trono de Sombras",
+    "description": "Sua ambição final é depor o atual Príncipe de Nocturna e assumir o controle da cidade, usando qualquer meio necessário.",
+    "type": "AMBITION",
+    "rewards": {
+      "achievement": "Principe_de_Nocturna",
+      "permanent_status": 5,
+      "xp": 500
+    },
+    "longTermGoals": [
+      "Eliminar o Xerife",
+      "Garantir apoio de 3 Primigênies",
+      "Assassinar o Príncipe atual"
+    ]
+  },
+  {
+    "id": "amb_002",
+    "title": "A Golconda",
+    "description": "Você busca transcender a Maldição de Caim, curar sua alma e atingir a mítica Golconda.",
+    "type": "AMBITION",
+    "rewards": {
+      "achievement": "A_Luz_no_Fim",
+      "humanity": 10,
+      "hunger_reduction": true
+    },
+    "longTermGoals": [
+      "Atingir Humanidade 9",
+      "Encontrar o manuscrito de Salubri",
+      "Sobreviver a uma caçada de Sangue sem matar"
+    ]
+  }
+]

@@ -71,11 +71,11 @@ const getCharacterVampireById = async (req, res) => {
                 { model: models_2.DefinitionBloodPotency, attributes: ['level', 'bloodSurge', 'mendAmount'] },
                 {
                     model: CharacterVampireAttribute_1.CharacterVampireAttribute,
-                    include: [{ model: models_2.DefinitionAttribute, attributes: ['name', 'category'] }]
+                    include: [{ model: models_2.DefinitionAttribute, attributes: ['name', 'type'] }]
                 },
                 {
                     model: CharacterVampireSkill_1.CharacterVampireSkill,
-                    include: [{ model: models_2.DefinitionSkill, attributes: ['name', 'category'] }]
+                    include: [{ model: models_2.DefinitionSkill, attributes: ['name', 'type'] }]
                 },
                 {
                     model: CharacterVampireDiscipline_1.CharacterVampireDiscipline,

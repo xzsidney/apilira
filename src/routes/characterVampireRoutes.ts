@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createCharacterVampire,
   getAllCharacterVampiresByUser,
+  getAvailableSires,
   getCharacterVampireById,
   updateCharacterVampire,
   deleteCharacterVampire
@@ -15,6 +16,7 @@ router.use(authMiddleware);
 
 router.post('/', createCharacterVampire);
 router.get('/my-characters', getAllCharacterVampiresByUser);
+router.get('/sires', getAvailableSires);
 router.get('/:id', getCharacterVampireById);
 router.put('/:id', updateCharacterVampire);
 router.delete('/:id', deleteCharacterVampire);

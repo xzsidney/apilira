@@ -1,0 +1,41 @@
+[
+  {
+    "id": "dq_001",
+    "title": "A Fome Cega",
+    "description": "Você precisa se alimentar hoje sem quebrar a Máscara. Cace em uma área de baixo risco.",
+    "type": "DAILY",
+    "rewards": {
+      "willpower": 1,
+      "xp": 5
+    },
+    "requirements": {
+      "hunger_min": 2
+    }
+  },
+  {
+    "id": "dq_002",
+    "title": "Vigiando os Domínios",
+    "description": "Faça a patrulha na fronteira do território do seu clã para garantir que não há espiões.",
+    "type": "DAILY",
+    "rewards": {
+      "willpower": 1,
+      "xp": 10
+    },
+    "requirements": {
+      "clanRestricted": false
+    }
+  },
+  {
+    "id": "dq_003",
+    "title": "Favores Políticos",
+    "description": "Entregue uma mensagem importante ao Príncipe sem ser interceptado.",
+    "type": "DAILY",
+    "rewards": {
+      "xp": 15,
+      "status": 1
+    },
+    "requirements": {
+      "clanRestriction": ["ventrue_uuid", "toreador_uuid"]
+    }
+  }
+]

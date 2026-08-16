@@ -20,7 +20,8 @@ import { initCharacterVampirePower, CharacterVampirePower } from './CharacterVam
 import { initCharacterVampireMeritFlaw, CharacterVampireMeritFlaw } from './CharacterVampireMeritFlaw';
 import { initCharacterVampireBackground, CharacterVampireBackground } from './CharacterVampireBackground';
 import { initCharacterVampireEquipment, CharacterVampireEquipment } from './CharacterVampireEquipment';
-
+import { initCreationPackage, CreationPackage } from './CreationPackage';
+import { initCreationPackageItem, CreationPackageItem } from './CreationPackageItem';
 // Initialize models
 initUser(sequelize);
 initDefinitionAttribute(sequelize);
@@ -43,10 +44,16 @@ initCharacterVampirePower(sequelize);
 initCharacterVampireMeritFlaw(sequelize);
 initCharacterVampireBackground(sequelize);
 initCharacterVampireEquipment(sequelize);
+initCreationPackage(sequelize);
+initCreationPackageItem(sequelize);
 
 // Associations
 DefinitionDiscipline.hasMany(DefinitionDisciplinePower, { foreignKey: 'definitionDisciplineId' });
 DefinitionDisciplinePower.belongsTo(DefinitionDiscipline, { foreignKey: 'definitionDisciplineId' });
+
+// --- Creation Packages Associations ---
+CreationPackage.hasMany(CreationPackageItem, { foreignKey: 'packageId' });
+CreationPackageItem.belongsTo(CreationPackage, { foreignKey: 'packageId' });
 
 // --- CharacterVampire Associations ---
 User.hasMany(CharacterVampire, { foreignKey: 'userId' });
@@ -116,5 +123,7 @@ export {
   CharacterVampirePower,
   CharacterVampireMeritFlaw,
   CharacterVampireBackground,
-  CharacterVampireEquipment
+  CharacterVampireEquipment,
+  CreationPackage,
+  CreationPackageItem
 };
