@@ -38,7 +38,7 @@ import definitionResonanceRoutes from "./routes/definitionResonanceRoutes";
 import definitionDisciplineRoutes from "./routes/definitionDisciplineRoutes";
 import definitionBloodPotencyRoutes from "./routes/definitionBloodPotencyRoutes";
 import characterVampireRoutes from "./routes/characterVampireRoutes";
-
+import creationPackageRoutes from "./routes/creationPackageRoutes";
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/definition-attributes", definitionAttributeRoutes);
@@ -54,6 +54,7 @@ app.use("/api/definition-disciplines", definitionDisciplineRoutes);
 app.use("/api/definition-blood-potencies", definitionBloodPotencyRoutes);
 
 app.use("/api/character-vampires", characterVampireRoutes);
+app.use("/api/creation-packages", creationPackageRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {
