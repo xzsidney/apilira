@@ -37,6 +37,11 @@ async function seedPackages() {
     const clanBruj = await DefinitionClan.findOne({ where: { name: 'Brujah' } });
 
     const predSirene = await DefinitionPredator.findOne({ where: { name: 'Sirene' } });
+    const predBeco = await DefinitionPredator.findOne({ where: { name: 'Beco Escuro (Alleycat)' } });
+    
+    // Backgrounds
+    const bgRecursos = await sequelize.models.DefinitionBackground?.findOne({ where: { name: 'Recursos' } }) as any;
+    const bgLacaios = await sequelize.models.DefinitionBackground?.findOne({ where: { name: 'Lacaios' } }) as any;
 
     // --- PACOTE 1: PROFISSÃO HACKER ---
     if (attrInt && attrDet && skillTech && skillInvest && clanNosf && clanTrem) {
@@ -89,6 +94,38 @@ async function seedPackages() {
       ]);
       console.log('Pacote Predador "Sirene" criado para Ventrue.');
     }
+
+    // --- PACOTE 4: PREDADOR DE RUA (BECO ESCURO) ---
+    if (predBeco && attrFor) {
+      const p4 = await CreationPackage.create({
+        name: 'O Caçador Noturno (Beco Escuro)',
+        description: 'Você não tem paciência para jogos mentais. Você toma o que precisa à força nas ruas de Nocturna.',
+        packageType: 'PREDATOR_CHOICE'
+      });
+
+      await CreationPackageItem.bulkCreate([
+        { packageId: p4.id, itemType: 'PREDATOR', referenceId: predBeco.id, amount: 1 },
+        { packageId: p4.id, itemType: 'ATTRIBUTE', referenceId: attrFor.id, amount: 1 }
+        // Sem restrição de clã: Todos podem usar!
+      ]);
+      console.log('Pacote Predador "Beco Escuro" criado (Sem restrição).');
+    }
+
+    // --- PACOTE 5: BACKGROUND (REI DO CRIME) ---
+    const p5 = await CreationPackage.create({
+      name: 'Rei do Crime (Sindicalista das Sombras)',
+      description: 'Você controla operações ilegais na cidade. Traz recursos sujos, mas atrai inimigos poderosos.',
+      packageType: 'BACKGROUND'
+    });
+
+    const bgItems = [];
+    if (bgRecursos) bgItems.push({ packageId: p5.id, itemType: 'BACKGROUND', referenceId: bgRecursos.id, amount: 3 });
+    if (bgLacaios) bgItems.push({ packageId: p5.id, itemType: 'BACKGROUND', referenceId: bgLacaios.id, amount: 2 });
+    
+    if (bgItems.length > 0) {
+      await CreationPackageItem.bulkCreate(bgItems);
+    }
+    console.log('Pacote Background "Rei do Crime" criado.');
 
     console.log('=== SEED DE PACOTES CONCLUÍDO COM SUCESSO! ===');
     process.exit(0);

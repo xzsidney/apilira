@@ -2,7 +2,8 @@ import { Model, DataTypes, Sequelize } from 'sequelize';
 
 export class CharacterVampire extends Model {
   declare id: string;
-  declare userId: string; // Ficha pertence a um usuário
+  declare userId: string | null; // Nulo se for um NPC do Sistema
+  declare isNpc: boolean;
 
   // Referências Diretas (FKs para Bibliotecas)
   declare clanId: string | null;
@@ -65,9 +66,14 @@ export function initCharacterVampire(sequelize: Sequelize) {
       },
       userId: {
         type: DataTypes.STRING(36),
-        allowNull: false,
+        allowNull: true,
         references: { model: 'User', key: 'id' },
         onDelete: 'CASCADE',
+      },
+      isNpc: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       clanId: {
         type: DataTypes.STRING(36),
