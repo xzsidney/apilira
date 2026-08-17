@@ -22,6 +22,7 @@ import { initCharacterVampireBackground, CharacterVampireBackground } from './Ch
 import { initCharacterVampireEquipment, CharacterVampireEquipment } from './CharacterVampireEquipment';
 import { initCreationPackage, CreationPackage } from './CreationPackage';
 import { initCreationPackageItem, CreationPackageItem } from './CreationPackageItem';
+import { initDefinitionLocation, DefinitionLocation } from './DefinitionLocation';
 // Initialize models
 initUser(sequelize);
 initDefinitionAttribute(sequelize);
@@ -46,6 +47,11 @@ initCharacterVampireBackground(sequelize);
 initCharacterVampireEquipment(sequelize);
 initCreationPackage(sequelize);
 initCreationPackageItem(sequelize);
+initDefinitionLocation(sequelize);
+
+// Associations
+DefinitionLocation.hasMany(DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
+DefinitionLocation.belongsTo(DefinitionLocation, { as: 'parent', foreignKey: 'parentId' });
 
 // Associations
 DefinitionDiscipline.hasMany(DefinitionDisciplinePower, { foreignKey: 'definitionDisciplineId' });
@@ -125,5 +131,6 @@ export {
   CharacterVampireBackground,
   CharacterVampireEquipment,
   CreationPackage,
-  CreationPackageItem
+  CreationPackageItem,
+  DefinitionLocation
 };
