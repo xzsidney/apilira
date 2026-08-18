@@ -15,9 +15,14 @@ function initCharacterVampire(sequelize) {
         },
         userId: {
             type: sequelize_1.DataTypes.STRING(36),
-            allowNull: false,
+            allowNull: true,
             references: { model: 'User', key: 'id' },
             onDelete: 'CASCADE',
+        },
+        isNpc: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
         },
         clanId: {
             type: sequelize_1.DataTypes.STRING(36),
@@ -67,6 +72,7 @@ function initCharacterVampire(sequelize) {
         dateOfBirth: { type: sequelize_1.DataTypes.DATEONLY, allowNull: true },
         dateOfDeath: { type: sequelize_1.DataTypes.DATEONLY, allowNull: true },
         appearance: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
+        avatarUrl: { type: sequelize_1.DataTypes.STRING(255), allowNull: true },
         distinguishingFeatures: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
         history: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
         experienceTotal: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },

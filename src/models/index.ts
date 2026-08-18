@@ -23,6 +23,11 @@ import { initCharacterVampireEquipment, CharacterVampireEquipment } from './Char
 import { initCreationPackage, CreationPackage } from './CreationPackage';
 import { initCreationPackageItem, CreationPackageItem } from './CreationPackageItem';
 import { initDefinitionLocation, DefinitionLocation } from './DefinitionLocation';
+import CharacterKnownLocation from './CharacterKnownLocation';
+import CharacterHaven from './CharacterHaven';
+import DefinitionMissionIdle from './DefinitionMissionIdle';
+import CharacterActiveMission from './CharacterActiveMission';
+
 // Initialize models
 initUser(sequelize);
 initDefinitionAttribute(sequelize);
@@ -48,6 +53,8 @@ initCharacterVampireEquipment(sequelize);
 initCreationPackage(sequelize);
 initCreationPackageItem(sequelize);
 initDefinitionLocation(sequelize);
+// (Note: The 4 new models are self-initializing through their .init() calls inside the file, 
+// but require importing to execute the file logic)
 
 // Associations
 DefinitionLocation.hasMany(DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
@@ -106,6 +113,23 @@ CharacterVampire.hasMany(CharacterVampireEquipment, { foreignKey: 'characterVamp
 CharacterVampireEquipment.belongsTo(CharacterVampire, { foreignKey: 'characterVampireId' });
 CharacterVampireEquipment.belongsTo(DefinitionEquipment, { foreignKey: 'definitionEquipmentId' });
 
+// --- New Modules Associations ---
+CharacterVampire.hasMany(CharacterKnownLocation, { foreignKey: 'characterId' });
+CharacterKnownLocation.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
+DefinitionLocation.hasMany(CharacterKnownLocation, { foreignKey: 'locationId' });
+CharacterKnownLocation.belongsTo(DefinitionLocation, { foreignKey: 'locationId' });
+
+CharacterVampire.hasOne(CharacterHaven, { foreignKey: 'characterId' });
+CharacterHaven.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
+DefinitionLocation.hasMany(CharacterHaven, { foreignKey: 'locationId' });
+CharacterHaven.belongsTo(DefinitionLocation, { foreignKey: 'locationId' });
+
+CharacterVampire.hasMany(CharacterActiveMission, { foreignKey: 'characterId' });
+CharacterActiveMission.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
+DefinitionMissionIdle.hasMany(CharacterActiveMission, { foreignKey: 'missionId' });
+CharacterActiveMission.belongsTo(DefinitionMissionIdle, { foreignKey: 'missionId' });
+
+
 // Export
 export { 
   sequelize, 
@@ -132,5 +156,9 @@ export {
   CharacterVampireEquipment,
   CreationPackage,
   CreationPackageItem,
-  DefinitionLocation
+  DefinitionLocation,
+  CharacterKnownLocation,
+  CharacterHaven,
+  DefinitionMissionIdle,
+  CharacterActiveMission
 };

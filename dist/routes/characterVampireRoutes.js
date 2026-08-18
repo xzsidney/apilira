@@ -8,6 +8,7 @@ const router = (0, express_1.Router)();
 router.use(authMiddleware_1.authMiddleware);
 router.post('/', characterVampireController_1.createCharacterVampire);
 router.get('/my-characters', characterVampireController_1.getAllCharacterVampiresByUser);
+router.get('/sires', characterVampireController_1.getAvailableSires);
 router.get('/:id', characterVampireController_1.getCharacterVampireById);
 router.put('/:id', characterVampireController_1.updateCharacterVampire);
 router.delete('/:id', characterVampireController_1.deleteCharacterVampire);

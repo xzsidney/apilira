@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCharacterVampire = exports.updateCharacterVampire = exports.getAllCharacterVampiresByUser = exports.getCharacterVampireById = exports.createCharacterVampire = void 0;
+exports.deleteCharacterVampire = exports.updateCharacterVampire = exports.getAllCharacterVampiresByUser = exports.getCharacterVampireById = exports.createCharacterVampire = exports.getAvailableSires = void 0;
 const models_1 = require("../models");
+const sequelize_1 = require("sequelize");
 const CharacterVampire_1 = require("../models/CharacterVampire");
 const CharacterVampireAttribute_1 = require("../models/CharacterVampireAttribute");
 const CharacterVampireSkill_1 = require("../models/CharacterVampireSkill");
@@ -11,6 +12,30 @@ const CharacterVampireMeritFlaw_1 = require("../models/CharacterVampireMeritFlaw
 const CharacterVampireBackground_1 = require("../models/CharacterVampireBackground");
 const CharacterVampireEquipment_1 = require("../models/CharacterVampireEquipment");
 const models_2 = require("../models");
+const getAvailableSires = async (req, res) => {
+    try {
+        const { clanId } = req.query;
+        if (!clanId) {
+            return res.status(400).json({ error: 'clanId é obrigatório' });
+        }
+        // Busca NPCs ou Vampiros do mesmo clã que sejam de geração mais antiga (menor que 12, que é o padrão do neófito)
+        const sires = await CharacterVampire_1.CharacterVampire.findAll({
+            where: {
+                clanId: String(clanId),
+                generation: {
+                    [sequelize_1.Op.lt]: 12
+                }
+            },
+            attributes: ['id', 'name', 'generation', 'concept']
+        });
+        res.json(sires);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao buscar senhores disponíveis' });
+    }
+};
+exports.getAvailableSires = getAvailableSires;
 const createCharacterVampire = async (req, res) => {
     const transaction = await models_1.sequelize.transaction();
     try {

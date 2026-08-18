@@ -13,7 +13,9 @@ const db_1 = __importDefault(require("./config/db"));
 const sequelize_1 = require("sequelize");
 const app = (0, express_1.default)();
 // Security and utility middlewares
-app.use((0, helmet_1.default)());
+app.use((0, helmet_1.default)({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use((0, cors_1.default)({
     origin: ["https://liragames.com.br", "https://www.liragames.com.br", "http://localhost:3000", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -38,6 +40,10 @@ const definitionResonanceRoutes_1 = __importDefault(require("./routes/definition
 const definitionDisciplineRoutes_1 = __importDefault(require("./routes/definitionDisciplineRoutes"));
 const definitionBloodPotencyRoutes_1 = __importDefault(require("./routes/definitionBloodPotencyRoutes"));
 const characterVampireRoutes_1 = __importDefault(require("./routes/characterVampireRoutes"));
+const creationPackageRoutes_1 = __importDefault(require("./routes/creationPackageRoutes"));
+const uploadRoutes_1 = __importDefault(require("./routes/uploadRoutes"));
+const radarLocationRoutes_1 = __importDefault(require("./routes/radarLocationRoutes"));
+const missionIdleRoutes_1 = __importDefault(require("./routes/missionIdleRoutes"));
 // API Routes
 app.use("/api/auth", authRoutes_1.default);
 app.use("/api/definition-attributes", definitionAttributeRoutes_1.default);
@@ -52,6 +58,10 @@ app.use("/api/definition-resonances", definitionResonanceRoutes_1.default);
 app.use("/api/definition-disciplines", definitionDisciplineRoutes_1.default);
 app.use("/api/definition-blood-potencies", definitionBloodPotencyRoutes_1.default);
 app.use("/api/character-vampires", characterVampireRoutes_1.default);
+app.use("/api/creation-packages", creationPackageRoutes_1.default);
+app.use("/api/upload", uploadRoutes_1.default);
+app.use("/api/radar/locations", radarLocationRoutes_1.default);
+app.use("/api/missions-idle", missionIdleRoutes_1.default);
 // Base routes
 app.get("/", (req, res) => {
     res.json({

@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const MissionIdleController_1 = require("../controllers/MissionIdleController");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const router = (0, express_1.Router)();
+router.use(authMiddleware_1.authMiddleware);
+router.get('/', MissionIdleController_1.listAvailableMissions);
+router.get('/active/:characterId', MissionIdleController_1.getActiveMission);
+router.post('/start', MissionIdleController_1.startMission);
+router.post('/resolve', MissionIdleController_1.resolveMission);
+exports.default = router;

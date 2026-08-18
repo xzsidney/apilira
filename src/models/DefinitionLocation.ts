@@ -1,15 +1,15 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
 export class DefinitionLocation extends Model {
-  public id!: string;
-  public name!: string;
-  public description!: string;
-  public level!: number;
-  public parentId!: string | null;
-  public attributes!: object; // JSON
-  public gameStyle!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare name: string;
+  declare description: string;
+  declare level: number;
+  declare parentId: string | null;
+  declare attributes: any; // JSON
+  declare gameStyle: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 export function initDefinitionLocation(sequelize: Sequelize) {
