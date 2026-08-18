@@ -27,6 +27,7 @@ import CharacterKnownLocation from './CharacterKnownLocation';
 import CharacterHaven from './CharacterHaven';
 import DefinitionMissionIdle from './DefinitionMissionIdle';
 import CharacterActiveMission from './CharacterActiveMission';
+import { DefinitionMissionIdleAction, initDefinitionMissionIdleAction } from './DefinitionMissionIdleAction';
 
 // Initialize models
 initUser(sequelize);
@@ -55,6 +56,7 @@ initCreationPackageItem(sequelize);
 initDefinitionLocation(sequelize);
 // (Note: The 4 new models are self-initializing through their .init() calls inside the file, 
 // but require importing to execute the file logic)
+initDefinitionMissionIdleAction(sequelize);
 
 // Associations
 DefinitionLocation.hasMany(DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
@@ -130,6 +132,10 @@ DefinitionMissionIdle.hasMany(CharacterActiveMission, { foreignKey: 'missionId' 
 CharacterActiveMission.belongsTo(DefinitionMissionIdle, { foreignKey: 'missionId' });
 
 
+DefinitionMissionIdle.hasMany(DefinitionMissionIdleAction, { as: 'Actions', foreignKey: 'missionId' });
+DefinitionMissionIdleAction.belongsTo(DefinitionMissionIdle, { foreignKey: 'missionId' });
+
+
 // Export
 export { 
   sequelize, 
@@ -160,5 +166,6 @@ export {
   CharacterKnownLocation,
   CharacterHaven,
   DefinitionMissionIdle,
-  CharacterActiveMission
+  CharacterActiveMission,
+  DefinitionMissionIdleAction
 };

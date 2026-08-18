@@ -1,10 +1,18 @@
 import { Request, Response } from 'express';
-import { DefinitionMissionIdle, CharacterActiveMission, CharacterVampire } from '../models';
+import { DefinitionMissionIdle, CharacterActiveMission, CharacterVampire, DefinitionMissionIdleAction } from '../models';
 import { Op } from 'sequelize';
 
 export const listAvailableMissions = async (req: Request, res: Response) => {
   try {
-    const missions = await DefinitionMissionIdle.findAll();
+    const missions = await DefinitionMissionIdle.findAll({
+      include: [
+        {
+          model: DefinitionMissionIdleAction,
+          as: 'Actions',
+          attributes: ['id', 'stepOrder', 'name', 'difficulty', 'attributeReq', 'skillReq']
+        }
+      ]
+    });
     return res.status(200).json(missions);
   } catch (error) {
     console.error('Error fetching idle missions:', error);
@@ -90,9 +98,20 @@ export const resolveMission = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Active mission ID required' });
     }
 
+    const { DefinitionMissionIdleAction } = require('../models');
+
     const activeMission = await CharacterActiveMission.findByPk(activeMissionId, {
       include: [
-        { model: DefinitionMissionIdle, as: 'DefinitionMissionIdle' },
+        { 
+          model: DefinitionMissionIdle, 
+          as: 'DefinitionMissionIdle',
+          include: [
+            {
+              model: DefinitionMissionIdleAction,
+              as: 'Actions'
+            }
+          ]
+        },
         { model: CharacterVampire, as: 'CharacterVampire' }
       ]
     });
@@ -111,52 +130,86 @@ export const resolveMission = async (req: Request, res: Response) => {
 
     const character = (activeMission as any).CharacterVampire as any;
     const missionDef = (activeMission as any).DefinitionMissionIdle as any;
+    const actions = missionDef.Actions || [];
 
-    // SIMULAÇÃO DE ROLAGEM DE DADOS (50% chance para testes iniciais)
-    // No futuro, isso usaria: character[selectedAttribute] + character[selectedSkill] vs baseDifficulty
-    const rollResult = Math.random() > 0.3; // 70% chance de sucesso
-    const isSuccess = rollResult;
+    // Sort actions by stepOrder
+    actions.sort((a: any, b: any) => a.stepOrder - b.stepOrder);
 
     const report: any = {
-      isSuccess,
-      title: isSuccess ? 'Sucesso na Operação' : 'Falha Crítica',
+      isSuccess: false, // Assume failure until proven otherwise
+      title: '',
       narrative: '',
       changes: [] as string[]
     };
     
+    let missionFailed = false;
+
+    for (const action of actions) {
+      // Regra: "coloca sempre 3 dados d10 dif 6"
+      // Simulador de Parada de Dados V5 (3 dados, Dificuldade 6)
+      const numDice = 3;
+      const difficulty = action.difficulty || 6;
+      let successes = 0;
+      
+      for (let i = 0; i < numDice; i++) {
+        const roll = Math.floor(Math.random() * 10) + 1; // 1d10
+        if (roll >= difficulty) successes++;
+        // V5 rules normally count 10s as criticals, but we'll stick to simple successes for now
+      }
+
+      // Se falhar no teste (nenhum sucesso)
+      if (successes === 0) {
+        missionFailed = true;
+        report.title = 'Operação Interrompida';
+        report.isSuccess = false;
+        report.changes.push(`❌ ${action.name}: Falha Crítica! (0 sucessos em ${numDice} dados)`);
+        report.narrative += ` ${action.failureText}`;
+        break; // Interrompe o loop, a missão falhou aqui!
+      } else {
+        // Passou no teste dessa etapa
+        report.changes.push(`✅ ${action.name}: Sucesso! (${successes} sucessos)`);
+        report.narrative += ` ${action.successText}`;
+      }
+    }
+
     const rewards = missionDef.rewardsJson || {};
     const penalties = missionDef.penaltiesJson || {};
 
-    if (isSuccess) {
-      report.narrative = 'Seus instintos foram certeiros. A noite lhe sorriu e seus esforços renderam frutos suculentos.';
+    if (!missionFailed && actions.length > 0) {
+      report.isSuccess = true;
+      report.title = 'Operação Concluída com Sucesso';
+      
       if (rewards.fome_mod) {
-        // Regra Oficial V5: Caçada normal não zera a fome, o mínimo é 1.
         const minimumHunger = 1; 
         const oldHunger = character.hunger;
         character.hunger = Math.max(minimumHunger, character.hunger + rewards.fome_mod);
         if (oldHunger !== character.hunger) {
-          report.changes.push(`Fome reduzida de ${oldHunger} para ${character.hunger}.`);
+          report.changes.push(`🩸 Fome reduzida de ${oldHunger} para ${character.hunger}.`);
         } else {
-          report.changes.push(`Você já estava saciado o suficiente (Fome ${character.hunger}). Não baixou mais.`);
+          report.changes.push(`🩸 Você já estava saciado o suficiente (Fome ${character.hunger}). Não baixou mais.`);
         }
       }
       if (rewards.xp) {
         character.experienceTotal += rewards.xp;
-        report.changes.push(`Ganhou ${rewards.xp} XP.`);
+        report.changes.push(`🌟 Ganhou ${rewards.xp} XP.`);
       }
       activeMission.status = 'COMPLETED';
-    } else {
-      report.narrative = 'As coisas saíram do controle. Uma complicação na rua forçou você a gastar recursos e fugir.';
+    } else if (missionFailed) {
       if (penalties.fome_mod) {
         const oldHunger = character.hunger;
         character.hunger = Math.min(5, character.hunger + penalties.fome_mod);
-        report.changes.push(`A confusão te custou vitae. Fome aumentou de ${oldHunger} para ${character.hunger}.`);
+        report.changes.push(`⚠️ A confusão te custou vitae. Fome aumentou de ${oldHunger} para ${character.hunger}.`);
       }
       if (penalties.humanidade_mod) {
         character.humanity += penalties.humanidade_mod;
-        report.changes.push(`Sua Besta tomou as rédeas. Humanidade alterada: ${penalties.humanidade_mod}.`);
+        report.changes.push(`😈 Sua Besta tomou as rédeas. Humanidade alterada: ${penalties.humanidade_mod}.`);
       }
       activeMission.status = 'FAILED';
+    } else {
+      // Nenhuma ação configurada na missão (Fallback antigo)
+      report.title = 'Sucesso Automático';
+      report.isSuccess = true;
+      activeMission.status = 'COMPLETED';
     }
 
     // Salva o relatório no banco para histórico

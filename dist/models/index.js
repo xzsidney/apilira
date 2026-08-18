@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CharacterActiveMission = exports.DefinitionMissionIdle = exports.CharacterHaven = exports.CharacterKnownLocation = exports.DefinitionLocation = exports.CreationPackageItem = exports.CreationPackage = exports.CharacterVampireEquipment = exports.CharacterVampireBackground = exports.CharacterVampireMeritFlaw = exports.CharacterVampirePower = exports.CharacterVampireDiscipline = exports.CharacterVampireSkill = exports.CharacterVampireAttribute = exports.CharacterVampire = exports.DefinitionBloodPotency = exports.DefinitionDisciplinePower = exports.DefinitionDiscipline = exports.DefinitionResonance = exports.DefinitionPredator = exports.DefinitionClan = exports.DefinitionBackground = exports.DefinitionEquipment = exports.DefinitionMeritFlaw = exports.DefinitionArchetype = exports.DefinitionSkill = exports.DefinitionAttribute = exports.User = exports.sequelize = void 0;
+exports.DefinitionMissionIdleAction = exports.CharacterActiveMission = exports.DefinitionMissionIdle = exports.CharacterHaven = exports.CharacterKnownLocation = exports.DefinitionLocation = exports.CreationPackageItem = exports.CreationPackage = exports.CharacterVampireEquipment = exports.CharacterVampireBackground = exports.CharacterVampireMeritFlaw = exports.CharacterVampirePower = exports.CharacterVampireDiscipline = exports.CharacterVampireSkill = exports.CharacterVampireAttribute = exports.CharacterVampire = exports.DefinitionBloodPotency = exports.DefinitionDisciplinePower = exports.DefinitionDiscipline = exports.DefinitionResonance = exports.DefinitionPredator = exports.DefinitionClan = exports.DefinitionBackground = exports.DefinitionEquipment = exports.DefinitionMeritFlaw = exports.DefinitionArchetype = exports.DefinitionSkill = exports.DefinitionAttribute = exports.User = exports.sequelize = void 0;
 const db_1 = __importDefault(require("../config/db"));
 exports.sequelize = db_1.default;
 const User_1 = require("./User");
@@ -62,6 +62,8 @@ const DefinitionMissionIdle_1 = __importDefault(require("./DefinitionMissionIdle
 exports.DefinitionMissionIdle = DefinitionMissionIdle_1.default;
 const CharacterActiveMission_1 = __importDefault(require("./CharacterActiveMission"));
 exports.CharacterActiveMission = CharacterActiveMission_1.default;
+const DefinitionMissionIdleAction_1 = require("./DefinitionMissionIdleAction");
+Object.defineProperty(exports, "DefinitionMissionIdleAction", { enumerable: true, get: function () { return DefinitionMissionIdleAction_1.DefinitionMissionIdleAction; } });
 // Initialize models
 (0, User_1.initUser)(db_1.default);
 (0, DefinitionAttribute_1.initDefinitionAttribute)(db_1.default);
@@ -89,6 +91,7 @@ exports.CharacterActiveMission = CharacterActiveMission_1.default;
 (0, DefinitionLocation_1.initDefinitionLocation)(db_1.default);
 // (Note: The 4 new models are self-initializing through their .init() calls inside the file, 
 // but require importing to execute the file logic)
+(0, DefinitionMissionIdleAction_1.initDefinitionMissionIdleAction)(db_1.default);
 // Associations
 DefinitionLocation_1.DefinitionLocation.hasMany(DefinitionLocation_1.DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
 DefinitionLocation_1.DefinitionLocation.belongsTo(DefinitionLocation_1.DefinitionLocation, { as: 'parent', foreignKey: 'parentId' });
@@ -144,3 +147,5 @@ CharacterVampire_1.CharacterVampire.hasMany(CharacterActiveMission_1.default, { 
 CharacterActiveMission_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { foreignKey: 'characterId' });
 DefinitionMissionIdle_1.default.hasMany(CharacterActiveMission_1.default, { foreignKey: 'missionId' });
 CharacterActiveMission_1.default.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'missionId' });
+DefinitionMissionIdle_1.default.hasMany(DefinitionMissionIdleAction_1.DefinitionMissionIdleAction, { as: 'Actions', foreignKey: 'missionId' });
+DefinitionMissionIdleAction_1.DefinitionMissionIdleAction.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'missionId' });
