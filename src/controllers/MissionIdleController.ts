@@ -112,38 +112,61 @@ export const resolveMission = async (req: Request, res: Response) => {
     const character = (activeMission as any).CharacterVampire as any;
     const missionDef = (activeMission as any).DefinitionMissionIdle as any;
 
-    // VERY BASIC RESOLUTION LOGIC FOR NOW:
-    // 100% success rate for testing purposes.
-    // In the future: cross-reference character stats with baseDifficulty.
+    // SIMULAÇÃO DE ROLAGEM DE DADOS (50% chance para testes iniciais)
+    // No futuro, isso usaria: character[selectedAttribute] + character[selectedSkill] vs baseDifficulty
+    const rollResult = Math.random() > 0.3; // 70% chance de sucesso
+    const isSuccess = rollResult;
+
+    const report: any = {
+      isSuccess,
+      title: isSuccess ? 'Sucesso na Operação' : 'Falha Crítica',
+      narrative: '',
+      changes: [] as string[]
+    };
     
-    // Apply Rewards
     const rewards = missionDef.rewardsJson || {};
-    let updates = [] as string[];
+    const penalties = missionDef.penaltiesJson || {};
 
-    if (rewards.fome_mod) {
-      character.hunger = Math.max(0, character.hunger + rewards.fome_mod);
-      updates.push(`Fome reduzida para ${character.hunger}.`);
-    }
-    if (rewards.xp) {
-      character.experienceTotal += rewards.xp;
-      updates.push(`Ganhou ${rewards.xp} XP.`);
-    }
-    
-    // Check if we unlock location
-    if (rewards.unlock_location_id) {
-      // Logic to insert into CharacterKnownLocation goes here
-      // updates.push('Novo bairro descoberto!');
+    if (isSuccess) {
+      report.narrative = 'Seus instintos foram certeiros. A noite lhe sorriu e seus esforços renderam frutos suculentos.';
+      if (rewards.fome_mod) {
+        // Regra Oficial V5: Caçada normal não zera a fome, o mínimo é 1.
+        const minimumHunger = 1; 
+        const oldHunger = character.hunger;
+        character.hunger = Math.max(minimumHunger, character.hunger + rewards.fome_mod);
+        if (oldHunger !== character.hunger) {
+          report.changes.push(`Fome reduzida de ${oldHunger} para ${character.hunger}.`);
+        } else {
+          report.changes.push(`Você já estava saciado o suficiente (Fome ${character.hunger}). Não baixou mais.`);
+        }
+      }
+      if (rewards.xp) {
+        character.experienceTotal += rewards.xp;
+        report.changes.push(`Ganhou ${rewards.xp} XP.`);
+      }
+      activeMission.status = 'COMPLETED';
+    } else {
+      report.narrative = 'As coisas saíram do controle. Uma complicação na rua forçou você a gastar recursos e fugir.';
+      if (penalties.fome_mod) {
+        const oldHunger = character.hunger;
+        character.hunger = Math.min(5, character.hunger + penalties.fome_mod);
+        report.changes.push(`A confusão te custou vitae. Fome aumentou de ${oldHunger} para ${character.hunger}.`);
+      }
+      if (penalties.humanidade_mod) {
+        character.humanity += penalties.humanidade_mod;
+        report.changes.push(`Sua Besta tomou as rédeas. Humanidade alterada: ${penalties.humanidade_mod}.`);
+      }
+      activeMission.status = 'FAILED';
     }
 
+    // Salva o relatório no banco para histórico
+    activeMission.reportJson = report;
     await character.save();
-
-    activeMission.status = 'COMPLETED';
     await activeMission.save();
 
     return res.status(200).json({ 
       success: true, 
-      message: 'Missão concluída com sucesso!',
-      logs: updates,
+      report,
       character
     });
 

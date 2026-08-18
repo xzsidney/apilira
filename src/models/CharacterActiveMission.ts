@@ -11,9 +11,10 @@ export interface CharacterActiveMissionAttributes {
   selectedAttribute: string;
   selectedSkill: string;
   status: 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  reportJson?: any;
 }
 
-export interface CharacterActiveMissionCreationAttributes extends Optional<CharacterActiveMissionAttributes, 'id' | 'status'> {}
+export interface CharacterActiveMissionCreationAttributes extends Optional<CharacterActiveMissionAttributes, 'id' | 'status' | 'reportJson'> {}
 
 class CharacterActiveMission extends Model<CharacterActiveMissionAttributes, CharacterActiveMissionCreationAttributes> implements CharacterActiveMissionAttributes {
   declare id: string;
@@ -23,6 +24,7 @@ class CharacterActiveMission extends Model<CharacterActiveMissionAttributes, Cha
   declare selectedAttribute: string;
   declare selectedSkill: string;
   declare status: 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  declare reportJson: any | null;
 }
 
 CharacterActiveMission.init(
@@ -56,6 +58,10 @@ CharacterActiveMission.init(
       type: DataTypes.ENUM('IN_PROGRESS', 'COMPLETED', 'FAILED'),
       defaultValue: 'IN_PROGRESS',
       allowNull: false,
+    },
+    reportJson: {
+      type: DataTypes.JSON,
+      allowNull: true,
     },
   },
   {
