@@ -38,6 +38,10 @@ CharacterActiveMission.init({
         defaultValue: 'IN_PROGRESS',
         allowNull: false,
     },
+    reportJson: {
+        type: sequelize_1.DataTypes.JSON,
+        allowNull: true,
+    },
 }, {
     sequelize: database_1.default,
     modelName: 'CharacterActiveMission',
