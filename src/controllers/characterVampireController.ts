@@ -74,8 +74,21 @@ export const createCharacterVampire = async (req: Request, res: Response) => {
       await CharacterVampireSkill.bulkCreate(mapped, { transaction });
     }
 
-    if (disciplines && disciplines.length > 0) {
-      const mapped = disciplines.map((d: any) => ({ ...d, characterVampireId: character.id }));
+    let finalDisciplines = disciplines || [];
+    
+    if (finalDisciplines.length === 0) {
+      const clan = await DefinitionClan.findByPk(characterData.clanId);
+      if (clan && clan.disciplines) {
+        const discNames = clan.disciplines.split(',').map((s: string) => s.trim());
+        const dbDiscs = await DefinitionDiscipline.findAll({ where: { name: { [Op.in]: discNames } } });
+        
+        if (dbDiscs.length > 0) finalDisciplines.push({ definitionDisciplineId: dbDiscs[0].id, value: 2 });
+        if (dbDiscs.length > 1) finalDisciplines.push({ definitionDisciplineId: dbDiscs[1].id, value: 1 });
+      }
+    }
+
+    if (finalDisciplines.length > 0) {
+      const mapped = finalDisciplines.map((d: any) => ({ ...d, characterVampireId: character.id }));
       await CharacterVampireDiscipline.bulkCreate(mapped, { transaction });
     }
 
