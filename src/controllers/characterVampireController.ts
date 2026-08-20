@@ -135,6 +135,8 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
           model: CharacterVampirePower, 
           include: [{ model: DefinitionDisciplinePower, attributes: ['name', 'level'] }]
         },
+        { model: CharacterVampireBackground },
+        { model: CharacterVampireMeritFlaw },
       ]
     });
 
