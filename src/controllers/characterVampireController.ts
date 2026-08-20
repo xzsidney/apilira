@@ -51,6 +51,15 @@ export const createCharacterVampire = async (req: Request, res: Response) => {
 
     characterData.userId = userId;
 
+    // Segurança (Regras Fixas Imutáveis na Criação de Neófitos)
+    characterData.generation = 12; 
+
+    // Busca a Potência de Sangue nível 1 para garantir o ID correto
+    const bp1 = await DefinitionBloodPotency.findOne({ where: { level: 1 } });
+    if (bp1) {
+      characterData.bloodPotencyId = bp1.id;
+    }
+
     // Cria o personagem principal
     const character = await CharacterVampire.create(characterData, { transaction });
 
