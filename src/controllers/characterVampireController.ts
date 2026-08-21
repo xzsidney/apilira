@@ -222,7 +222,6 @@ export const updateCharacterVampire = async (req: Request, res: Response) => {
     if (attributes) {
       await CharacterVampireAttribute.destroy({ where: { characterVampireId: id }, transaction });
       const mapped = attributes.map((a: any) => ({
-        id: a.id,
         characterVampireId: id,
         definitionAttributeId: a.definitionAttributeId,
         value: a.value
@@ -232,10 +231,10 @@ export const updateCharacterVampire = async (req: Request, res: Response) => {
     if (skills) {
       await CharacterVampireSkill.destroy({ where: { characterVampireId: id }, transaction });
       const mapped = skills.map((s: any) => ({
-        id: s.id,
         characterVampireId: id,
         definitionSkillId: s.definitionSkillId,
-        value: s.value
+        value: s.value,
+        specialty: s.specialty
       }));
       await CharacterVampireSkill.bulkCreate(mapped, { transaction });
     }
