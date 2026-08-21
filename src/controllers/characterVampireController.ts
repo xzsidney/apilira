@@ -134,26 +134,32 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
         { model: DefinitionBloodPotency, attributes: ['level', 'bloodSurge', 'mendAmount'] },
         { 
           model: CharacterVampireAttribute, 
+          separate: true,
           include: [{ model: DefinitionAttribute, attributes: ['name', 'type'] }]
         },
         { 
           model: CharacterVampireSkill, 
+          separate: true,
           include: [{ model: DefinitionSkill, attributes: ['name', 'type'] }]
         },
         { 
           model: CharacterVampireDiscipline, 
+          separate: true,
           include: [{ model: DefinitionDiscipline, attributes: ['name'] }]
         },
         { 
           model: CharacterVampirePower, 
+          separate: true,
           include: [{ model: DefinitionDisciplinePower, attributes: ['name', 'level'] }]
         },
         { 
           model: CharacterVampireBackground,
+          separate: true,
           include: [{ model: DefinitionBackground, attributes: ['name', 'description'] }]
         },
         { 
           model: CharacterVampireMeritFlaw,
+          separate: true,
           include: [{ model: DefinitionMeritFlaw, attributes: ['name', 'description', 'type'] }]
         },
       ]
