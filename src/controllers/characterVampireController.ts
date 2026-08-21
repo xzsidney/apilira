@@ -131,7 +131,7 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
         { model: DefinitionClan, attributes: ['name', 'weakness'] },
         { model: DefinitionPredator, attributes: ['name'] },
         { model: DefinitionResonance, attributes: ['name'] },
-        { model: DefinitionBloodPotency, attributes: ['level', 'bloodSurge', 'mendAmount'] },
+        { model: DefinitionBloodPotency, attributes: ['level', 'bloodSurge', 'mendAmount', 'disciplineBonus', 'baneSeverity', 'feedingPenalty'] },
         { 
           model: CharacterVampireAttribute, 
           separate: true,
@@ -221,12 +221,22 @@ export const updateCharacterVampire = async (req: Request, res: Response) => {
     // Para as coleções associativas, o padrão em PUT completo é recriar:
     if (attributes) {
       await CharacterVampireAttribute.destroy({ where: { characterVampireId: id }, transaction });
-      const mapped = attributes.map((a: any) => ({ ...a, characterVampireId: id }));
+      const mapped = attributes.map((a: any) => ({
+        id: a.id,
+        characterVampireId: id,
+        definitionAttributeId: a.definitionAttributeId,
+        value: a.value
+      }));
       await CharacterVampireAttribute.bulkCreate(mapped, { transaction });
     }
     if (skills) {
       await CharacterVampireSkill.destroy({ where: { characterVampireId: id }, transaction });
-      const mapped = skills.map((s: any) => ({ ...s, characterVampireId: id }));
+      const mapped = skills.map((s: any) => ({
+        id: s.id,
+        characterVampireId: id,
+        definitionSkillId: s.definitionSkillId,
+        value: s.value
+      }));
       await CharacterVampireSkill.bulkCreate(mapped, { transaction });
     }
     // Repetir para os outros arrays conforme necessidade de update completo da ficha.
