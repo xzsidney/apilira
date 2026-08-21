@@ -128,7 +128,7 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
     // Busca o personagem com TODAS as associações para montar a ficha completa!
     const character = await CharacterVampire.findByPk(id, {
       include: [
-        { model: DefinitionClan, attributes: ['name'] },
+        { model: DefinitionClan, attributes: ['name', 'weakness'] },
         { model: DefinitionPredator, attributes: ['name'] },
         { model: DefinitionResonance, attributes: ['name'] },
         { model: DefinitionBloodPotency, attributes: ['level', 'bloodSurge', 'mendAmount'] },
