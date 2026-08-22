@@ -238,6 +238,15 @@ export const updateCharacterVampire = async (req: Request, res: Response) => {
       }));
       await CharacterVampireSkill.bulkCreate(mapped, { transaction });
     }
+    if (disciplines) {
+      await CharacterVampireDiscipline.destroy({ where: { characterVampireId: id }, transaction });
+      const mapped = disciplines.map((d: any) => ({
+        characterVampireId: id,
+        definitionDisciplineId: d.definitionDisciplineId,
+        value: d.value
+      }));
+      await CharacterVampireDiscipline.bulkCreate(mapped, { transaction });
+    }
     // Repetir para os outros arrays conforme necessidade de update completo da ficha.
     // Para simplificar a POC, não faremos o replace completo de disciplinas aqui, 
     // assumindo que os arrays mandados são para substituição total.
