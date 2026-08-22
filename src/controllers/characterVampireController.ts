@@ -247,9 +247,25 @@ export const updateCharacterVampire = async (req: Request, res: Response) => {
       }));
       await CharacterVampireDiscipline.bulkCreate(mapped, { transaction });
     }
-    // Repetir para os outros arrays conforme necessidade de update completo da ficha.
-    // Para simplificar a POC, não faremos o replace completo de disciplinas aqui, 
-    // assumindo que os arrays mandados são para substituição total.
+    if (backgrounds) {
+      await CharacterVampireBackground.destroy({ where: { characterVampireId: id }, transaction });
+      const mapped = backgrounds.map((b: any) => ({
+        characterVampireId: id,
+        definitionBackgroundId: b.definitionBackgroundId,
+        value: b.value,
+        details: b.details
+      }));
+      await CharacterVampireBackground.bulkCreate(mapped, { transaction });
+    }
+    if (meritsFlaws) {
+      await CharacterVampireMeritFlaw.destroy({ where: { characterVampireId: id }, transaction });
+      const mapped = meritsFlaws.map((m: any) => ({
+        characterVampireId: id,
+        definitionMeritFlawId: m.definitionMeritFlawId,
+        details: m.details
+      }));
+      await CharacterVampireMeritFlaw.bulkCreate(mapped, { transaction });
+    }
 
     await transaction.commit();
     res.json({ message: 'Personagem atualizado com sucesso', character });
