@@ -26,7 +26,11 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Serve static files for uploaded images
-app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
+
+// Permite usar uma pasta fora do Github (na Hostinger) se a variável estiver definida
+const uploadDir = process.env.PERSISTENT_UPLOAD_DIR || path.join(__dirname, "../public/uploads");
+app.use("/uploads", express.static(uploadDir));
+
 
 import definitionAttributeRoutes from "./routes/definitionAttributeRoutes";
 import definitionSkillRoutes from "./routes/definitionSkillRoutes";

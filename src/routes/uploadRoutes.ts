@@ -1,11 +1,29 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
-// Agora armazenamos a imagem na memória RAM para converter em Base64
-const storage = multer.memoryStorage();
+// Usa a pasta persistente se existir na env, senão usa a pasta local
+const uploadDir = process.env.PERSISTENT_UPLOAD_DIR || path.join(__dirname, '../../public/uploads');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configuração do Multer (Voltando para salvar o arquivo físico)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const filename = `${uuidv4()}${ext}`;
+    cb(null, filename);
+  }
+});
 
 const upload = multer({
   storage,
@@ -27,14 +45,12 @@ router.post('/', upload.single('avatar'), (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
     }
     
-    // Converte o buffer da imagem direto para uma string Base64
-    const base64Data = req.file.buffer.toString('base64');
-    const mimeType = req.file.mimetype;
-    const avatarUrl = `data:${mimeType};base64,${base64Data}`;
+    // Constrói a URL para acessar a imagem estaticamente
+    const avatarUrl = `/uploads/${req.file.filename}`;
     
     return res.status(200).json({ url: avatarUrl });
   } catch (error) {
-    console.error('Erro no upload base64:', error);
+    console.error('Erro no upload físico:', error);
     return res.status(500).json({ error: 'Erro ao processar o upload da imagem.' });
   }
 });
