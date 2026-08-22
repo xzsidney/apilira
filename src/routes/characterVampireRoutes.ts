@@ -6,7 +6,9 @@ import {
   getCharacterVampireById,
   updateCharacterVampire,
   deleteCharacterVampire,
-  awakenCharacterVampire
+  awakenCharacterVampire,
+  buyEquipment,
+  toggleEquipEquipment
 } from '../controllers/characterVampireController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
@@ -22,5 +24,9 @@ router.get('/:id', getCharacterVampireById);
 router.put('/:id', updateCharacterVampire);
 router.delete('/:id', deleteCharacterVampire);
 router.post('/:id/awaken', awakenCharacterVampire);
+
+
+router.post('/:id/equipments', buyEquipment);
+router.put('/:id/equipments/:equipmentId/equip', toggleEquipEquipment);
 
 export default router;

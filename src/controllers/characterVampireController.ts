@@ -326,3 +326,58 @@ export const awakenCharacterVampire = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro ao despertar personagem' });
   }
 };
+
+
+// --- EQUIPMENT MANAGEMENT ---
+
+export const buyEquipment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { definitionEquipmentId } = req.body;
+
+    const character = await CharacterVampire.findByPk(id);
+    if (!character) return res.status(404).json({ error: 'Personagem não encontrado.' });
+
+    // Verifica se já tem o equipamento
+    const existing = await CharacterVampireEquipment.findOne({
+      where: { characterVampireId: id, definitionEquipmentId }
+    });
+
+    if (existing) {
+      existing.quantity += 1;
+      await existing.save();
+      return res.json(existing);
+    } else {
+      const newItem = await CharacterVampireEquipment.create({
+        characterVampireId: id,
+        definitionEquipmentId,
+        quantity: 1,
+        equipped: false
+      });
+      return res.status(201).json(newItem);
+    }
+  } catch (error) {
+    console.error('Erro ao comprar equipamento:', error);
+    res.status(500).json({ error: 'Erro ao processar a compra de equipamento.' });
+  }
+};
+
+export const toggleEquipEquipment = async (req: Request, res: Response) => {
+  try {
+    const { id, equipmentId } = req.params;
+
+    const existing = await CharacterVampireEquipment.findOne({
+      where: { characterVampireId: id, definitionEquipmentId: equipmentId }
+    });
+
+    if (!existing) return res.status(404).json({ error: 'Equipamento não encontrado no inventário.' });
+
+    existing.equipped = !existing.equipped;
+    await existing.save();
+
+    return res.json(existing);
+  } catch (error) {
+    console.error('Erro ao equipar/desequipar item:', error);
+    res.status(500).json({ error: 'Erro ao equipar/desequipar item.' });
+  }
+};
