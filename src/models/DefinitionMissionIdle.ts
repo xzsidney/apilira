@@ -10,6 +10,7 @@ export interface DefinitionMissionIdleAttributes {
   allowedRequirements: any;
   rewardsJson: any;
   penaltiesJson: any;
+  category: string;
 }
 
 export interface DefinitionMissionIdleCreationAttributes extends Optional<DefinitionMissionIdleAttributes, 'id' | 'allowedRequirements' | 'rewardsJson' | 'penaltiesJson'> {}
@@ -23,6 +24,7 @@ class DefinitionMissionIdle extends Model<DefinitionMissionIdleAttributes, Defin
   declare allowedRequirements: any;
   declare rewardsJson: any;
   declare penaltiesJson: any;
+  declare category: string;
 }
 
 DefinitionMissionIdle.init(
@@ -59,6 +61,10 @@ DefinitionMissionIdle.init(
     penaltiesJson: {
       type: DataTypes.JSON,
       defaultValue: {},
+    },
+    category: {
+      type: DataTypes.STRING(50),
+      defaultValue: 'OPERATION',
     },
   },
   {

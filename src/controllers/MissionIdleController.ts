@@ -4,7 +4,14 @@ import { Op } from 'sequelize';
 
 export const listAvailableMissions = async (req: Request, res: Response) => {
   try {
+    const { category } = req.query;
+    const whereClause: any = {};
+    if (category) {
+      whereClause.category = category;
+    }
+
     const missions = await DefinitionMissionIdle.findAll({
+      where: whereClause,
       include: [
         {
           model: DefinitionMissionIdleAction,
