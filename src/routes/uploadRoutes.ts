@@ -8,15 +8,20 @@ const router = Router();
 
 // Usa a pasta persistente se existir na env, senão usa a pasta local
 const uploadDir = process.env.PERSISTENT_UPLOAD_DIR || path.join(__dirname, '../../public/uploads');
+const charactersDir = path.join(uploadDir, 'characters');
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
+}
+if (!fs.existsSync(charactersDir)) {
+  fs.mkdirSync(charactersDir, { recursive: true });
 }
 
 // Configuração do Multer (Voltando para salvar o arquivo físico)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir);
+    // Por enquanto, todos os uploads dessa rota vão para characters
+    cb(null, charactersDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -46,7 +51,7 @@ router.post('/', upload.single('avatar'), (req: Request, res: Response) => {
     }
     
     // Constrói a URL para acessar a imagem estaticamente
-    const avatarUrl = `/uploads/${req.file.filename}`;
+    const avatarUrl = `/uploads/characters/${req.file.filename}`;
     
     return res.status(200).json({ url: avatarUrl });
   } catch (error) {
