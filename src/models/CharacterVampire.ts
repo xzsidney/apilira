@@ -131,7 +131,7 @@ export function initCharacterVampire(sequelize: Sequelize) {
       dateOfBirth: { type: DataTypes.DATEONLY, allowNull: true },
       dateOfDeath: { type: DataTypes.DATEONLY, allowNull: true },
       appearance: { type: DataTypes.TEXT, allowNull: true },
-      avatarUrl: { type: DataTypes.STRING(255), allowNull: true },
+      avatarUrl: { type: DataTypes.TEXT('long'), allowNull: true },
       distinguishingFeatures: { type: DataTypes.TEXT, allowNull: true },
       history: { type: DataTypes.TEXT, allowNull: true },
 
