@@ -292,3 +292,37 @@ export const deleteCharacterVampire = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro ao excluir personagem' });
   }
 };
+
+export const awakenCharacterVampire = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const character = await CharacterVampire.findByPk(id);
+    
+    if (!character) {
+      return res.status(404).json({ message: 'Personagem nao encontrado' });
+    }
+
+    if (character.isAwake) {
+      return res.status(400).json({ message: 'Personagem ja esta acordado' });
+    }
+
+    // Rouse Check (1d10)
+    const roll = Math.floor(Math.random() * 10) + 1;
+    let newHunger = character.hunger;
+    let message = 'Voce acordou. A Fome esta sob controle.';
+
+    if (roll <= 5) {
+      newHunger = Math.min(5, character.hunger + 1);
+      message = 'Sua besta se agita. Voce acordou com mais fome.';
+    }
+
+    await character.update({
+      isAwake: true,
+      hunger: newHunger
+    });
+
+    res.json({ message, character });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao despertar personagem' });
+  }
+};
