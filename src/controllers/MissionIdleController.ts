@@ -162,8 +162,8 @@ export const startMission = async (req: Request, res: Response) => {
     }
 
     const totalActions = actions.length || 1;
-    let stepDurationMinutes = missionDef.durationMinutes / totalActions;
-    if (stepDurationMinutes < 1) stepDurationMinutes = 1; // minimum 1 minute per step if configured poorly
+    let stepDurationMinutes = (missionDef.durationMinutes * 60) / totalActions;
+    if (stepDurationMinutes < 1) stepDurationMinutes = 1;
 
     const report: any = {
       title: missionDef.title,
