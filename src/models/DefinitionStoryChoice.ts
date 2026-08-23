@@ -10,9 +10,10 @@ export interface DefinitionStoryChoiceAttributes {
   difficulty?: number;
   successNodeId?: string;
   failureNodeId?: string;
+  customStyle?: string;
 }
 
-export interface DefinitionStoryChoiceCreationAttributes extends Optional<DefinitionStoryChoiceAttributes, 'id' | 'attributeReq' | 'skillReq' | 'difficulty' | 'successNodeId' | 'failureNodeId'> {}
+export interface DefinitionStoryChoiceCreationAttributes extends Optional<DefinitionStoryChoiceAttributes, 'id' | 'attributeReq' | 'skillReq' | 'difficulty' | 'successNodeId' | 'failureNodeId' | 'customStyle'> {}
 
 class DefinitionStoryChoice extends Model<DefinitionStoryChoiceAttributes, DefinitionStoryChoiceCreationAttributes> implements DefinitionStoryChoiceAttributes {
   declare id: string;
@@ -23,6 +24,7 @@ class DefinitionStoryChoice extends Model<DefinitionStoryChoiceAttributes, Defin
   declare difficulty?: number;
   declare successNodeId?: string;
   declare failureNodeId?: string;
+  declare customStyle?: string;
 }
 
 DefinitionStoryChoice.init(
@@ -58,6 +60,10 @@ DefinitionStoryChoice.init(
     },
     failureNodeId: {
       type: DataTypes.STRING(36),
+      allowNull: true,
+    },
+    customStyle: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },

@@ -13,7 +13,11 @@ async function seedTestAdventure() {
     const node1 = await DefinitionStoryNode.create({
       adventureId: adv.id,
       narrativeText: 'Você acorda em um beco sujo. A fome queima sua garganta como brasa. Diante de você, um mortal embriagado cambaleia. O que você faz?',
-      isEnding: false
+      isEnding: false,
+      backgroundImageUrl: 'https://images.unsplash.com/photo-1604085448625-e593e877fc54?q=80&w=1920&auto=format&fit=crop', // Dark alley
+      speakerName: 'O Narrador',
+      leftCharacterImageUrl: '',
+      rightCharacterImageUrl: 'https://i.pinimg.com/originals/9f/c7/27/9fc7274092b7754b2361427a13c9e99a.png', // Random placeholder for a character
     } as any);
 
     adv.firstNodeId = node1.id;
@@ -22,23 +26,26 @@ async function seedTestAdventure() {
     const nodeSuccess = await DefinitionStoryNode.create({
       adventureId: adv.id,
       narrativeText: 'Com movimentos rápidos e silenciosos, você o domina e se alimenta. A fome diminui. A noite é sua.',
-      isEnding: true
+      isEnding: true,
+      backgroundImageUrl: 'https://images.unsplash.com/photo-1616851173956-621e8e2e288e?q=80&w=1920&auto=format&fit=crop', // Red/Dark abstract
     } as any);
 
     const nodeFail = await DefinitionStoryNode.create({
       adventureId: adv.id,
       narrativeText: 'Você hesita e ele percebe sua aproximação. Ele grita e foge, chamando a atenção de pessoas próximas. Você precisa recuar de mãos vazias.',
-      isEnding: true
+      isEnding: true,
+      backgroundImageUrl: 'https://images.unsplash.com/photo-1518002171953-a080ee817e1f?q=80&w=1920&auto=format&fit=crop', // Street running
     } as any);
 
     await DefinitionStoryChoice.create({
       nodeId: node1.id,
-      choiceText: 'Atacar sorrateiramente (Força + Furtividade)',
+      choiceText: '[PREDADOR] Atacar sorrateiramente (Força + Furtividade)',
       attributeReq: 'Força',
       skillReq: 'Furtividade',
       difficulty: 1,
       successNodeId: nodeSuccess.id,
-      failureNodeId: nodeFail.id
+      failureNodeId: nodeFail.id,
+      customStyle: 'DISCIPLINE'
     } as any);
 
     console.log('Test adventure seeded successfully!');
