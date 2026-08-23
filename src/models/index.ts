@@ -128,8 +128,8 @@ CharacterHaven.belongsTo(DefinitionLocation, { foreignKey: 'locationId' });
 
 CharacterVampire.hasMany(CharacterActiveMission, { foreignKey: 'characterId' });
 CharacterActiveMission.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
-DefinitionMissionIdle.hasMany(CharacterActiveMission, { foreignKey: 'missionId' });
-CharacterActiveMission.belongsTo(DefinitionMissionIdle, { foreignKey: 'missionId' });
+DefinitionMissionIdle.hasMany(CharacterActiveMission, { foreignKey: 'definitionMissionIdleId' });
+CharacterActiveMission.belongsTo(DefinitionMissionIdle, { foreignKey: 'definitionMissionIdleId' });
 
 
 DefinitionMissionIdle.hasMany(DefinitionMissionIdleAction, { as: 'Actions', foreignKey: 'missionId' });
