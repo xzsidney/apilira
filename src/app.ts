@@ -48,6 +48,7 @@ import creationPackageRoutes from "./routes/creationPackageRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import radarLocationRoutes from "./routes/radarLocationRoutes";
 import missionIdleRoutes from "./routes/missionIdleRoutes";
+import storyRoutes from "./routes/storyRoutes";
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/definition-attributes", definitionAttributeRoutes);
@@ -67,6 +68,7 @@ app.use("/api/creation-packages", creationPackageRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/radar/locations", radarLocationRoutes);
 app.use("/api/missions-idle", missionIdleRoutes);
+app.use("/api/story", storyRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {

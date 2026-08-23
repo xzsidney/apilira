@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCharacterVampire = exports.updateCharacterVampire = exports.getAllCharacterVampiresByUser = exports.getCharacterVampireById = exports.createCharacterVampire = exports.getAvailableSires = void 0;
+exports.toggleEquipEquipment = exports.buyEquipment = exports.awakenCharacterVampire = exports.deleteCharacterVampire = exports.updateCharacterVampire = exports.getAllCharacterVampiresByUser = exports.getCharacterVampireById = exports.createCharacterVampire = exports.getAvailableSires = void 0;
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
 const CharacterVampire_1 = require("../models/CharacterVampire");
@@ -43,6 +43,13 @@ const createCharacterVampire = async (req, res) => {
         const userId = authReq.userId || req.body.userId;
         const { attributes, skills, disciplines, powers, meritsFlaws, backgrounds, equipments, ...characterData } = req.body;
         characterData.userId = userId;
+        // Segurança (Regras Fixas Imutáveis na Criação de Neófitos)
+        characterData.generation = 12;
+        // Busca a Potência de Sangue nível 1 para garantir o ID correto
+        const bp1 = await models_2.DefinitionBloodPotency.findOne({ where: { level: 1 } });
+        if (bp1) {
+            characterData.bloodPotencyId = bp1.id;
+        }
         // Cria o personagem principal
         const character = await CharacterVampire_1.CharacterVampire.create(characterData, { transaction });
         // Insere as coleções nas tabelas associativas se existirem
@@ -54,8 +61,20 @@ const createCharacterVampire = async (req, res) => {
             const mapped = skills.map((s) => ({ ...s, characterVampireId: character.id }));
             await CharacterVampireSkill_1.CharacterVampireSkill.bulkCreate(mapped, { transaction });
         }
-        if (disciplines && disciplines.length > 0) {
-            const mapped = disciplines.map((d) => ({ ...d, characterVampireId: character.id }));
+        let finalDisciplines = disciplines || [];
+        if (finalDisciplines.length === 0) {
+            const clan = await models_2.DefinitionClan.findByPk(characterData.clanId);
+            if (clan && clan.disciplines) {
+                const discNames = clan.disciplines.split(',').map((s) => s.trim());
+                const dbDiscs = await models_2.DefinitionDiscipline.findAll({ where: { name: { [sequelize_1.Op.in]: discNames } } });
+                if (dbDiscs.length > 0)
+                    finalDisciplines.push({ definitionDisciplineId: dbDiscs[0].id, value: 2 });
+                if (dbDiscs.length > 1)
+                    finalDisciplines.push({ definitionDisciplineId: dbDiscs[1].id, value: 1 });
+            }
+        }
+        if (finalDisciplines.length > 0) {
+            const mapped = finalDisciplines.map((d) => ({ ...d, characterVampireId: character.id }));
             await CharacterVampireDiscipline_1.CharacterVampireDiscipline.bulkCreate(mapped, { transaction });
         }
         if (powers && powers.length > 0) {
@@ -90,25 +109,39 @@ const getCharacterVampireById = async (req, res) => {
         // Busca o personagem com TODAS as associações para montar a ficha completa!
         const character = await CharacterVampire_1.CharacterVampire.findByPk(id, {
             include: [
-                { model: models_2.DefinitionClan, attributes: ['name'] },
+                { model: models_2.DefinitionClan, attributes: ['name', 'weakness'] },
                 { model: models_2.DefinitionPredator, attributes: ['name'] },
                 { model: models_2.DefinitionResonance, attributes: ['name'] },
-                { model: models_2.DefinitionBloodPotency, attributes: ['level', 'bloodSurge', 'mendAmount'] },
+                { model: models_2.DefinitionBloodPotency, attributes: ['level', 'bloodSurge', 'mendAmount', 'disciplineBonus', 'baneSeverity', 'feedingPenalty'] },
                 {
                     model: CharacterVampireAttribute_1.CharacterVampireAttribute,
+                    separate: true,
                     include: [{ model: models_2.DefinitionAttribute, attributes: ['name', 'type'] }]
                 },
                 {
                     model: CharacterVampireSkill_1.CharacterVampireSkill,
+                    separate: true,
                     include: [{ model: models_2.DefinitionSkill, attributes: ['name', 'type'] }]
                 },
                 {
                     model: CharacterVampireDiscipline_1.CharacterVampireDiscipline,
+                    separate: true,
                     include: [{ model: models_2.DefinitionDiscipline, attributes: ['name'] }]
                 },
                 {
                     model: CharacterVampirePower_1.CharacterVampirePower,
+                    separate: true,
                     include: [{ model: models_2.DefinitionDisciplinePower, attributes: ['name', 'level'] }]
+                },
+                {
+                    model: CharacterVampireBackground_1.CharacterVampireBackground,
+                    separate: true,
+                    include: [{ model: models_2.DefinitionBackground, attributes: ['name', 'description'] }]
+                },
+                {
+                    model: CharacterVampireMeritFlaw_1.CharacterVampireMeritFlaw,
+                    separate: true,
+                    include: [{ model: models_2.DefinitionMeritFlaw, attributes: ['name', 'description', 'type'] }]
                 },
             ]
         });
@@ -160,17 +193,51 @@ const updateCharacterVampire = async (req, res) => {
         // Para as coleções associativas, o padrão em PUT completo é recriar:
         if (attributes) {
             await CharacterVampireAttribute_1.CharacterVampireAttribute.destroy({ where: { characterVampireId: id }, transaction });
-            const mapped = attributes.map((a) => ({ ...a, characterVampireId: id }));
+            const mapped = attributes.map((a) => ({
+                characterVampireId: id,
+                definitionAttributeId: a.definitionAttributeId,
+                value: a.value
+            }));
             await CharacterVampireAttribute_1.CharacterVampireAttribute.bulkCreate(mapped, { transaction });
         }
         if (skills) {
             await CharacterVampireSkill_1.CharacterVampireSkill.destroy({ where: { characterVampireId: id }, transaction });
-            const mapped = skills.map((s) => ({ ...s, characterVampireId: id }));
+            const mapped = skills.map((s) => ({
+                characterVampireId: id,
+                definitionSkillId: s.definitionSkillId,
+                value: s.value,
+                specialty: s.specialty
+            }));
             await CharacterVampireSkill_1.CharacterVampireSkill.bulkCreate(mapped, { transaction });
         }
-        // Repetir para os outros arrays conforme necessidade de update completo da ficha.
-        // Para simplificar a POC, não faremos o replace completo de disciplinas aqui, 
-        // assumindo que os arrays mandados são para substituição total.
+        if (disciplines) {
+            await CharacterVampireDiscipline_1.CharacterVampireDiscipline.destroy({ where: { characterVampireId: id }, transaction });
+            const mapped = disciplines.map((d) => ({
+                characterVampireId: id,
+                definitionDisciplineId: d.definitionDisciplineId,
+                value: d.value
+            }));
+            await CharacterVampireDiscipline_1.CharacterVampireDiscipline.bulkCreate(mapped, { transaction });
+        }
+        if (backgrounds) {
+            await CharacterVampireBackground_1.CharacterVampireBackground.destroy({ where: { characterVampireId: id }, transaction });
+            const mapped = backgrounds.map((b) => ({
+                characterVampireId: id,
+                definitionBackgroundId: b.definitionBackgroundId,
+                value: b.value,
+                details: b.details
+            }));
+            await CharacterVampireBackground_1.CharacterVampireBackground.bulkCreate(mapped, { transaction });
+        }
+        if (meritsFlaws) {
+            await CharacterVampireMeritFlaw_1.CharacterVampireMeritFlaw.destroy({ where: { characterVampireId: id }, transaction });
+            const mapped = meritsFlaws.map((m) => ({
+                characterVampireId: id,
+                definitionMeritFlawId: m.definitionMeritFlawId,
+                details: m.details
+            }));
+            await CharacterVampireMeritFlaw_1.CharacterVampireMeritFlaw.bulkCreate(mapped, { transaction });
+        }
         await transaction.commit();
         res.json({ message: 'Personagem atualizado com sucesso', character });
     }
@@ -198,3 +265,83 @@ const deleteCharacterVampire = async (req, res) => {
     }
 };
 exports.deleteCharacterVampire = deleteCharacterVampire;
+const awakenCharacterVampire = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const character = await CharacterVampire_1.CharacterVampire.findByPk(id);
+        if (!character) {
+            return res.status(404).json({ message: 'Personagem nao encontrado' });
+        }
+        if (character.isAwake) {
+            return res.status(400).json({ message: 'Personagem ja esta acordado' });
+        }
+        // Rouse Check (1d10)
+        const roll = Math.floor(Math.random() * 10) + 1;
+        let newHunger = character.hunger;
+        let message = 'Voce acordou. A Fome esta sob controle.';
+        if (roll <= 5) {
+            newHunger = Math.min(5, character.hunger + 1);
+            message = 'Sua besta se agita. Voce acordou com mais fome.';
+        }
+        await character.update({
+            isAwake: true,
+            hunger: newHunger
+        });
+        res.json({ message, character });
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Erro ao despertar personagem' });
+    }
+};
+exports.awakenCharacterVampire = awakenCharacterVampire;
+// --- EQUIPMENT MANAGEMENT ---
+const buyEquipment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { definitionEquipmentId } = req.body;
+        const character = await CharacterVampire_1.CharacterVampire.findByPk(id);
+        if (!character)
+            return res.status(404).json({ error: 'Personagem não encontrado.' });
+        // Verifica se já tem o equipamento
+        const existing = await CharacterVampireEquipment_1.CharacterVampireEquipment.findOne({
+            where: { characterVampireId: id, definitionEquipmentId }
+        });
+        if (existing) {
+            existing.quantity += 1;
+            await existing.save();
+            return res.json(existing);
+        }
+        else {
+            const newItem = await CharacterVampireEquipment_1.CharacterVampireEquipment.create({
+                characterVampireId: id,
+                definitionEquipmentId,
+                quantity: 1,
+                equipped: false
+            });
+            return res.status(201).json(newItem);
+        }
+    }
+    catch (error) {
+        console.error('Erro ao comprar equipamento:', error);
+        res.status(500).json({ error: 'Erro ao processar a compra de equipamento.' });
+    }
+};
+exports.buyEquipment = buyEquipment;
+const toggleEquipEquipment = async (req, res) => {
+    try {
+        const { id, equipmentId } = req.params;
+        const existing = await CharacterVampireEquipment_1.CharacterVampireEquipment.findOne({
+            where: { characterVampireId: id, definitionEquipmentId: equipmentId }
+        });
+        if (!existing)
+            return res.status(404).json({ error: 'Equipamento não encontrado no inventário.' });
+        existing.equipped = !existing.equipped;
+        await existing.save();
+        return res.json(existing);
+    }
+    catch (error) {
+        console.error('Erro ao equipar/desequipar item:', error);
+        res.status(500).json({ error: 'Erro ao equipar/desequipar item.' });
+    }
+};
+exports.toggleEquipEquipment = toggleEquipEquipment;

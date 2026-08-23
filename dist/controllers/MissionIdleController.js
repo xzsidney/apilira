@@ -4,12 +4,18 @@ exports.resolveMission = exports.startMission = exports.getActiveMission = expor
 const models_1 = require("../models");
 const listAvailableMissions = async (req, res) => {
     try {
+        const { category } = req.query;
+        const whereClause = {};
+        if (category) {
+            whereClause.category = category;
+        }
         const missions = await models_1.DefinitionMissionIdle.findAll({
+            where: whereClause,
             include: [
                 {
                     model: models_1.DefinitionMissionIdleAction,
                     as: 'Actions',
-                    attributes: ['id', 'stepOrder', 'name', 'difficulty', 'attributeReq', 'skillReq']
+                    attributes: ['id', 'stepOrder', 'name', 'difficulty', 'attributeReq', 'skillReq', 'description']
                 }
             ]
         });
@@ -36,7 +42,55 @@ const getActiveMission = async (req, res) => {
                 { model: models_1.DefinitionMissionIdle, as: 'DefinitionMissionIdle' }
             ]
         });
-        return res.status(200).json(activeMission);
+        if (!activeMission)
+            return res.status(200).json(null);
+        // Filter report logs based on time (hide future steps)
+        const now = new Date();
+        const startedAt = new Date(activeMission.startedAt);
+        // Parse the report JSON
+        let fullReport = null;
+        if (activeMission.reportJson) {
+            try {
+                fullReport = JSON.parse(activeMission.reportJson);
+            }
+            catch (e) {
+                console.error('Failed to parse reportJson');
+            }
+        }
+        const responseMission = activeMission.toJSON();
+        if (fullReport && fullReport.steps) {
+            // Reveal only steps where (startedAt + stepOrder * stepDurationMinutes) <= now
+            // Or if the mission is already expired, reveal everything.
+            const isExpired = now >= new Date(activeMission.expiresAt);
+            const revealedSteps = fullReport.steps.filter((step, index) => {
+                if (isExpired)
+                    return true;
+                const stepTime = new Date(startedAt);
+                stepTime.setMinutes(stepTime.getMinutes() + ((index + 1) * activeMission.stepDurationMinutes));
+                return now >= stepTime;
+            });
+            responseMission.currentReport = {
+                title: fullReport.title,
+                steps: revealedSteps,
+                isSuccess: isExpired ? fullReport.isSuccess : null,
+                finalChanges: isExpired ? fullReport.finalChanges : []
+            };
+            // Calculate current stage index based on time
+            const elapsedMinutes = (now.getTime() - startedAt.getTime()) / (1000 * 60);
+            let currentStage = Math.floor(elapsedMinutes / activeMission.stepDurationMinutes);
+            if (currentStage < 0)
+                currentStage = 0;
+            if (currentStage > fullReport.steps.length)
+                currentStage = fullReport.steps.length;
+            responseMission.currentStage = currentStage;
+            responseMission.totalStages = fullReport.steps.length;
+            if (isExpired) {
+                // Automatically resolve if time is up and they check status
+                // But normally they call /resolve. We just tell the frontend it's ready.
+                responseMission.readyToResolve = true;
+            }
+        }
+        return res.status(200).json(responseMission);
     }
     catch (error) {
         console.error('Error fetching active mission:', error);
@@ -46,11 +100,10 @@ const getActiveMission = async (req, res) => {
 exports.getActiveMission = getActiveMission;
 const startMission = async (req, res) => {
     try {
-        const { characterId, missionId, selectedAttribute, selectedSkill } = req.body;
-        if (!characterId || !missionId || !selectedAttribute || !selectedSkill) {
+        const { characterId, definitionMissionIdleId, forcedActionId } = req.body;
+        if (!characterId || !definitionMissionIdleId) {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
-        // Check if character already has an active mission
         const existingActive = await models_1.CharacterActiveMission.findOne({
             where: {
                 characterId,
@@ -60,20 +113,100 @@ const startMission = async (req, res) => {
         if (existingActive) {
             return res.status(400).json({ error: 'Character already has an active mission' });
         }
-        // Get mission duration
-        const missionDef = await models_1.DefinitionMissionIdle.findByPk(missionId);
+        const character = await models_1.CharacterVampire.findByPk(characterId, {
+            include: [
+                { model: models_1.CharacterVampireAttribute, include: [{ model: models_1.DefinitionAttribute }] },
+                { model: models_1.CharacterVampireSkill, include: [{ model: models_1.DefinitionSkill }] }
+            ]
+        });
+        if (!character)
+            return res.status(404).json({ error: 'Character not found' });
+        const getAttrVal = (name) => {
+            const found = character.CharacterVampireAttributes?.find((a) => a.DefinitionAttribute?.name === name);
+            return found ? found.value : 1;
+        };
+        const getSkillVal = (name) => {
+            const found = character.CharacterVampireSkills?.find((a) => a.DefinitionSkill?.name === name);
+            return found ? found.value : 0;
+        };
+        const missionDef = await models_1.DefinitionMissionIdle.findByPk(definitionMissionIdleId, {
+            include: [{ model: models_1.DefinitionMissionIdleAction, as: 'Actions' }]
+        });
         if (!missionDef) {
             return res.status(404).json({ error: 'Mission not found' });
         }
-        const expiresAt = new Date();
-        expiresAt.setMinutes(expiresAt.getMinutes() + missionDef.durationMinutes);
+        let actions = missionDef.Actions || [];
+        actions.sort((a, b) => a.stepOrder - b.stepOrder);
+        // If forcedActionId is provided (e.g. Hunting Predation choice), use ONLY that action.
+        if (forcedActionId) {
+            const specificAction = actions.find((a) => a.id === forcedActionId);
+            if (specificAction) {
+                actions = [specificAction];
+            }
+        }
+        const totalActions = actions.length || 1;
+        let stepDurationMinutes = missionDef.durationMinutes / totalActions;
+        if (stepDurationMinutes < 1)
+            stepDurationMinutes = 1; // minimum 1 minute per step if configured poorly
+        const report = {
+            title: missionDef.title,
+            isSuccess: true,
+            steps: [],
+            finalChanges: []
+        };
+        let missionFailed = false;
+        let failedAtStep = 0;
+        for (let i = 0; i < actions.length; i++) {
+            const action = actions[i];
+            // Dice pool calculation
+            const attrVal = action.attributeReq ? getAttrVal(action.attributeReq) : 1;
+            const skillVal = action.skillReq ? getSkillVal(action.skillReq) : 0;
+            const numDice = attrVal + skillVal;
+            const difficulty = action.difficulty || 6;
+            let successes = 0;
+            const diceRolls = [];
+            for (let d = 0; d < numDice; d++) {
+                const roll = Math.floor(Math.random() * 10) + 1;
+                diceRolls.push(roll);
+                if (roll >= difficulty)
+                    successes++;
+                if (roll === 10)
+                    successes++; // V5 simple critical bonus
+            }
+            const stepLog = {
+                stepOrder: i + 1,
+                actionName: action.name,
+                pool: `${action.attributeReq} + ${action.skillReq} (${numDice} dados)`,
+                rolls: diceRolls,
+                successes,
+                passed: successes > 0,
+                narrative: successes > 0 ? action.successText : action.failureText
+            };
+            report.steps.push(stepLog);
+            if (successes === 0) {
+                missionFailed = true;
+                failedAtStep = i + 1;
+                report.isSuccess = false;
+                break; // Stop simulating if failed
+            }
+        }
+        // Set expiration based on failure or success
+        const startedAt = new Date();
+        const expiresAt = new Date(startedAt);
+        if (missionFailed) {
+            expiresAt.setMinutes(expiresAt.getMinutes() + (failedAtStep * stepDurationMinutes));
+        }
+        else {
+            expiresAt.setMinutes(expiresAt.getMinutes() + missionDef.durationMinutes);
+        }
         const newActiveMission = await models_1.CharacterActiveMission.create({
             characterId,
-            missionId,
-            selectedAttribute,
-            selectedSkill,
+            definitionMissionIdleId,
+            startedAt,
             expiresAt,
-            status: 'IN_PROGRESS'
+            status: 'IN_PROGRESS',
+            stepDurationMinutes,
+            reportJson: JSON.stringify(report)
         });
         return res.status(201).json(newActiveMission);
     }
@@ -86,115 +219,57 @@ exports.startMission = startMission;
 const resolveMission = async (req, res) => {
     try {
         const { activeMissionId } = req.body;
-        if (!activeMissionId) {
+        if (!activeMissionId)
             return res.status(400).json({ error: 'Active mission ID required' });
-        }
-        const { DefinitionMissionIdleAction } = require('../models');
         const activeMission = await models_1.CharacterActiveMission.findByPk(activeMissionId, {
             include: [
-                {
-                    model: models_1.DefinitionMissionIdle,
-                    as: 'DefinitionMissionIdle',
-                    include: [
-                        {
-                            model: DefinitionMissionIdleAction,
-                            as: 'Actions'
-                        }
-                    ]
-                },
+                { model: models_1.DefinitionMissionIdle, as: 'DefinitionMissionIdle' },
                 { model: models_1.CharacterVampire, as: 'CharacterVampire' }
             ]
         });
-        if (!activeMission) {
+        if (!activeMission)
             return res.status(404).json({ error: 'Active mission not found' });
-        }
-        if (activeMission.status !== 'IN_PROGRESS') {
+        if (activeMission.status !== 'IN_PROGRESS')
             return res.status(400).json({ error: 'Mission is already resolved' });
-        }
-        if (new Date() < new Date(activeMission.expiresAt)) {
+        if (new Date() < new Date(activeMission.expiresAt))
             return res.status(400).json({ error: 'Mission time has not expired yet' });
-        }
         const character = activeMission.CharacterVampire;
         const missionDef = activeMission.DefinitionMissionIdle;
-        const actions = missionDef.Actions || [];
-        // Sort actions by stepOrder
-        actions.sort((a, b) => a.stepOrder - b.stepOrder);
-        const report = {
-            isSuccess: false, // Assume failure until proven otherwise
-            title: '',
-            narrative: '',
-            changes: []
-        };
-        let missionFailed = false;
-        for (const action of actions) {
-            // Regra: "coloca sempre 3 dados d10 dif 6"
-            // Simulador de Parada de Dados V5 (3 dados, Dificuldade 6)
-            const numDice = 3;
-            const difficulty = action.difficulty || 6;
-            let successes = 0;
-            for (let i = 0; i < numDice; i++) {
-                const roll = Math.floor(Math.random() * 10) + 1; // 1d10
-                if (roll >= difficulty)
-                    successes++;
-                // V5 rules normally count 10s as criticals, but we'll stick to simple successes for now
-            }
-            // Se falhar no teste (nenhum sucesso)
-            if (successes === 0) {
-                missionFailed = true;
-                report.title = 'Operação Interrompida';
-                report.isSuccess = false;
-                report.changes.push(`❌ ${action.name}: Falha Crítica! (0 sucessos em ${numDice} dados)`);
-                report.narrative += ` ${action.failureText}`;
-                break; // Interrompe o loop, a missão falhou aqui!
-            }
-            else {
-                // Passou no teste dessa etapa
-                report.changes.push(`✅ ${action.name}: Sucesso! (${successes} sucessos)`);
-                report.narrative += ` ${action.successText}`;
-            }
-        }
+        const report = activeMission.reportJson ? JSON.parse(activeMission.reportJson) : { isSuccess: true, finalChanges: [] };
+        if (!report.finalChanges)
+            report.finalChanges = [];
         const rewards = missionDef.rewardsJson || {};
         const penalties = missionDef.penaltiesJson || {};
-        if (!missionFailed && actions.length > 0) {
-            report.isSuccess = true;
-            report.title = 'Operação Concluída com Sucesso';
-            if (rewards.fome_mod) {
+        if (report.isSuccess) {
+            if (rewards.hunger) {
                 const minimumHunger = 1;
                 const oldHunger = character.hunger;
-                character.hunger = Math.max(minimumHunger, character.hunger + rewards.fome_mod);
-                if (oldHunger !== character.hunger) {
-                    report.changes.push(`🩸 Fome reduzida de ${oldHunger} para ${character.hunger}.`);
-                }
-                else {
-                    report.changes.push(`🩸 Você já estava saciado o suficiente (Fome ${character.hunger}). Não baixou mais.`);
-                }
+                character.hunger = Math.max(minimumHunger, character.hunger + rewards.hunger);
+                report.finalChanges.push(`🩸 Fome reduzida de ${oldHunger} para ${character.hunger}.`);
             }
-            if (rewards.xp) {
-                character.experienceTotal += rewards.xp;
-                report.changes.push(`🌟 Ganhou ${rewards.xp} XP.`);
+            if (rewards.exp) {
+                character.experienceTotal += rewards.exp;
+                report.finalChanges.push(`✨ Ganhou ${rewards.exp} XP.`);
             }
             activeMission.status = 'COMPLETED';
         }
-        else if (missionFailed) {
-            if (penalties.fome_mod) {
+        else {
+            if (penalties.hunger) {
                 const oldHunger = character.hunger;
-                character.hunger = Math.min(5, character.hunger + penalties.fome_mod);
-                report.changes.push(`⚠️ A confusão te custou vitae. Fome aumentou de ${oldHunger} para ${character.hunger}.`);
+                character.hunger = Math.min(5, character.hunger + penalties.hunger);
+                report.finalChanges.push(`🩸 A confusão custou vitae. Fome aumentou de ${oldHunger} para ${character.hunger}.`);
             }
-            if (penalties.humanidade_mod) {
-                character.humanity += penalties.humanidade_mod;
-                report.changes.push(`😈 Sua Besta tomou as rédeas. Humanidade alterada: ${penalties.humanidade_mod}.`);
+            if (penalties.willpower) {
+                character.willpowerCurrent = Math.max(0, character.willpowerCurrent + penalties.willpower);
+                report.finalChanges.push(`🧠 Perdeu força de vontade (-${Math.abs(penalties.willpower)}).`);
+            }
+            if (penalties.health) {
+                character.healthCurrent = Math.max(0, character.healthCurrent + penalties.health);
+                report.finalChanges.push(`💔 Sofreu dano! (-${Math.abs(penalties.health)} vitalidade).`);
             }
             activeMission.status = 'FAILED';
         }
-        else {
-            // Nenhuma ação configurada na missão (Fallback antigo)
-            report.title = 'Sucesso Automático';
-            report.isSuccess = true;
-            activeMission.status = 'COMPLETED';
-        }
-        // Salva o relatório no banco para histórico
-        activeMission.reportJson = report;
+        activeMission.reportJson = JSON.stringify(report);
         await character.save();
         await activeMission.save();
         return res.status(200).json({

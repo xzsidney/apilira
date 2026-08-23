@@ -12,4 +12,7 @@ router.get('/sires', characterVampireController_1.getAvailableSires);
 router.get('/:id', characterVampireController_1.getCharacterVampireById);
 router.put('/:id', characterVampireController_1.updateCharacterVampire);
 router.delete('/:id', characterVampireController_1.deleteCharacterVampire);
+router.post('/:id/awaken', characterVampireController_1.awakenCharacterVampire);
+router.post('/:id/equipments', characterVampireController_1.buyEquipment);
+router.put('/:id/equipments/:equipmentId/equip', characterVampireController_1.toggleEquipEquipment);
 exports.default = router;

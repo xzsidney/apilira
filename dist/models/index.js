@@ -145,7 +145,7 @@ DefinitionLocation_1.DefinitionLocation.hasMany(CharacterHaven_1.default, { fore
 CharacterHaven_1.default.belongsTo(DefinitionLocation_1.DefinitionLocation, { foreignKey: 'locationId' });
 CharacterVampire_1.CharacterVampire.hasMany(CharacterActiveMission_1.default, { foreignKey: 'characterId' });
 CharacterActiveMission_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { foreignKey: 'characterId' });
-DefinitionMissionIdle_1.default.hasMany(CharacterActiveMission_1.default, { foreignKey: 'missionId' });
-CharacterActiveMission_1.default.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'missionId' });
+DefinitionMissionIdle_1.default.hasMany(CharacterActiveMission_1.default, { foreignKey: 'definitionMissionIdleId' });
+CharacterActiveMission_1.default.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'definitionMissionIdleId' });
 DefinitionMissionIdle_1.default.hasMany(DefinitionMissionIdleAction_1.DefinitionMissionIdleAction, { as: 'Actions', foreignKey: 'missionId' });
 DefinitionMissionIdleAction_1.DefinitionMissionIdleAction.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'missionId' });

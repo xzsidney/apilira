@@ -9,39 +9,40 @@ class CharacterActiveMission extends sequelize_1.Model {
 }
 CharacterActiveMission.init({
     id: {
-        type: sequelize_1.DataTypes.STRING(36),
+        type: sequelize_1.DataTypes.UUID,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
         primaryKey: true,
     },
     characterId: {
-        type: sequelize_1.DataTypes.STRING(36),
+        type: sequelize_1.DataTypes.UUID,
         allowNull: false,
     },
-    missionId: {
-        type: sequelize_1.DataTypes.STRING(36),
+    definitionMissionIdleId: {
+        type: sequelize_1.DataTypes.UUID,
+        allowNull: false,
+    },
+    startedAt: {
+        type: sequelize_1.DataTypes.DATE,
         allowNull: false,
     },
     expiresAt: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: false,
     },
-    selectedAttribute: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    selectedSkill: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
     status: {
-        type: sequelize_1.DataTypes.ENUM('IN_PROGRESS', 'COMPLETED', 'FAILED'),
+        type: sequelize_1.DataTypes.STRING,
         defaultValue: 'IN_PROGRESS',
         allowNull: false,
     },
     reportJson: {
-        type: sequelize_1.DataTypes.JSON,
+        type: sequelize_1.DataTypes.TEXT,
         allowNull: true,
     },
+    stepDurationMinutes: {
+        type: sequelize_1.DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+    }
 }, {
     sequelize: database_1.default,
     modelName: 'CharacterActiveMission',

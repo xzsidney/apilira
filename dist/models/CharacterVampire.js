@@ -72,11 +72,12 @@ function initCharacterVampire(sequelize) {
         dateOfBirth: { type: sequelize_1.DataTypes.DATEONLY, allowNull: true },
         dateOfDeath: { type: sequelize_1.DataTypes.DATEONLY, allowNull: true },
         appearance: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
-        avatarUrl: { type: sequelize_1.DataTypes.STRING(255), allowNull: true },
+        avatarUrl: { type: sequelize_1.DataTypes.TEXT('long'), allowNull: true },
         distinguishingFeatures: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
         history: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
         experienceTotal: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
         experienceSpent: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+        isAwake: { type: sequelize_1.DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     }, {
         sequelize,
         tableName: 'CharacterVampire',

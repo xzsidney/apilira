@@ -27,7 +27,9 @@ if (process.env.NODE_ENV !== "production") {
     (0, swagger_1.setupSwagger)(app);
 }
 // Serve static files for uploaded images
-app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "../public/uploads")));
+// Permite usar uma pasta fora do Github (na Hostinger) se a variável estiver definida
+const uploadDir = process.env.PERSISTENT_UPLOAD_DIR || path_1.default.join(__dirname, "../public/uploads");
+app.use("/uploads", express_1.default.static(uploadDir));
 const definitionAttributeRoutes_1 = __importDefault(require("./routes/definitionAttributeRoutes"));
 const definitionSkillRoutes_1 = __importDefault(require("./routes/definitionSkillRoutes"));
 const definitionArchetypeRoutes_1 = __importDefault(require("./routes/definitionArchetypeRoutes"));

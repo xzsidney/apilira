@@ -28,6 +28,10 @@ import CharacterHaven from './CharacterHaven';
 import DefinitionMissionIdle from './DefinitionMissionIdle';
 import CharacterActiveMission from './CharacterActiveMission';
 import { DefinitionMissionIdleAction, initDefinitionMissionIdleAction } from './DefinitionMissionIdleAction';
+import DefinitionStoryAdventure from './DefinitionStoryAdventure';
+import DefinitionStoryNode from './DefinitionStoryNode';
+import DefinitionStoryChoice from './DefinitionStoryChoice';
+import CharacterStoryProgress from './CharacterStoryProgress';
 
 // Initialize models
 initUser(sequelize);
@@ -135,6 +139,21 @@ CharacterActiveMission.belongsTo(DefinitionMissionIdle, { foreignKey: 'definitio
 DefinitionMissionIdle.hasMany(DefinitionMissionIdleAction, { as: 'Actions', foreignKey: 'missionId' });
 DefinitionMissionIdleAction.belongsTo(DefinitionMissionIdle, { foreignKey: 'missionId' });
 
+// --- Story Adventure Associations ---
+DefinitionStoryAdventure.hasMany(DefinitionStoryNode, { as: 'nodes', foreignKey: 'adventureId' });
+DefinitionStoryNode.belongsTo(DefinitionStoryAdventure, { foreignKey: 'adventureId' });
+
+DefinitionStoryNode.hasMany(DefinitionStoryChoice, { as: 'choices', foreignKey: 'nodeId' });
+DefinitionStoryChoice.belongsTo(DefinitionStoryNode, { foreignKey: 'nodeId' });
+
+CharacterVampire.hasMany(CharacterStoryProgress, { foreignKey: 'characterId' });
+CharacterStoryProgress.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
+
+DefinitionStoryAdventure.hasMany(CharacterStoryProgress, { foreignKey: 'adventureId' });
+CharacterStoryProgress.belongsTo(DefinitionStoryAdventure, { foreignKey: 'adventureId' });
+
+DefinitionStoryNode.hasMany(CharacterStoryProgress, { foreignKey: 'currentNodeId' });
+CharacterStoryProgress.belongsTo(DefinitionStoryNode, { foreignKey: 'currentNodeId' });
 
 // Export
 export { 
@@ -167,5 +186,9 @@ export {
   CharacterHaven,
   DefinitionMissionIdle,
   CharacterActiveMission,
-  DefinitionMissionIdleAction
+  DefinitionMissionIdleAction,
+  DefinitionStoryAdventure,
+  DefinitionStoryNode,
+  DefinitionStoryChoice,
+  CharacterStoryProgress
 };

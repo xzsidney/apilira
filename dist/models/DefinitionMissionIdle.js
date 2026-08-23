@@ -41,6 +41,10 @@ DefinitionMissionIdle.init({
         type: sequelize_1.DataTypes.JSON,
         defaultValue: {},
     },
+    category: {
+        type: sequelize_1.DataTypes.STRING(50),
+        defaultValue: 'OPERATION',
+    },
 }, {
     sequelize: database_1.default,
     modelName: 'DefinitionMissionIdle',

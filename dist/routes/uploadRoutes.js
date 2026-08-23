@@ -9,15 +9,20 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const uuid_1 = require("uuid");
 const router = (0, express_1.Router)();
-// Garantir que a pasta uploads existe
-const uploadDir = path_1.default.join(__dirname, '../../public/uploads');
+// Usa a pasta persistente se existir na env, senão usa a pasta local
+const uploadDir = process.env.PERSISTENT_UPLOAD_DIR || path_1.default.join(__dirname, '../../public/uploads');
+const charactersDir = path_1.default.join(uploadDir, 'characters');
 if (!fs_1.default.existsSync(uploadDir)) {
     fs_1.default.mkdirSync(uploadDir, { recursive: true });
 }
-// Configuração do Multer
+if (!fs_1.default.existsSync(charactersDir)) {
+    fs_1.default.mkdirSync(charactersDir, { recursive: true });
+}
+// Configuração do Multer (Voltando para salvar o arquivo físico)
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);
+        // Por enquanto, todos os uploads dessa rota vão para characters
+        cb(null, charactersDir);
     },
     filename: (req, file, cb) => {
         const ext = path_1.default.extname(file.originalname);
@@ -45,11 +50,11 @@ router.post('/', upload.single('avatar'), (req, res) => {
             return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
         }
         // Constrói a URL para acessar a imagem estaticamente
-        const avatarUrl = `/uploads/${req.file.filename}`;
+        const avatarUrl = `/uploads/characters/${req.file.filename}`;
         return res.status(200).json({ url: avatarUrl });
     }
     catch (error) {
-        console.error('Erro no upload:', error);
+        console.error('Erro no upload físico:', error);
         return res.status(500).json({ error: 'Erro ao processar o upload da imagem.' });
     }
 });
