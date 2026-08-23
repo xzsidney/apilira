@@ -15,19 +15,19 @@ export interface CharacterActiveMissionAttributes {
 export interface CharacterActiveMissionCreationAttributes extends Optional<CharacterActiveMissionAttributes, 'id' | 'status' | 'reportJson' | 'stepDurationMinutes'> {}
 
 class CharacterActiveMission extends Model<CharacterActiveMissionAttributes, CharacterActiveMissionCreationAttributes> implements CharacterActiveMissionAttributes {
-  public id!: string;
-  public characterId!: string;
-  public definitionMissionIdleId!: string;
-  public startedAt!: Date;
-  public expiresAt!: Date;
-  public status!: string;
-  public reportJson!: string | null;
-  public stepDurationMinutes!: number;
+  declare id: string;
+  declare characterId: string;
+  declare definitionMissionIdleId: string;
+  declare startedAt: Date;
+  declare expiresAt: Date;
+  declare status: string;
+  declare reportJson: string | null;
+  declare stepDurationMinutes: number;
   
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
-  public DefinitionMissionIdle?: any; // For associations
+  declare DefinitionMissionIdle?: any; // For associations
 }
 
 CharacterActiveMission.init(

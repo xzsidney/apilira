@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { DefinitionMissionIdle, CharacterActiveMission, CharacterVampire, DefinitionMissionIdleAction } from '../models';
+import { DefinitionMissionIdle, CharacterActiveMission, CharacterVampire, DefinitionMissionIdleAction, CharacterVampireAttribute, DefinitionAttribute, CharacterVampireSkill, DefinitionSkill } from '../models';
 import { Op } from 'sequelize';
 
 export const listAvailableMissions = async (req: Request, res: Response) => {
@@ -127,8 +127,8 @@ export const startMission = async (req: Request, res: Response) => {
 
     const character = await CharacterVampire.findByPk(characterId, {
       include: [
-        { model: require('../models').CharacterVampireAttribute, include: [{ model: require('../models').DefinitionAttribute }] },
-        { model: require('../models').CharacterVampireSkill, include: [{ model: require('../models').DefinitionSkill }] }
+        { model: CharacterVampireAttribute, include: [{ model: DefinitionAttribute }] },
+        { model: CharacterVampireSkill, include: [{ model: DefinitionSkill }] }
       ]
     });
     if (!character) return res.status(404).json({ error: 'Character not found' });
