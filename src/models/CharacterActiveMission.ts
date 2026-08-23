@@ -1,68 +1,72 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/database';
-import { CharacterVampire } from './CharacterVampire';
-import DefinitionMissionIdle from './DefinitionMissionIdle';
 
 export interface CharacterActiveMissionAttributes {
   id: string;
   characterId: string;
-  missionId: string;
+  definitionMissionIdleId: string;
+  startedAt: Date;
   expiresAt: Date;
-  selectedAttribute: string;
-  selectedSkill: string;
-  status: 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
-  reportJson?: any;
+  status: string;
+  reportJson: string | null;
+  stepDurationMinutes: number;
 }
 
-export interface CharacterActiveMissionCreationAttributes extends Optional<CharacterActiveMissionAttributes, 'id' | 'status' | 'reportJson'> {}
+export interface CharacterActiveMissionCreationAttributes extends Optional<CharacterActiveMissionAttributes, 'id' | 'status' | 'reportJson' | 'stepDurationMinutes'> {}
 
 class CharacterActiveMission extends Model<CharacterActiveMissionAttributes, CharacterActiveMissionCreationAttributes> implements CharacterActiveMissionAttributes {
-  declare id: string;
-  declare characterId: string;
-  declare missionId: string;
-  declare expiresAt: Date;
-  declare selectedAttribute: string;
-  declare selectedSkill: string;
-  declare status: 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
-  declare reportJson: any | null;
+  public id!: string;
+  public characterId!: string;
+  public definitionMissionIdleId!: string;
+  public startedAt!: Date;
+  public expiresAt!: Date;
+  public status!: string;
+  public reportJson!: string | null;
+  public stepDurationMinutes!: number;
+  
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+
+  public DefinitionMissionIdle?: any; // For associations
 }
 
 CharacterActiveMission.init(
   {
     id: {
-      type: DataTypes.STRING(36),
+      type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
     characterId: {
-      type: DataTypes.STRING(36),
+      type: DataTypes.UUID,
       allowNull: false,
     },
-    missionId: {
-      type: DataTypes.STRING(36),
+    definitionMissionIdleId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    startedAt: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
     expiresAt: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    selectedAttribute: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    selectedSkill: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     status: {
-      type: DataTypes.ENUM('IN_PROGRESS', 'COMPLETED', 'FAILED'),
+      type: DataTypes.STRING,
       defaultValue: 'IN_PROGRESS',
       allowNull: false,
     },
     reportJson: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
+    stepDurationMinutes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+    }
   },
   {
     sequelize,
