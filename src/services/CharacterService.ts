@@ -19,7 +19,7 @@ export class CharacterService {
     let updated = false;
 
     if (impact.exp) {
-      character.exp += impact.exp;
+      character.experienceTotal += impact.exp;
       updated = true;
     }
     
