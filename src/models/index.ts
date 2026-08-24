@@ -147,6 +147,8 @@ DefinitionStoryNode.hasMany(DefinitionStoryChoice, { as: 'choices', foreignKey: 
 DefinitionStoryChoice.belongsTo(DefinitionStoryNode, { foreignKey: 'nodeId' });
 
 CharacterVampire.hasMany(CharacterStoryProgress, { foreignKey: 'characterId' });
+import CharacterActivityLog from './CharacterActivityLog';
+
 CharacterStoryProgress.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
 
 DefinitionStoryAdventure.hasMany(CharacterStoryProgress, { foreignKey: 'adventureId' });
@@ -154,6 +156,9 @@ CharacterStoryProgress.belongsTo(DefinitionStoryAdventure, { foreignKey: 'advent
 
 DefinitionStoryNode.hasMany(CharacterStoryProgress, { foreignKey: 'currentNodeId' });
 CharacterStoryProgress.belongsTo(DefinitionStoryNode, { foreignKey: 'currentNodeId' });
+
+CharacterVampire.hasMany(CharacterActivityLog, { foreignKey: 'characterId' });
+CharacterActivityLog.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
 
 // Export
 export { 
@@ -190,5 +195,6 @@ export {
   DefinitionStoryAdventure,
   DefinitionStoryNode,
   DefinitionStoryChoice,
-  CharacterStoryProgress
+  CharacterStoryProgress,
+  CharacterActivityLog
 };

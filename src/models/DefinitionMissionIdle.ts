@@ -11,9 +11,10 @@ export interface DefinitionMissionIdleAttributes {
   rewardsJson: any;
   penaltiesJson: any;
   category: string;
+  maxCompletions?: number | null;
 }
 
-export interface DefinitionMissionIdleCreationAttributes extends Optional<DefinitionMissionIdleAttributes, 'id' | 'allowedRequirements' | 'rewardsJson' | 'penaltiesJson'> {}
+export interface DefinitionMissionIdleCreationAttributes extends Optional<DefinitionMissionIdleAttributes, 'id' | 'allowedRequirements' | 'rewardsJson' | 'penaltiesJson' | 'maxCompletions'> {}
 
 class DefinitionMissionIdle extends Model<DefinitionMissionIdleAttributes, DefinitionMissionIdleCreationAttributes> implements DefinitionMissionIdleAttributes {
   declare id: string;
@@ -25,6 +26,7 @@ class DefinitionMissionIdle extends Model<DefinitionMissionIdleAttributes, Defin
   declare rewardsJson: any;
   declare penaltiesJson: any;
   declare category: string;
+  declare maxCompletions: number | null;
 }
 
 DefinitionMissionIdle.init(
@@ -66,6 +68,11 @@ DefinitionMissionIdle.init(
       type: DataTypes.STRING(50),
       defaultValue: 'OPERATION',
     },
+    maxCompletions: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: null,
+    }
   },
   {
     sequelize,

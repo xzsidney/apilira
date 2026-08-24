@@ -6,15 +6,17 @@ export interface DefinitionStoryAdventureAttributes {
   title: string;
   description: string;
   firstNodeId?: string; // Optional initially as it may need to be linked after the node is created
+  maxCompletions?: number | null;
 }
 
-export interface DefinitionStoryAdventureCreationAttributes extends Optional<DefinitionStoryAdventureAttributes, 'id' | 'firstNodeId'> {}
+export interface DefinitionStoryAdventureCreationAttributes extends Optional<DefinitionStoryAdventureAttributes, 'id' | 'firstNodeId' | 'maxCompletions'> {}
 
 class DefinitionStoryAdventure extends Model<DefinitionStoryAdventureAttributes, DefinitionStoryAdventureCreationAttributes> implements DefinitionStoryAdventureAttributes {
   declare id: string;
   declare title: string;
   declare description: string;
   declare firstNodeId?: string;
+  declare maxCompletions: number | null;
 }
 
 DefinitionStoryAdventure.init(
@@ -36,6 +38,11 @@ DefinitionStoryAdventure.init(
       type: DataTypes.STRING(36),
       allowNull: true,
     },
+    maxCompletions: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: null,
+    }
   },
   {
     sequelize,

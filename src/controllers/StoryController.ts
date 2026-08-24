@@ -21,6 +21,8 @@ export const listAdventures = async (req: Request, res: Response) => {
   }
 };
 
+import { CharacterService } from '../services/CharacterService';
+
 export const getCharacterProgress = async (req: Request, res: Response) => {
   try {
     const { characterId, adventureId } = req.params;
@@ -39,6 +41,14 @@ export const getCharacterProgress = async (req: Request, res: Response) => {
     });
 
     if (!progress) {
+      // Check max completions before starting a new run
+      if (adventure.maxCompletions !== null && adventure.maxCompletions > 0) {
+        const completions = await CharacterService.getCompletionCount(characterId, 'STORY_ADVENTURE', adventureId);
+        if (completions >= adventure.maxCompletions) {
+          return res.status(403).json({ error: 'Maximum completions reached for this adventure' });
+        }
+      }
+
       if (!adventure.firstNodeId) {
         return res.status(400).json({ error: 'Adventure does not have a starting node' });
       }
@@ -179,12 +189,20 @@ export const processChoice = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Choice does not lead anywhere' });
     }
 
-    progress.currentNodeId = nextNodeId;
-    await progress.save();
-
     const newNode = await DefinitionStoryNode.findByPk(nextNodeId, {
       include: [{ model: DefinitionStoryChoice, as: 'choices' }]
     });
+
+    if (newNode && newNode.isEnding) {
+      // Registrar conclusão e deletar progresso para liberar (se a aventura permitir replay)
+      await CharacterService.logActivity(characterId, 'STORY_ADVENTURE', adventureId, {
+        endingNodeId: newNode.id
+      });
+      await progress.destroy();
+    } else {
+      progress.currentNodeId = nextNodeId;
+      await progress.save();
+    }
 
     return res.status(200).json({
       success: isSuccess,
@@ -193,7 +211,7 @@ export const processChoice = async (req: Request, res: Response) => {
       dicePool,
       requiredSuccesses: choice.difficulty || 1,
       newNode,
-      progress
+      progress: newNode?.isEnding ? null : progress
     });
 
   } catch (error) {
