@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resolveMission = exports.startMission = exports.getActiveMission = exports.listAvailableMissions = void 0;
+exports.resolveMission = exports.startMission = exports.getActiveMission = exports.cancelMission = exports.listAvailableMissions = void 0;
 const models_1 = require("../models");
+const CharacterService_1 = require("../services/CharacterService");
 const listAvailableMissions = async (req, res) => {
     try {
         const { category } = req.query;
@@ -27,6 +28,26 @@ const listAvailableMissions = async (req, res) => {
     }
 };
 exports.listAvailableMissions = listAvailableMissions;
+const cancelMission = async (req, res) => {
+    try {
+        const { activeMissionId } = req.body;
+        if (!activeMissionId)
+            return res.status(400).json({ error: 'Active mission ID required' });
+        const activeMission = await models_1.CharacterActiveMission.findByPk(activeMissionId);
+        if (!activeMission)
+            return res.status(404).json({ error: 'Active mission not found' });
+        if (activeMission.status !== 'IN_PROGRESS')
+            return res.status(400).json({ error: 'Only in-progress missions can be cancelled' });
+        activeMission.status = 'CANCELLED';
+        await activeMission.save();
+        return res.status(200).json({ success: true, message: 'Mission cancelled successfully' });
+    }
+    catch (error) {
+        console.error('Error cancelling mission:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+exports.cancelMission = cancelMission;
 const getActiveMission = async (req, res) => {
     try {
         const { characterId } = req.params;
@@ -135,6 +156,12 @@ const startMission = async (req, res) => {
         if (!missionDef) {
             return res.status(404).json({ error: 'Mission not found' });
         }
+        if (missionDef.maxCompletions !== null && missionDef.maxCompletions > 0) {
+            const completions = await CharacterService_1.CharacterService.getCompletionCount(characterId, 'IDLE_MISSION', definitionMissionIdleId);
+            if (completions >= missionDef.maxCompletions) {
+                return res.status(403).json({ error: 'Maximum completions reached for this mission' });
+            }
+        }
         let actions = missionDef.Actions || [];
         actions.sort((a, b) => a.stepOrder - b.stepOrder);
         // If forcedActionId is provided (e.g. Hunting Predation choice), use ONLY that action.
@@ -145,9 +172,9 @@ const startMission = async (req, res) => {
             }
         }
         const totalActions = actions.length || 1;
-        let stepDurationMinutes = missionDef.durationMinutes / totalActions;
+        let stepDurationMinutes = (missionDef.durationMinutes * 60) / totalActions;
         if (stepDurationMinutes < 1)
-            stepDurationMinutes = 1; // minimum 1 minute per step if configured poorly
+            stepDurationMinutes = 1;
         const report = {
             title: missionDef.title,
             isSuccess: true,
@@ -241,36 +268,39 @@ const resolveMission = async (req, res) => {
         const rewards = missionDef.rewardsJson || {};
         const penalties = missionDef.penaltiesJson || {};
         if (report.isSuccess) {
-            if (rewards.hunger) {
-                const minimumHunger = 1;
-                const oldHunger = character.hunger;
-                character.hunger = Math.max(minimumHunger, character.hunger + rewards.hunger);
-                report.finalChanges.push(`🩸 Fome reduzida de ${oldHunger} para ${character.hunger}.`);
-            }
-            if (rewards.exp) {
-                character.experienceTotal += rewards.exp;
-                report.finalChanges.push(`✨ Ganhou ${rewards.exp} XP.`);
+            if (rewards.hunger || rewards.exp) {
+                await CharacterService_1.CharacterService.applyImpact(character.id, {
+                    hunger: rewards.hunger,
+                    exp: rewards.exp
+                });
+                // Refresh character to get new values for final report
+                await character.reload();
+                if (rewards.hunger)
+                    report.finalChanges.push(`🩸 Fome alterada para ${character.hunger}.`);
+                if (rewards.exp)
+                    report.finalChanges.push(`✨ Ganhou ${rewards.exp} XP.`);
             }
             activeMission.status = 'COMPLETED';
+            await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: true });
         }
         else {
-            if (penalties.hunger) {
-                const oldHunger = character.hunger;
-                character.hunger = Math.min(5, character.hunger + penalties.hunger);
-                report.finalChanges.push(`🩸 A confusão custou vitae. Fome aumentou de ${oldHunger} para ${character.hunger}.`);
-            }
-            if (penalties.willpower) {
-                character.willpowerCurrent = Math.max(0, character.willpowerCurrent + penalties.willpower);
-                report.finalChanges.push(`🧠 Perdeu força de vontade (-${Math.abs(penalties.willpower)}).`);
-            }
-            if (penalties.health) {
-                character.healthCurrent = Math.max(0, character.healthCurrent + penalties.health);
-                report.finalChanges.push(`💔 Sofreu dano! (-${Math.abs(penalties.health)} vitalidade).`);
+            if (penalties.hunger || penalties.willpower || penalties.health) {
+                // Here we just map health to willpower Aggravated as health isn't fully implemented in CharacterService yet
+                await CharacterService_1.CharacterService.applyImpact(character.id, {
+                    hunger: penalties.hunger,
+                    willpowerSuperficial: penalties.willpower
+                });
+                await character.reload();
+                if (penalties.hunger)
+                    report.finalChanges.push(`🩸 A confusão custou vitae. Fome alterada para ${character.hunger}.`);
+                if (penalties.willpower)
+                    report.finalChanges.push(`🧠 Perdeu força de vontade.`);
+                if (penalties.health)
+                    report.finalChanges.push(`💔 Sofreu dano!`);
             }
             activeMission.status = 'FAILED';
         }
         activeMission.reportJson = JSON.stringify(report);
-        await character.save();
         await activeMission.save();
         return res.status(200).json({
             success: true,

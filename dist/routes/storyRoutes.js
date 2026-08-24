@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const StoryController_1 = require("../controllers/StoryController");
+const router = (0, express_1.Router)();
+router.get('/adventures', StoryController_1.listAdventures);
+router.get('/adventures/:adventureId/progress/:characterId', StoryController_1.getCharacterProgress);
+router.post('/adventures/reset', StoryController_1.resetAdventure);
+router.post('/adventures/choice', StoryController_1.processChoice);
+exports.default = router;

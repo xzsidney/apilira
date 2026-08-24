@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authMiddleware = void 0;
+exports.requireRole = exports.authMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -22,6 +22,7 @@ const authMiddleware = (req, res, next) => {
     try {
         const decoded = jsonwebtoken_1.default.verify(token, secret);
         req.userId = decoded.id;
+        req.userRole = decoded.role;
         return next();
     }
     catch (err) {
@@ -29,3 +30,16 @@ const authMiddleware = (req, res, next) => {
     }
 };
 exports.authMiddleware = authMiddleware;
+const requireRole = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.userRole || !allowedRoles.includes(req.userRole)) {
+            return res.status(403).json({
+                error: "Acesso negado: você não possui permissão para acessar este recurso.",
+                requiredRoles: allowedRoles,
+                currentRole: req.userRole || null
+            });
+        }
+        return next();
+    };
+};
+exports.requireRole = requireRole;

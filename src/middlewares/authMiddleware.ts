@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 export interface AuthenticatedRequest extends Request {
   userId?: string;
+  userRole?: string;
 }
 
 export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -27,10 +28,25 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
   const secret = process.env.JWT_SECRET || "lirarpg_super_secret_key_2026_971b8d43";
 
   try {
-    const decoded = jwt.verify(token, secret) as { id: string };
+    const decoded = jwt.verify(token, secret) as { id: string; role?: string };
     req.userId = decoded.id;
+    req.userRole = decoded.role;
     return next();
   } catch (err) {
     return res.status(401).json({ error: "Token inválido ou expirado" });
   }
 };
+
+export const requireRole = (...allowedRoles: string[]) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    if (!req.userRole || !allowedRoles.includes(req.userRole)) {
+      return res.status(403).json({ 
+        error: "Acesso negado: você não possui permissão para acessar este recurso.",
+        requiredRoles: allowedRoles,
+        currentRole: req.userRole || null
+      });
+    }
+    return next();
+  };
+};
+

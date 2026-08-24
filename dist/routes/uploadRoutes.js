@@ -18,11 +18,18 @@ if (!fs_1.default.existsSync(uploadDir)) {
 if (!fs_1.default.existsSync(charactersDir)) {
     fs_1.default.mkdirSync(charactersDir, { recursive: true });
 }
-// Configuração do Multer (Voltando para salvar o arquivo físico)
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        // Por enquanto, todos os uploads dessa rota vão para characters
-        cb(null, charactersDir);
+        // Verifica se foi enviado um folder específico no body, senao usa characters
+        const targetFolder = req.body.folder || 'characters';
+        // Proteção contra path traversal (ex: folder='../etc')
+        const safeFolder = targetFolder.replace(/[^a-zA-Z0-9-_]/g, '');
+        const finalDir = path_1.default.join(uploadDir, safeFolder);
+        // Cria a subpasta caso não exista
+        if (!fs_1.default.existsSync(finalDir)) {
+            fs_1.default.mkdirSync(finalDir, { recursive: true });
+        }
+        cb(null, finalDir);
     },
     filename: (req, file, cb) => {
         const ext = path_1.default.extname(file.originalname);
@@ -49,8 +56,10 @@ router.post('/', upload.single('avatar'), (req, res) => {
         if (!req.file) {
             return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
         }
+        const targetFolder = req.body.folder || 'characters';
+        const safeFolder = targetFolder.replace(/[^a-zA-Z0-9-_]/g, '');
         // Constrói a URL para acessar a imagem estaticamente
-        const avatarUrl = `/uploads/characters/${req.file.filename}`;
+        const avatarUrl = `/uploads/${safeFolder}/${req.file.filename}`;
         return res.status(200).json({ url: avatarUrl });
     }
     catch (error) {

@@ -58,11 +58,9 @@ initCharacterVampireEquipment(sequelize);
 initCreationPackage(sequelize);
 initCreationPackageItem(sequelize);
 initDefinitionLocation(sequelize);
-// (Note: The 4 new models are self-initializing through their .init() calls inside the file, 
-// but require importing to execute the file logic)
 initDefinitionMissionIdleAction(sequelize);
 
-// Associations
+// Existing associations
 DefinitionLocation.hasMany(DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
 DefinitionLocation.belongsTo(DefinitionLocation, { as: 'parent', foreignKey: 'parentId' });
 

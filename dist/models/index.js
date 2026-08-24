@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DefinitionMissionIdleAction = exports.CharacterActiveMission = exports.DefinitionMissionIdle = exports.CharacterHaven = exports.CharacterKnownLocation = exports.DefinitionLocation = exports.CreationPackageItem = exports.CreationPackage = exports.CharacterVampireEquipment = exports.CharacterVampireBackground = exports.CharacterVampireMeritFlaw = exports.CharacterVampirePower = exports.CharacterVampireDiscipline = exports.CharacterVampireSkill = exports.CharacterVampireAttribute = exports.CharacterVampire = exports.DefinitionBloodPotency = exports.DefinitionDisciplinePower = exports.DefinitionDiscipline = exports.DefinitionResonance = exports.DefinitionPredator = exports.DefinitionClan = exports.DefinitionBackground = exports.DefinitionEquipment = exports.DefinitionMeritFlaw = exports.DefinitionArchetype = exports.DefinitionSkill = exports.DefinitionAttribute = exports.User = exports.sequelize = void 0;
+exports.CharacterActivityLog = exports.CharacterStoryProgress = exports.DefinitionStoryChoice = exports.DefinitionStoryNode = exports.DefinitionStoryAdventure = exports.DefinitionMissionIdleAction = exports.CharacterActiveMission = exports.DefinitionMissionIdle = exports.CharacterHaven = exports.CharacterKnownLocation = exports.DefinitionLocation = exports.CreationPackageItem = exports.CreationPackage = exports.CharacterVampireEquipment = exports.CharacterVampireBackground = exports.CharacterVampireMeritFlaw = exports.CharacterVampirePower = exports.CharacterVampireDiscipline = exports.CharacterVampireSkill = exports.CharacterVampireAttribute = exports.CharacterVampire = exports.DefinitionBloodPotency = exports.DefinitionDisciplinePower = exports.DefinitionDiscipline = exports.DefinitionResonance = exports.DefinitionPredator = exports.DefinitionClan = exports.DefinitionBackground = exports.DefinitionEquipment = exports.DefinitionMeritFlaw = exports.DefinitionArchetype = exports.DefinitionSkill = exports.DefinitionAttribute = exports.User = exports.sequelize = void 0;
 const db_1 = __importDefault(require("../config/db"));
 exports.sequelize = db_1.default;
 const User_1 = require("./User");
@@ -64,6 +64,14 @@ const CharacterActiveMission_1 = __importDefault(require("./CharacterActiveMissi
 exports.CharacterActiveMission = CharacterActiveMission_1.default;
 const DefinitionMissionIdleAction_1 = require("./DefinitionMissionIdleAction");
 Object.defineProperty(exports, "DefinitionMissionIdleAction", { enumerable: true, get: function () { return DefinitionMissionIdleAction_1.DefinitionMissionIdleAction; } });
+const DefinitionStoryAdventure_1 = __importDefault(require("./DefinitionStoryAdventure"));
+exports.DefinitionStoryAdventure = DefinitionStoryAdventure_1.default;
+const DefinitionStoryNode_1 = __importDefault(require("./DefinitionStoryNode"));
+exports.DefinitionStoryNode = DefinitionStoryNode_1.default;
+const DefinitionStoryChoice_1 = __importDefault(require("./DefinitionStoryChoice"));
+exports.DefinitionStoryChoice = DefinitionStoryChoice_1.default;
+const CharacterStoryProgress_1 = __importDefault(require("./CharacterStoryProgress"));
+exports.CharacterStoryProgress = CharacterStoryProgress_1.default;
 // Initialize models
 (0, User_1.initUser)(db_1.default);
 (0, DefinitionAttribute_1.initDefinitionAttribute)(db_1.default);
@@ -89,10 +97,8 @@ Object.defineProperty(exports, "DefinitionMissionIdleAction", { enumerable: true
 (0, CreationPackage_1.initCreationPackage)(db_1.default);
 (0, CreationPackageItem_1.initCreationPackageItem)(db_1.default);
 (0, DefinitionLocation_1.initDefinitionLocation)(db_1.default);
-// (Note: The 4 new models are self-initializing through their .init() calls inside the file, 
-// but require importing to execute the file logic)
 (0, DefinitionMissionIdleAction_1.initDefinitionMissionIdleAction)(db_1.default);
-// Associations
+// Existing associations
 DefinitionLocation_1.DefinitionLocation.hasMany(DefinitionLocation_1.DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
 DefinitionLocation_1.DefinitionLocation.belongsTo(DefinitionLocation_1.DefinitionLocation, { as: 'parent', foreignKey: 'parentId' });
 // Associations
@@ -149,3 +155,18 @@ DefinitionMissionIdle_1.default.hasMany(CharacterActiveMission_1.default, { fore
 CharacterActiveMission_1.default.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'definitionMissionIdleId' });
 DefinitionMissionIdle_1.default.hasMany(DefinitionMissionIdleAction_1.DefinitionMissionIdleAction, { as: 'Actions', foreignKey: 'missionId' });
 DefinitionMissionIdleAction_1.DefinitionMissionIdleAction.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'missionId' });
+// --- Story Adventure Associations ---
+DefinitionStoryAdventure_1.default.hasMany(DefinitionStoryNode_1.default, { as: 'nodes', foreignKey: 'adventureId' });
+DefinitionStoryNode_1.default.belongsTo(DefinitionStoryAdventure_1.default, { foreignKey: 'adventureId' });
+DefinitionStoryNode_1.default.hasMany(DefinitionStoryChoice_1.default, { as: 'choices', foreignKey: 'nodeId' });
+DefinitionStoryChoice_1.default.belongsTo(DefinitionStoryNode_1.default, { foreignKey: 'nodeId' });
+CharacterVampire_1.CharacterVampire.hasMany(CharacterStoryProgress_1.default, { foreignKey: 'characterId' });
+const CharacterActivityLog_1 = __importDefault(require("./CharacterActivityLog"));
+exports.CharacterActivityLog = CharacterActivityLog_1.default;
+CharacterStoryProgress_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { foreignKey: 'characterId' });
+DefinitionStoryAdventure_1.default.hasMany(CharacterStoryProgress_1.default, { foreignKey: 'adventureId' });
+CharacterStoryProgress_1.default.belongsTo(DefinitionStoryAdventure_1.default, { foreignKey: 'adventureId' });
+DefinitionStoryNode_1.default.hasMany(CharacterStoryProgress_1.default, { foreignKey: 'currentNodeId' });
+CharacterStoryProgress_1.default.belongsTo(DefinitionStoryNode_1.default, { foreignKey: 'currentNodeId' });
+CharacterVampire_1.CharacterVampire.hasMany(CharacterActivityLog_1.default, { foreignKey: 'characterId' });
+CharacterActivityLog_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { foreignKey: 'characterId' });

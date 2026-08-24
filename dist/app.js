@@ -46,8 +46,11 @@ const creationPackageRoutes_1 = __importDefault(require("./routes/creationPackag
 const uploadRoutes_1 = __importDefault(require("./routes/uploadRoutes"));
 const radarLocationRoutes_1 = __importDefault(require("./routes/radarLocationRoutes"));
 const missionIdleRoutes_1 = __importDefault(require("./routes/missionIdleRoutes"));
+const storyRoutes_1 = __importDefault(require("./routes/storyRoutes"));
+const gmRoutes_1 = __importDefault(require("./routes/gmRoutes"));
 // API Routes
 app.use("/api/auth", authRoutes_1.default);
+app.use("/api/gm", gmRoutes_1.default);
 app.use("/api/definition-attributes", definitionAttributeRoutes_1.default);
 app.use("/api/definition-skills", definitionSkillRoutes_1.default);
 app.use("/api/definition-archetypes", definitionArchetypeRoutes_1.default);
@@ -64,6 +67,7 @@ app.use("/api/creation-packages", creationPackageRoutes_1.default);
 app.use("/api/upload", uploadRoutes_1.default);
 app.use("/api/radar/locations", radarLocationRoutes_1.default);
 app.use("/api/missions-idle", missionIdleRoutes_1.default);
+app.use("/api/story", storyRoutes_1.default);
 // Base routes
 app.get("/", (req, res) => {
     res.json({

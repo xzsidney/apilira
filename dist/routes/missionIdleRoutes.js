@@ -9,4 +9,5 @@ router.get('/', MissionIdleController_1.listAvailableMissions);
 router.get('/active/:characterId', MissionIdleController_1.getActiveMission);
 router.post('/start', MissionIdleController_1.startMission);
 router.post('/resolve', MissionIdleController_1.resolveMission);
+router.post('/cancel', MissionIdleController_1.cancelMission);
 exports.default = router;
