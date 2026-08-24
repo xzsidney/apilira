@@ -8,6 +8,7 @@ async function fixStoryImages() {
       if (node.narrativeText.includes('Você acorda em um beco')) {
         node.backgroundImageUrl = '/story_assets/dark_alley.jpg';
         node.rightCharacterImageUrl = '/story_assets/vampire_sprite.jpg';
+        node.leftCharacterImageUrl = '/story_assets/drunk_mortal.jpg';
         await node.save();
       }
     }
