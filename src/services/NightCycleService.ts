@@ -184,6 +184,24 @@ export class NightCycleService {
   }
 
   /**
+   * Retorna o personagem com segurança para o seu Refúgio.
+   */
+  static async returnToHaven(characterId: string): Promise<NightStatusResponse> {
+    const character = await CharacterVampire.findByPk(characterId);
+    if (!character) throw new Error('Personagem não encontrado');
+
+    const haven = await CharacterHaven.findOne({ where: { characterId } });
+    if (haven && haven.locationId) {
+      character.currentLocationId = haven.locationId;
+    }
+    character.isRestingInHaven = true;
+    character.emergencyHavenType = 'NONE';
+    await character.save();
+
+    return this.getNightStatus(characterId);
+  }
+
+  /**
    * Avança o tempo noturno do personagem e atualiza a localização física.
    */
   static async advanceNightTime(

@@ -67,3 +67,16 @@ export const applySunDamage = async (req: Request, res: Response) => {
     return res.status(500).json({ error: error.message || 'Erro interno do servidor' });
   }
 };
+
+export const returnToHaven = async (req: Request, res: Response) => {
+  try {
+    const { characterId } = req.params;
+    if (!characterId) return res.status(400).json({ error: 'characterId é obrigatório' });
+
+    const result = await NightCycleService.returnToHaven(characterId);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    console.error('Erro ao retornar ao refúgio:', error);
+    return res.status(500).json({ error: error.message || 'Erro interno do servidor' });
+  }
+};
