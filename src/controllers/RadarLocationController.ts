@@ -21,37 +21,27 @@ export const getRadarLocations = async (req: Request, res: Response) => {
         where: { characterId: String(characterId) }
       });
 
-      // Se for a primeira vez (neófito sem mapa), inicializa o mapa inicial com descoberta progressiva
-      if (knownRecords.length === 0 && allDistricts.length > 0) {
+      // Mapa de status por locationId
+      const statusMap = new Map<string, string>();
+      knownRecords.forEach(r => statusMap.set(r.locationId, r.status));
+
+      // Se o personagem não tiver pelo menos 8 distritos explorados, inicializa os distritos
+      const knownDistrictsCount = knownRecords.filter(r => allDistricts.some(d => d.id === r.locationId)).length;
+      if (knownDistrictsCount === 0 && allDistricts.length > 0) {
         const initialDiscoveries: any[] = [];
-        // Primeiros 8 distritos -> DISCOVERED (Explorado)
-        for (let i = 0; i < Math.min(8, allDistricts.length); i++) {
+        // Primeiros 10 distritos -> DISCOVERED (Explorado)
+        for (let i = 0; i < Math.min(10, allDistricts.length); i++) {
           initialDiscoveries.push({
             characterId: String(characterId),
             locationId: allDistricts[i].id,
             status: 'DISCOVERED'
           });
+          statusMap.set(allDistricts[i].id, 'DISCOVERED');
         }
-        // Próximos 8 distritos -> RUMOR (Boato)
-        for (let i = 8; i < Math.min(16, allDistricts.length); i++) {
-          initialDiscoveries.push({
-            characterId: String(characterId),
-            locationId: allDistricts[i].id,
-            status: 'RUMOR'
-          });
-        }
-
         if (initialDiscoveries.length > 0) {
-          await CharacterKnownLocation.bulkCreate(initialDiscoveries);
-          knownRecords = await CharacterKnownLocation.findAll({
-            where: { characterId: String(characterId) }
-          });
+          await CharacterKnownLocation.bulkCreate(initialDiscoveries, { ignoreDuplicates: true });
         }
       }
-
-      // Mapa de status por locationId
-      const statusMap = new Map<string, string>();
-      knownRecords.forEach(r => statusMap.set(r.locationId, r.status));
 
       // Busca todas as missões cadastradas
       const allMissions = await DefinitionMissionIdle.findAll({
@@ -78,12 +68,8 @@ export const getRadarLocations = async (req: Request, res: Response) => {
         const visibleChildren: any[] = [];
 
         for (const child of rawChildren) {
-          const status = statusMap.get(child.id);
-
-          // Nível 1: OCULTO (Não está em knownRecords -> invisível no radar)
-          if (!status) {
-            continue;
-          }
+          // Status: DISCOVERED se estiver marcado, senão RUMOR (para nunca sumir a bolinha)
+          const status = statusMap.get(child.id) || 'RUMOR';
 
           // Nível 2: BOATO / RUMOR (Aparece com interrogação e dados mascarados)
           if (status === 'RUMOR') {
@@ -98,7 +84,7 @@ export const getRadarLocations = async (req: Request, res: Response) => {
                 riqueza: '???',
                 criminalidade: '???',
                 presenca_policial: '???',
-                descricao: 'Boato captado pelas sombras. Visite ou envie uma expedição para mapear e reconhecer este território.'
+                descricao: 'Boato captado pelas sombras da cidade. Clique em Explorar Distrito para enviar seus lacaios e mapear o território.'
               },
               missions: []
             });
@@ -106,7 +92,6 @@ export const getRadarLocations = async (req: Request, res: Response) => {
           }
 
           // Nível 3: EXPLORADO (DISCOVERED / DOMINATED)
-          // Vincula estritamente as missões cadastradas especificamente para este local
           const locationMissions = allMissions.filter(m => (m as any).locationId === child.id);
 
           visibleChildren.push({
@@ -116,11 +101,8 @@ export const getRadarLocations = async (req: Request, res: Response) => {
           });
         }
 
-        // Retorna a zona se ela tiver pelo menos 1 bairro visível ou conhecido
-        if (visibleChildren.length > 0 || statusMap.has(zone.id)) {
-          zoneJson.children = visibleChildren;
-          responseZones.push(zoneJson);
-        }
+        zoneJson.children = visibleChildren;
+        responseZones.push(zoneJson);
       }
 
       return res.status(200).json(responseZones);
