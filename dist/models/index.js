@@ -109,9 +109,9 @@ CreationPackage_1.CreationPackage.hasMany(CreationPackageItem_1.CreationPackageI
 CreationPackageItem_1.CreationPackageItem.belongsTo(CreationPackage_1.CreationPackage, { foreignKey: 'packageId' });
 // --- CharacterVampire Associations ---
 User_1.User.hasMany(CharacterVampire_1.CharacterVampire, { foreignKey: 'userId' });
-CharacterVampire_1.CharacterVampire.belongsTo(User_1.User, { foreignKey: 'userId' });
+CharacterVampire_1.CharacterVampire.belongsTo(User_1.User, { as: 'user', foreignKey: 'userId' });
 DefinitionClan_1.DefinitionClan.hasMany(CharacterVampire_1.CharacterVampire, { foreignKey: 'clanId' });
-CharacterVampire_1.CharacterVampire.belongsTo(DefinitionClan_1.DefinitionClan, { foreignKey: 'clanId' });
+CharacterVampire_1.CharacterVampire.belongsTo(DefinitionClan_1.DefinitionClan, { as: 'clan', foreignKey: 'clanId' });
 DefinitionPredator_1.DefinitionPredator.hasMany(CharacterVampire_1.CharacterVampire, { foreignKey: 'predatorId' });
 CharacterVampire_1.CharacterVampire.belongsTo(DefinitionPredator_1.DefinitionPredator, { foreignKey: 'predatorId' });
 DefinitionResonance_1.DefinitionResonance.hasMany(CharacterVampire_1.CharacterVampire, { foreignKey: 'resonanceId' });
@@ -168,5 +168,5 @@ DefinitionStoryAdventure_1.default.hasMany(CharacterStoryProgress_1.default, { f
 CharacterStoryProgress_1.default.belongsTo(DefinitionStoryAdventure_1.default, { foreignKey: 'adventureId' });
 DefinitionStoryNode_1.default.hasMany(CharacterStoryProgress_1.default, { foreignKey: 'currentNodeId' });
 CharacterStoryProgress_1.default.belongsTo(DefinitionStoryNode_1.default, { foreignKey: 'currentNodeId' });
-CharacterVampire_1.CharacterVampire.hasMany(CharacterActivityLog_1.default, { foreignKey: 'characterId' });
-CharacterActivityLog_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { foreignKey: 'characterId' });
+CharacterVampire_1.CharacterVampire.hasMany(CharacterActivityLog_1.default, { as: 'activityLogs', foreignKey: 'characterId' });
+CharacterActivityLog_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { as: 'character', foreignKey: 'characterId' });

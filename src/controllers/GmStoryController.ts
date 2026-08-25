@@ -392,25 +392,38 @@ export const getGmOverview = async (req: AuthenticatedRequest, res: Response) =>
     const userId = req.userId;
     const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
-    const adventuresCount = await DefinitionStoryAdventure.count();
-    const nodesCount = await DefinitionStoryNode.count();
-    const missionsCount = await DefinitionMissionIdle.count();
-    const npcsCount = await CharacterVampire.count({ where: { isNpc: true } });
-    const playersCount = await CharacterVampire.count({ where: { isNpc: false } });
-    const locationsCount = await DefinitionLocation.count();
-    const equipmentsCount = await DefinitionEquipment.count();
+    let adventuresCount = 0;
+    let nodesCount = 0;
+    let missionsCount = 0;
+    let npcsCount = 0;
+    let playersCount = 0;
+    let locationsCount = 0;
+    let equipmentsCount = 0;
 
-    const recentLogs = await CharacterActivityLog.findAll({
-      limit: 10,
-      order: [["createdAt", "DESC"]],
-      include: [
-        {
-          model: CharacterVampire,
-          as: "character",
-          attributes: ["id", "name", "concept", "avatarUrl", "isNpc"]
-        }
-      ]
-    });
+    try { adventuresCount = await DefinitionStoryAdventure.count(); } catch (e) {}
+    try { nodesCount = await DefinitionStoryNode.count(); } catch (e) {}
+    try { missionsCount = await DefinitionMissionIdle.count(); } catch (e) {}
+    try { npcsCount = await CharacterVampire.count({ where: { isNpc: true } }); } catch (e) {}
+    try { playersCount = await CharacterVampire.count({ where: { isNpc: false } }); } catch (e) {}
+    try { locationsCount = await DefinitionLocation.count(); } catch (e) {}
+    try { equipmentsCount = await DefinitionEquipment.count(); } catch (e) {}
+
+    let recentLogs: any[] = [];
+    try {
+      recentLogs = await CharacterActivityLog.findAll({
+        limit: 10,
+        order: [["createdAt", "DESC"]],
+        include: [
+          {
+            model: CharacterVampire,
+            as: "character",
+            attributes: ["id", "name", "concept", "avatarUrl", "isNpc"]
+          }
+        ]
+      });
+    } catch (logErr) {
+      console.warn("Aviso ao buscar logs recentes:", logErr);
+    }
 
     return res.status(200).json({
       isLeadMaster,

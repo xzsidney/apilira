@@ -314,24 +314,58 @@ const getGmOverview = async (req, res) => {
     try {
         const userId = req.userId;
         const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
-        const adventuresCount = await models_1.DefinitionStoryAdventure.count();
-        const nodesCount = await models_1.DefinitionStoryNode.count();
-        const missionsCount = await models_1.DefinitionMissionIdle.count();
-        const npcsCount = await models_1.CharacterVampire.count({ where: { isNpc: true } });
-        const playersCount = await models_1.CharacterVampire.count({ where: { isNpc: false } });
-        const locationsCount = await models_1.DefinitionLocation.count();
-        const equipmentsCount = await models_1.DefinitionEquipment.count();
-        const recentLogs = await models_1.CharacterActivityLog.findAll({
-            limit: 10,
-            order: [["createdAt", "DESC"]],
-            include: [
-                {
-                    model: models_1.CharacterVampire,
-                    as: "character",
-                    attributes: ["id", "name", "concept", "avatarUrl", "isNpc"]
-                }
-            ]
-        });
+        let adventuresCount = 0;
+        let nodesCount = 0;
+        let missionsCount = 0;
+        let npcsCount = 0;
+        let playersCount = 0;
+        let locationsCount = 0;
+        let equipmentsCount = 0;
+        try {
+            adventuresCount = await models_1.DefinitionStoryAdventure.count();
+        }
+        catch (e) { }
+        try {
+            nodesCount = await models_1.DefinitionStoryNode.count();
+        }
+        catch (e) { }
+        try {
+            missionsCount = await models_1.DefinitionMissionIdle.count();
+        }
+        catch (e) { }
+        try {
+            npcsCount = await models_1.CharacterVampire.count({ where: { isNpc: true } });
+        }
+        catch (e) { }
+        try {
+            playersCount = await models_1.CharacterVampire.count({ where: { isNpc: false } });
+        }
+        catch (e) { }
+        try {
+            locationsCount = await models_1.DefinitionLocation.count();
+        }
+        catch (e) { }
+        try {
+            equipmentsCount = await models_1.DefinitionEquipment.count();
+        }
+        catch (e) { }
+        let recentLogs = [];
+        try {
+            recentLogs = await models_1.CharacterActivityLog.findAll({
+                limit: 10,
+                order: [["createdAt", "DESC"]],
+                include: [
+                    {
+                        model: models_1.CharacterVampire,
+                        as: "character",
+                        attributes: ["id", "name", "concept", "avatarUrl", "isNpc"]
+                    }
+                ]
+            });
+        }
+        catch (logErr) {
+            console.warn("Aviso ao buscar logs recentes:", logErr);
+        }
         return res.status(200).json({
             isLeadMaster,
             stats: {

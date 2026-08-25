@@ -74,10 +74,10 @@ CreationPackageItem.belongsTo(CreationPackage, { foreignKey: 'packageId' });
 
 // --- CharacterVampire Associations ---
 User.hasMany(CharacterVampire, { foreignKey: 'userId' });
-CharacterVampire.belongsTo(User, { foreignKey: 'userId' });
+CharacterVampire.belongsTo(User, { as: 'user', foreignKey: 'userId' });
 
 DefinitionClan.hasMany(CharacterVampire, { foreignKey: 'clanId' });
-CharacterVampire.belongsTo(DefinitionClan, { foreignKey: 'clanId' });
+CharacterVampire.belongsTo(DefinitionClan, { as: 'clan', foreignKey: 'clanId' });
 
 DefinitionPredator.hasMany(CharacterVampire, { foreignKey: 'predatorId' });
 CharacterVampire.belongsTo(DefinitionPredator, { foreignKey: 'predatorId' });
@@ -155,8 +155,8 @@ CharacterStoryProgress.belongsTo(DefinitionStoryAdventure, { foreignKey: 'advent
 DefinitionStoryNode.hasMany(CharacterStoryProgress, { foreignKey: 'currentNodeId' });
 CharacterStoryProgress.belongsTo(DefinitionStoryNode, { foreignKey: 'currentNodeId' });
 
-CharacterVampire.hasMany(CharacterActivityLog, { foreignKey: 'characterId' });
-CharacterActivityLog.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
+CharacterVampire.hasMany(CharacterActivityLog, { as: 'activityLogs', foreignKey: 'characterId' });
+CharacterActivityLog.belongsTo(CharacterVampire, { as: 'character', foreignKey: 'characterId' });
 
 // Export
 export { 
