@@ -218,8 +218,8 @@ export const startMission = async (req: Request, res: Response) => {
     }
 
     const totalActions = actions.length || 1;
-    let stepDurationMinutes = (missionDef.durationMinutes * 60) / totalActions;
-    if (stepDurationMinutes < 1) stepDurationMinutes = 1;
+    let stepDurationMinutes = missionDef.durationMinutes / totalActions;
+    if (stepDurationMinutes <= 0) stepDurationMinutes = 1;
 
     // Calcula trânsito e tempo de jogo da missão
     const transit = await NightCycleService.calculateTransit(character.currentLocationId || null, missionDef.locationId || null);
