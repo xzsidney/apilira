@@ -108,6 +108,20 @@ class CharacterService {
                 await charSkill.save();
             }
         }
+        // DROP DE EQUIPAMENTO / ITEM
+        if (impact.equipmentDropId) {
+            const defEquip = await models_1.DefinitionEquipment.findByPk(impact.equipmentDropId);
+            if (defEquip) {
+                const [charEquip, created] = await models_1.CharacterVampireEquipment.findOrCreate({
+                    where: { characterVampireId: character.id, definitionEquipmentId: defEquip.id },
+                    defaults: { quantity: 1, equipped: false }
+                });
+                if (!created) {
+                    charEquip.quantity += 1;
+                    await charEquip.save();
+                }
+            }
+        }
         return character;
     }
     /**

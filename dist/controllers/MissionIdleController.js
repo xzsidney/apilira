@@ -306,6 +306,10 @@ const resolveMission = async (req, res) => {
                 impact.willpowerDamageSuperficial = Number(rewards.willpowerDamageSuperficial);
             if (rewards.humanity)
                 impact.humanity = Number(rewards.humanity);
+            if (rewards.money)
+                impact.money = Number(rewards.money);
+            if (rewards.equipmentDropId)
+                impact.equipmentDropId = rewards.equipmentDropId;
             if (rewards.attributeBonus?.name && rewards.attributeBonus?.value)
                 impact.attributeBonus = rewards.attributeBonus;
             if (rewards.skillBonus?.name && rewards.skillBonus?.value)
@@ -316,6 +320,14 @@ const resolveMission = async (req, res) => {
                 report.finalChanges.push(`✨ Ganhou +${rewards.exp} XP.`);
             if (rewards.hunger)
                 report.finalChanges.push(`🩸 Fome saciada em ${Math.abs(rewards.hunger)} ponto(s) (Atual: ${character.hunger}/5).`);
+            if (rewards.money)
+                report.finalChanges.push(`💵 Obteve R$ ${rewards.money} em recursos e espólio financeiro.`);
+            if (rewards.equipmentDropId) {
+                const dropItem = await models_1.DefinitionEquipment.findByPk(rewards.equipmentDropId);
+                if (dropItem) {
+                    report.finalChanges.push(`🗡️ Item de Arsenal obtido: ${dropItem.name} (${dropItem.type})!`);
+                }
+            }
             if (rewards.willpowerDamageSuperficial)
                 report.finalChanges.push(`🧠 Força de Vontade recuperada.`);
             if (rewards.humanity)

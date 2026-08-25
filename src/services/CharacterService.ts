@@ -4,7 +4,9 @@ import {
   CharacterVampireAttribute,
   DefinitionAttribute,
   CharacterVampireSkill,
-  DefinitionSkill
+  DefinitionSkill,
+  CharacterVampireEquipment,
+  DefinitionEquipment
 } from '../models';
 
 export interface ImpactData {
@@ -16,6 +18,8 @@ export interface ImpactData {
   willpowerDamageAggravated?: number;
   humanity?: number;
   stains?: number;
+  money?: number;
+  equipmentDropId?: string;
   attributeBonus?: { name: string; value: number };
   skillBonus?: { name: string; value: number };
 }
@@ -120,6 +124,21 @@ export class CharacterService {
         });
         charSkill.value = Math.min(5, charSkill.value + impact.skillBonus.value);
         await charSkill.save();
+      }
+    }
+
+    // DROP DE EQUIPAMENTO / ITEM
+    if (impact.equipmentDropId) {
+      const defEquip = await DefinitionEquipment.findByPk(impact.equipmentDropId);
+      if (defEquip) {
+        const [charEquip, created] = await CharacterVampireEquipment.findOrCreate({
+          where: { characterVampireId: character.id, definitionEquipmentId: defEquip.id },
+          defaults: { quantity: 1, equipped: false }
+        });
+        if (!created) {
+          charEquip.quantity += 1;
+          await charEquip.save();
+        }
       }
     }
     
