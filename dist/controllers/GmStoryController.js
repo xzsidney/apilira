@@ -1,13 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteChoice = exports.updateChoice = exports.createChoice = exports.deleteNode = exports.updateNode = exports.createNode = exports.deleteAdventure = exports.updateAdventure = exports.createAdventure = exports.getAdventureDetail = exports.listAdventures = void 0;
+const sequelize_1 = require("sequelize");
 const models_1 = require("../models");
 // ==================== AVENTURAS ====================
 const listAdventures = async (req, res) => {
     try {
         const userId = req.userId;
+        const whereCondition = userId ? { [sequelize_1.Op.or]: [{ userId }, { userId: null }] } : {};
         const adventures = await models_1.DefinitionStoryAdventure.findAll({
-            where: { userId },
+            where: whereCondition,
             include: [
                 {
                     model: models_1.DefinitionStoryNode,
@@ -29,8 +31,9 @@ const getAdventureDetail = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.userId;
+        const whereCondition = userId ? { id, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } : { id };
         const adventure = await models_1.DefinitionStoryAdventure.findOne({
-            where: { id, userId },
+            where: whereCondition,
             include: [
                 {
                     model: models_1.DefinitionStoryNode,

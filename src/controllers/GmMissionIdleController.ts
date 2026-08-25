@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { Op } from "sequelize";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { 
   DefinitionMissionIdle, 
@@ -10,8 +11,9 @@ import {
 export const listMissions = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.userId;
+    const whereCondition: any = userId ? { [Op.or]: [{ userId }, { userId: null }] } : {};
     const missions = await DefinitionMissionIdle.findAll({
-      where: { userId },
+      where: whereCondition,
       include: [
         {
           model: DefinitionMissionIdleAction,
@@ -31,9 +33,10 @@ export const getMissionDetail = async (req: AuthenticatedRequest, res: Response)
   try {
     const { id } = req.params;
     const userId = req.userId;
+    const whereCondition: any = userId ? { id, [Op.or]: [{ userId }, { userId: null }] } : { id };
 
     const mission = await DefinitionMissionIdle.findOne({
-      where: { id, userId },
+      where: whereCondition,
       include: [
         {
           model: DefinitionMissionIdleAction,

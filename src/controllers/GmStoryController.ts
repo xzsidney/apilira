@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { Op } from "sequelize";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { 
   DefinitionStoryAdventure, 
@@ -11,8 +12,9 @@ import {
 export const listAdventures = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.userId;
+    const whereCondition: any = userId ? { [Op.or]: [{ userId }, { userId: null }] } : {};
     const adventures = await DefinitionStoryAdventure.findAll({
-      where: { userId },
+      where: whereCondition,
       include: [
         {
           model: DefinitionStoryNode,
@@ -33,9 +35,10 @@ export const getAdventureDetail = async (req: AuthenticatedRequest, res: Respons
   try {
     const { id } = req.params;
     const userId = req.userId;
+    const whereCondition: any = userId ? { id, [Op.or]: [{ userId }, { userId: null }] } : { id };
 
     const adventure = await DefinitionStoryAdventure.findOne({
-      where: { id, userId },
+      where: whereCondition,
       include: [
         {
           model: DefinitionStoryNode,

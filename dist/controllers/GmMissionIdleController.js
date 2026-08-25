@@ -1,13 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAction = exports.updateAction = exports.createAction = exports.deleteMission = exports.updateMission = exports.createMission = exports.getMissionDetail = exports.listMissions = void 0;
+const sequelize_1 = require("sequelize");
 const models_1 = require("../models");
 // ==================== MISSÕES / INCURSÕES ====================
 const listMissions = async (req, res) => {
     try {
         const userId = req.userId;
+        const whereCondition = userId ? { [sequelize_1.Op.or]: [{ userId }, { userId: null }] } : {};
         const missions = await models_1.DefinitionMissionIdle.findAll({
-            where: { userId },
+            where: whereCondition,
             include: [
                 {
                     model: models_1.DefinitionMissionIdleAction,
@@ -28,8 +30,9 @@ const getMissionDetail = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.userId;
+        const whereCondition = userId ? { id, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } : { id };
         const mission = await models_1.DefinitionMissionIdle.findOne({
-            where: { id, userId },
+            where: whereCondition,
             include: [
                 {
                     model: models_1.DefinitionMissionIdleAction,

@@ -15,6 +15,18 @@ async function addAdditiveColumns() {
     } else {
       console.log('Coluna userId já existe em definition_missions_idle.');
     }
+
+    const advTableDesc: any = await queryInterface.describeTable('definition_story_adventures');
+    if (!advTableDesc.userId) {
+      console.log('Adicionando coluna userId em definition_story_adventures...');
+      await queryInterface.addColumn('definition_story_adventures', 'userId', {
+        type: DataTypes.STRING(36),
+        allowNull: true,
+      });
+      console.log('Coluna userId adicionada com sucesso em definition_story_adventures.');
+    } else {
+      console.log('Coluna userId já existe em definition_story_adventures.');
+    }
   } catch (error: any) {
     console.error('Erro ao verificar/adicionar coluna:', error.message);
   } finally {
