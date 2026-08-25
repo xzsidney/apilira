@@ -50,6 +50,7 @@ import radarLocationRoutes from "./routes/radarLocationRoutes";
 import missionIdleRoutes from "./routes/missionIdleRoutes";
 import storyRoutes from "./routes/storyRoutes";
 import gmRoutes from "./routes/gmRoutes";
+import nightCycleRoutes from "./routes/nightCycleRoutes";
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/gm", gmRoutes);
@@ -71,6 +72,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/radar", radarLocationRoutes);
 app.use("/api/missions-idle", missionIdleRoutes);
 app.use("/api/story", storyRoutes);
+app.use("/api/night-cycle", nightCycleRoutes);
 
 // Base routes
 app.get("/", (req: Request, res: Response) => {

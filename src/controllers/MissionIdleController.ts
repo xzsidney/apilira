@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { DefinitionMissionIdle, CharacterActiveMission, CharacterVampire, DefinitionMissionIdleAction, CharacterVampireAttribute, DefinitionAttribute, CharacterVampireSkill, DefinitionSkill, DefinitionEquipment } from '../models';
 import { Op } from 'sequelize';
 import { CharacterService } from '../services/CharacterService';
+import { NightCycleService } from '../services/NightCycleService';
 
 export const listAvailableMissions = async (req: Request, res: Response) => {
   try {
@@ -220,9 +221,26 @@ export const startMission = async (req: Request, res: Response) => {
     let stepDurationMinutes = (missionDef.durationMinutes * 60) / totalActions;
     if (stepDurationMinutes < 1) stepDurationMinutes = 1;
 
+    // Calcula trânsito e tempo de jogo da missão
+    const transit = await NightCycleService.calculateTransit(character.currentLocationId || null, missionDef.locationId || null);
+    const missionInGameMinutes = NightCycleService.getMissionInGameMinutes(missionDef.baseDifficulty || 5, missionDef.durationMinutes);
+    
+    // Avança o relógio da noite do personagem
+    const nightAdvance = await NightCycleService.advanceNightTime(
+      character.id, 
+      transit.transitMinutesInGame, 
+      missionInGameMinutes, 
+      missionDef.locationId || undefined
+    );
+
     const report: any = {
       title: missionDef.title,
       isSuccess: true,
+      transitMinutes: transit.transitMinutesInGame,
+      missionInGameMinutes,
+      departureLocation: transit.fromLocationName,
+      targetLocation: transit.toLocationName,
+      isSunHazardTriggered: nightAdvance.isSunHazardTriggered,
       steps: [],
       finalChanges: []
     };

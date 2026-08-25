@@ -49,12 +49,18 @@ export class CharacterVampire extends Model {
   declare distinguishingFeatures: string | null;
   declare history: string | null;
 
-  // XP e Economia
   declare experienceTotal: number;
   declare experienceSpent: number;
   declare money: number;
 
   declare isAwake: boolean;
+
+  // Ciclo Noturno e Deslocamento (V5)
+  declare currentLocationId: string | null;
+  declare nightMinutesSpent: number;
+  declare isRestingInHaven: boolean;
+  declare emergencyHavenType: string;
+  declare lastNightCycleDate: Date;
 
   declare createdAt: Date;
   declare updatedAt: Date;
@@ -140,6 +146,13 @@ export function initCharacterVampire(sequelize: Sequelize) {
       experienceSpent: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
       money: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
       isAwake: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+
+      // Ciclo Noturno e Deslocamento (V5)
+      currentLocationId: { type: DataTypes.STRING(36), allowNull: true },
+      nightMinutesSpent: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+      isRestingInHaven: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+      emergencyHavenType: { type: DataTypes.STRING(50), allowNull: false, defaultValue: 'NONE' },
+      lastNightCycleDate: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     },
     {
       sequelize,
