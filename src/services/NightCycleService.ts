@@ -66,7 +66,7 @@ export class NightCycleService {
     if (baseDifficulty <= 5) return 120;
     if (baseDifficulty === 6) return 180;
     if (baseDifficulty <= 9) return 300;
-    return 480;
+    return 600; // Dificuldade 10: 600 min (10 horas completas, atingindo 06:00 e disparando o Amanhecer/Alerta Solar)
   }
 
   /**

@@ -32,7 +32,7 @@ class NightCycleService {
             return 180;
         if (baseDifficulty <= 9)
             return 300;
-        return 480;
+        return 600; // Dificuldade 10: 600 min (10 horas completas, atingindo 06:00 e disparando o Amanhecer/Alerta Solar)
     }
     /**
      * Calcula o tempo de deslocamento entre dois bairros/locais no tempo de jogo.
