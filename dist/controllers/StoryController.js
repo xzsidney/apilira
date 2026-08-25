@@ -22,7 +22,21 @@ const getCharacterProgress = async (req, res) => {
         }
         const adventure = await models_1.DefinitionStoryAdventure.findByPk(adventureId);
         if (!adventure) {
-            return res.status(404).json({ error: 'Adventure not found' });
+            return res.status(404).json({ error: 'Aventura não encontrada' });
+        }
+        // Se a aventura não tiver firstNodeId explicitamente salvo, busca a primeira cena criada e salva
+        if (!adventure.firstNodeId) {
+            const firstNode = await models_1.DefinitionStoryNode.findOne({
+                where: { adventureId },
+                order: [['createdAt', 'ASC']]
+            });
+            if (firstNode) {
+                adventure.firstNodeId = firstNode.id;
+                await adventure.save();
+            }
+            else {
+                return res.status(400).json({ error: 'Esta crônica ainda não possui cenas cadastradas pelo Mestre' });
+            }
         }
         let progress = await models_1.CharacterStoryProgress.findOne({
             where: { characterId, adventureId }
@@ -32,11 +46,8 @@ const getCharacterProgress = async (req, res) => {
             if (adventure.maxCompletions !== null && adventure.maxCompletions > 0) {
                 const completions = await CharacterService_1.CharacterService.getCompletionCount(characterId, 'STORY_ADVENTURE', adventureId);
                 if (completions >= adventure.maxCompletions) {
-                    return res.status(403).json({ error: 'Maximum completions reached for this adventure' });
+                    return res.status(403).json({ error: 'Limite de conclusões atingido para esta crônica' });
                 }
-            }
-            if (!adventure.firstNodeId) {
-                return res.status(400).json({ error: 'Adventure does not have a starting node' });
             }
             progress = await models_1.CharacterStoryProgress.create({
                 characterId,
@@ -44,9 +55,25 @@ const getCharacterProgress = async (req, res) => {
                 currentNodeId: adventure.firstNodeId
             });
         }
-        const currentNode = await models_1.DefinitionStoryNode.findByPk(progress.currentNodeId, {
-            include: [{ model: models_1.DefinitionStoryChoice, as: 'choices' }]
-        });
+        // Busca o nó atual
+        let currentNode = progress.currentNodeId
+            ? await models_1.DefinitionStoryNode.findByPk(progress.currentNodeId, {
+                include: [{ model: models_1.DefinitionStoryChoice, as: 'choices' }]
+            })
+            : null;
+        // Se o nó onde o personagem parou não existe mais, reseta para o nó inicial da aventura
+        if (!currentNode && adventure.firstNodeId) {
+            currentNode = await models_1.DefinitionStoryNode.findByPk(adventure.firstNodeId, {
+                include: [{ model: models_1.DefinitionStoryChoice, as: 'choices' }]
+            });
+            if (currentNode) {
+                progress.currentNodeId = adventure.firstNodeId;
+                await progress.save();
+            }
+        }
+        if (!currentNode) {
+            return res.status(400).json({ error: 'Cena da história não encontrada para esta crônica' });
+        }
         return res.status(200).json({
             progress,
             currentNode
