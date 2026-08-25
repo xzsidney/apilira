@@ -243,6 +243,13 @@ export const startReconMission = async (req: Request, res: Response) => {
     });
     if (!character) return res.status(404).json({ error: 'Personagem não encontrado' });
 
+    // Bloqueia se já for dia
+    if ((character.nightMinutesSpent || 0) >= 600) {
+      return res.status(400).json({ 
+        error: 'O Sol raiou em Nocturna (06:00)! É impossível realizar expedições de reconhecimento durante o dia. Retorne ao seu refúgio e avance para a próxima noite.' 
+      });
+    }
+
     // Verifica se já tem missão ativa
     const existingActive = await CharacterActiveMission.findOne({
       where: { characterId, status: 'IN_PROGRESS' }

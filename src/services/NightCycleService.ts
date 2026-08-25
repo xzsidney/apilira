@@ -44,6 +44,7 @@ export class NightCycleService {
    * Converte minutos gastos na noite (0 = 20:00, 600 = 06:00) para string de hora formatada "HH:mm".
    */
   static formatNightHour(minutesSpent: number): string {
+    if (minutesSpent >= 600) return '06:00';
     const startHour = 20; // 20:00
     const totalMinutes = (startHour * 60) + Math.max(0, minutesSpent);
     const hour = Math.floor((totalMinutes / 60) % 24);

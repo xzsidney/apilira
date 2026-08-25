@@ -181,6 +181,13 @@ export const startMission = async (req: Request, res: Response) => {
       ]
     });
     if (!character) return res.status(404).json({ error: 'Character not found' });
+
+    // Bloqueia novas operações se o sol já raiou
+    if ((character.nightMinutesSpent || 0) >= 600) {
+      return res.status(400).json({ 
+        error: 'O Sol raiou em Nocturna (06:00)! É impossível realizar operações durante o dia. Retorne ao seu refúgio e avance para a próxima noite.' 
+      });
+    }
     
     const getAttrVal = (name: string) => {
       const found = (character as any).CharacterVampireAttributes?.find((a: any) => a.DefinitionAttribute?.name === name);
