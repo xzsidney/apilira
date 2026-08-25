@@ -10,7 +10,7 @@ import { CharacterVampirePower } from '../models/CharacterVampirePower';
 import { CharacterVampireMeritFlaw } from '../models/CharacterVampireMeritFlaw';
 import { CharacterVampireBackground } from '../models/CharacterVampireBackground';
 import { CharacterVampireEquipment } from '../models/CharacterVampireEquipment';
-import { DefinitionClan, DefinitionPredator, DefinitionResonance, DefinitionBloodPotency, DefinitionAttribute, DefinitionSkill, DefinitionDiscipline, DefinitionDisciplinePower, DefinitionBackground, DefinitionMeritFlaw } from '../models';
+import { DefinitionClan, DefinitionPredator, DefinitionResonance, DefinitionBloodPotency, DefinitionAttribute, DefinitionSkill, DefinitionDiscipline, DefinitionDisciplinePower, DefinitionBackground, DefinitionMeritFlaw, DefinitionLocation, CharacterHaven } from '../models';
 
 export const getAvailableSires = async (req: Request, res: Response) => {
   try {
@@ -162,6 +162,11 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
           separate: true,
           include: [{ model: DefinitionMeritFlaw, attributes: ['name', 'description', 'type'] }]
         },
+        {
+          model: CharacterHaven,
+          as: 'Haven',
+          include: [{ model: DefinitionLocation, attributes: ['id', 'name', 'level'] }]
+        }
       ]
     });
 
