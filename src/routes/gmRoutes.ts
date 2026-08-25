@@ -59,6 +59,7 @@ import {
   deleteChoice,
   getGmOverview,
   getPlayersOverview,
+  grantPlayerLocation,
   getCompendiumNpcs,
   getCompendiumLocations,
   getCompendiumEquipments
@@ -67,6 +68,7 @@ import {
 // Overview & Monitor
 router.get("/dashboard/overview", getGmOverview);
 router.get("/players", getPlayersOverview);
+router.post("/players/:characterId/locations", grantPlayerLocation);
 
 // Compêndio Canônico
 router.get("/compendium/npcs", getCompendiumNpcs);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPlayersOverview = exports.getCompendiumEquipments = exports.getCompendiumLocations = exports.getCompendiumNpcs = exports.getGmOverview = exports.deleteChoice = exports.updateChoice = exports.createChoice = exports.deleteNode = exports.updateNode = exports.createNode = exports.deleteAdventure = exports.updateAdventure = exports.createAdventure = exports.getAdventureDetail = exports.listAdventures = void 0;
+exports.grantPlayerLocation = exports.getPlayersOverview = exports.getCompendiumEquipments = exports.getCompendiumLocations = exports.getCompendiumNpcs = exports.getGmOverview = exports.deleteChoice = exports.updateChoice = exports.createChoice = exports.deleteNode = exports.updateNode = exports.createNode = exports.deleteAdventure = exports.updateAdventure = exports.createAdventure = exports.getAdventureDetail = exports.listAdventures = void 0;
 const sequelize_1 = require("sequelize");
 const models_1 = require("../models");
 // ==================== AVENTURAS ====================
@@ -468,6 +468,15 @@ const getPlayersOverview = async (req, res) => {
                 {
                     model: models_1.User,
                     attributes: ["id", "name", "email"]
+                },
+                {
+                    model: models_1.CharacterKnownLocation,
+                    include: [
+                        {
+                            model: models_1.DefinitionLocation,
+                            attributes: ["id", "name", "level", "parentId", "attributes"]
+                        }
+                    ]
                 }
             ],
             order: [["updatedAt", "DESC"]]
@@ -480,3 +489,41 @@ const getPlayersOverview = async (req, res) => {
     }
 };
 exports.getPlayersOverview = getPlayersOverview;
+const grantPlayerLocation = async (req, res) => {
+    try {
+        const { characterId } = req.params;
+        const { locationId, status } = req.body;
+        if (!characterId || !locationId) {
+            return res.status(400).json({ error: "characterId e locationId são obrigatórios" });
+        }
+        const location = await models_1.DefinitionLocation.findByPk(locationId);
+        if (!location) {
+            return res.status(404).json({ error: "Localização não encontrada" });
+        }
+        const newStatus = status === 'DISCOVERED' ? 'DISCOVERED' : 'RUMOR';
+        let known = await models_1.CharacterKnownLocation.findOne({
+            where: { characterId, locationId }
+        });
+        if (known) {
+            known.status = newStatus;
+            await known.save();
+        }
+        else {
+            known = await models_1.CharacterKnownLocation.create({
+                characterId,
+                locationId,
+                status: newStatus
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: `Distrito '${location.name}' agora está registrado como ${newStatus} para o jogador!`,
+            known
+        });
+    }
+    catch (error) {
+        console.error("Erro ao conceder local para o jogador:", error);
+        return res.status(500).json({ error: "Erro interno no servidor" });
+    }
+};
+exports.grantPlayerLocation = grantPlayerLocation;

@@ -10,6 +10,7 @@ import {
   DefinitionLocation,
   DefinitionEquipment,
   CharacterActivityLog,
+  CharacterKnownLocation,
   DefinitionClan,
   User
 } from "../models";
@@ -531,6 +532,15 @@ export const getPlayersOverview = async (req: AuthenticatedRequest, res: Respons
         {
           model: User,
           attributes: ["id", "name", "email"]
+        },
+        {
+          model: CharacterKnownLocation,
+          include: [
+            {
+              model: DefinitionLocation,
+              attributes: ["id", "name", "level", "parentId", "attributes"]
+            }
+          ]
         }
       ],
       order: [["updatedAt", "DESC"]]
@@ -538,6 +548,48 @@ export const getPlayersOverview = async (req: AuthenticatedRequest, res: Respons
     return res.status(200).json(players);
   } catch (error) {
     console.error("Erro ao buscar jogadores para o GM:", error);
+    return res.status(500).json({ error: "Erro interno no servidor" });
+  }
+};
+
+export const grantPlayerLocation = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { characterId } = req.params;
+    const { locationId, status } = req.body;
+
+    if (!characterId || !locationId) {
+      return res.status(400).json({ error: "characterId e locationId são obrigatórios" });
+    }
+
+    const location = await DefinitionLocation.findByPk(locationId);
+    if (!location) {
+      return res.status(404).json({ error: "Localização não encontrada" });
+    }
+
+    const newStatus = status === 'DISCOVERED' ? 'DISCOVERED' : 'RUMOR';
+
+    let known = await CharacterKnownLocation.findOne({
+      where: { characterId, locationId }
+    });
+
+    if (known) {
+      known.status = newStatus;
+      await known.save();
+    } else {
+      known = await CharacterKnownLocation.create({
+        characterId,
+        locationId,
+        status: newStatus
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Distrito '${location.name}' agora está registrado como ${newStatus} para o jogador!`,
+      known
+    });
+  } catch (error) {
+    console.error("Erro ao conceder local para o jogador:", error);
     return res.status(500).json({ error: "Erro interno no servidor" });
   }
 };

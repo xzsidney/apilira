@@ -46,6 +46,7 @@ const GmStoryController_1 = require("../controllers/GmStoryController");
 // Overview & Monitor
 router.get("/dashboard/overview", GmStoryController_1.getGmOverview);
 router.get("/players", GmStoryController_1.getPlayersOverview);
+router.post("/players/:characterId/locations", GmStoryController_1.grantPlayerLocation);
 // Compêndio Canônico
 router.get("/compendium/npcs", GmStoryController_1.getCompendiumNpcs);
 router.get("/compendium/locations", GmStoryController_1.getCompendiumLocations);

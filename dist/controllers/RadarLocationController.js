@@ -92,8 +92,8 @@ const getRadarLocations = async (req, res) => {
                         continue;
                     }
                     // Nível 3: EXPLORADO (DISCOVERED / DOMINATED)
-                    // Vincula as missões disponíveis neste local ou gerais
-                    const locationMissions = allMissions.filter(m => m.locationId === child.id || !m.locationId);
+                    // Vincula estritamente as missões cadastradas especificamente para este local
+                    const locationMissions = allMissions.filter(m => m.locationId === child.id);
                     visibleChildren.push({
                         ...child,
                         knownStatus: 'DISCOVERED',
