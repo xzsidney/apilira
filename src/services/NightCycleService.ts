@@ -2,6 +2,7 @@ import {
   CharacterVampire, 
   DefinitionLocation, 
   CharacterHaven,
+  CharacterActiveMission,
   CharacterVampireAttribute,
   DefinitionAttribute,
   CharacterVampireSkill,
@@ -212,6 +213,15 @@ export class NightCycleService {
     character.emergencyHavenType = 'NONE';
     await character.save();
 
+    // Aborta missões ativas que o vampiro estivesse executando na rua
+    const activeMissions = await CharacterActiveMission.findAll({
+      where: { characterId, status: 'IN_PROGRESS' }
+    });
+    for (const m of activeMissions) {
+      m.status = 'CANCELLED';
+      await m.save();
+    }
+
     return this.getNightStatus(characterId);
   }
 
@@ -353,9 +363,18 @@ export class NightCycleService {
       character.emergencyHavenType = 'NONE';
       await character.save();
 
+      // Aborta missões ativas que o vampiro estivesse executando na rua
+      const activeMissions = await CharacterActiveMission.findAll({
+        where: { characterId, status: 'IN_PROGRESS' }
+      });
+      for (const m of activeMissions) {
+        m.status = 'CANCELLED';
+        await m.save();
+      }
+
       return {
         success: true,
-        message: `Você correu desesperadamente até o seu refúgio sob a luz do sol, sofrendo ${damageTaken} de Dano Agravado pela radiação solar.`,
+        message: `Você correu desesperadamente até o seu refúgio sob a luz do sol, sofrendo ${damageTaken} de Dano Agravado pela radiação solar. Operações na rua foram abortadas!`,
         damageTaken,
         moneySpent: 0,
         character
