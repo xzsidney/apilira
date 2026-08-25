@@ -3,6 +3,7 @@ import sequelize from '../config/database';
 
 export interface DefinitionMissionIdleAttributes {
   id: string;
+  userId?: string;
   title: string;
   description: string;
   durationMinutes: number;
@@ -14,10 +15,11 @@ export interface DefinitionMissionIdleAttributes {
   maxCompletions?: number | null;
 }
 
-export interface DefinitionMissionIdleCreationAttributes extends Optional<DefinitionMissionIdleAttributes, 'id' | 'allowedRequirements' | 'rewardsJson' | 'penaltiesJson' | 'maxCompletions'> {}
+export interface DefinitionMissionIdleCreationAttributes extends Optional<DefinitionMissionIdleAttributes, 'id' | 'userId' | 'allowedRequirements' | 'rewardsJson' | 'penaltiesJson' | 'maxCompletions'> {}
 
 class DefinitionMissionIdle extends Model<DefinitionMissionIdleAttributes, DefinitionMissionIdleCreationAttributes> implements DefinitionMissionIdleAttributes {
   declare id: string;
+  declare userId?: string;
   declare title: string;
   declare description: string;
   declare durationMinutes: number;
@@ -35,6 +37,11 @@ DefinitionMissionIdle.init(
       type: DataTypes.STRING(36),
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.STRING(36),
+      allowNull: true,
+      references: { model: 'User', key: 'id' },
     },
     title: {
       type: DataTypes.STRING,

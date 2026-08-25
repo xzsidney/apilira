@@ -13,6 +13,11 @@ DefinitionMissionIdle.init({
         defaultValue: sequelize_1.DataTypes.UUIDV4,
         primaryKey: true,
     },
+    userId: {
+        type: sequelize_1.DataTypes.STRING(36),
+        allowNull: true,
+        references: { model: 'User', key: 'id' },
+    },
     title: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,

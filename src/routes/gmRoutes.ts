@@ -44,4 +44,56 @@ router.get("/status", async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+// ==================== AVENTURAS SOLO (LIVRO-JOGO) ====================
+import {
+  listAdventures,
+  getAdventureDetail,
+  createAdventure,
+  updateAdventure,
+  deleteAdventure,
+  createNode,
+  updateNode,
+  deleteNode,
+  createChoice,
+  updateChoice,
+  deleteChoice
+} from "../controllers/GmStoryController";
+
+router.get("/story/adventures", listAdventures);
+router.get("/story/adventures/:id", getAdventureDetail);
+router.post("/story/adventures", createAdventure);
+router.put("/story/adventures/:id", updateAdventure);
+router.delete("/story/adventures/:id", deleteAdventure);
+
+router.post("/story/nodes", createNode);
+router.put("/story/nodes/:id", updateNode);
+router.delete("/story/nodes/:id", deleteNode);
+
+router.post("/story/choices", createChoice);
+router.put("/story/choices/:id", updateChoice);
+router.delete("/story/choices/:id", deleteChoice);
+
+// ==================== INCURSÕES & CAÇADAS (AFK) ====================
+import {
+  listMissions,
+  getMissionDetail,
+  createMission,
+  updateMission,
+  deleteMission,
+  createAction,
+  updateAction,
+  deleteAction
+} from "../controllers/GmMissionIdleController";
+
+router.get("/missions-idle", listMissions);
+router.get("/missions-idle/:id", getMissionDetail);
+router.post("/missions-idle", createMission);
+router.put("/missions-idle/:id", updateMission);
+router.delete("/missions-idle/:id", deleteMission);
+
+router.post("/missions-idle/:missionId/actions", createAction);
+router.put("/missions-idle/actions/:actionId", updateAction);
+router.delete("/missions-idle/actions/:actionId", deleteAction);
+
 export default router;
+

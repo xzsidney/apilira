@@ -41,4 +41,27 @@ router.get("/status", async (req, res) => {
         return res.status(500).json({ error: "Erro interno no servidor" });
     }
 });
+// ==================== AVENTURAS SOLO (LIVRO-JOGO) ====================
+const GmStoryController_1 = require("../controllers/GmStoryController");
+router.get("/story/adventures", GmStoryController_1.listAdventures);
+router.get("/story/adventures/:id", GmStoryController_1.getAdventureDetail);
+router.post("/story/adventures", GmStoryController_1.createAdventure);
+router.put("/story/adventures/:id", GmStoryController_1.updateAdventure);
+router.delete("/story/adventures/:id", GmStoryController_1.deleteAdventure);
+router.post("/story/nodes", GmStoryController_1.createNode);
+router.put("/story/nodes/:id", GmStoryController_1.updateNode);
+router.delete("/story/nodes/:id", GmStoryController_1.deleteNode);
+router.post("/story/choices", GmStoryController_1.createChoice);
+router.put("/story/choices/:id", GmStoryController_1.updateChoice);
+router.delete("/story/choices/:id", GmStoryController_1.deleteChoice);
+// ==================== INCURSÕES & CAÇADAS (AFK) ====================
+const GmMissionIdleController_1 = require("../controllers/GmMissionIdleController");
+router.get("/missions-idle", GmMissionIdleController_1.listMissions);
+router.get("/missions-idle/:id", GmMissionIdleController_1.getMissionDetail);
+router.post("/missions-idle", GmMissionIdleController_1.createMission);
+router.put("/missions-idle/:id", GmMissionIdleController_1.updateMission);
+router.delete("/missions-idle/:id", GmMissionIdleController_1.deleteMission);
+router.post("/missions-idle/:missionId/actions", GmMissionIdleController_1.createAction);
+router.put("/missions-idle/actions/:actionId", GmMissionIdleController_1.updateAction);
+router.delete("/missions-idle/actions/:actionId", GmMissionIdleController_1.deleteAction);
 exports.default = router;
