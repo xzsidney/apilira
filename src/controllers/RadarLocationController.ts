@@ -282,7 +282,7 @@ export const startReconMission = async (req: Request, res: Response) => {
       // Cria as 3 ações sequenciais do V5
       await DefinitionMissionIdleAction.bulkCreate([
         {
-          definitionMissionIdleId: reconMission.id,
+          missionId: reconMission.id,
           stepOrder: 1,
           name: 'Infiltração & Rotas de Fuga',
           attributeReq: 'Percepção',
@@ -292,7 +292,7 @@ export const startReconMission = async (req: Request, res: Response) => {
           failureText: 'Patrulhas e transeuntes forçaram você a se esconder em um beco sem saída, perdendo preciosas horas de escuridão.'
         },
         {
-          definitionMissionIdleId: reconMission.id,
+          missionId: reconMission.id,
           stepOrder: 2,
           name: 'Mapeamento de Facções & Poder',
           attributeReq: 'Raciocínio',
@@ -302,7 +302,7 @@ export const startReconMission = async (req: Request, res: Response) => {
           failureText: 'As pistas se misturaram em um labirinto de desinformação orquestrado pela Camarilla.'
         },
         {
-          definitionMissionIdleId: reconMission.id,
+          missionId: reconMission.id,
           stepOrder: 3,
           name: 'Vigilância das Sombras & Retirada',
           attributeReq: 'Destreza',
