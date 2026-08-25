@@ -145,7 +145,7 @@ CharacterVampire_1.CharacterVampire.hasMany(CharacterKnownLocation_1.default, { 
 CharacterKnownLocation_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { foreignKey: 'characterId' });
 DefinitionLocation_1.DefinitionLocation.hasMany(CharacterKnownLocation_1.default, { foreignKey: 'locationId' });
 CharacterKnownLocation_1.default.belongsTo(DefinitionLocation_1.DefinitionLocation, { foreignKey: 'locationId' });
-CharacterVampire_1.CharacterVampire.hasOne(CharacterHaven_1.default, { foreignKey: 'characterId' });
+CharacterVampire_1.CharacterVampire.hasOne(CharacterHaven_1.default, { as: 'Haven', foreignKey: 'characterId' });
 CharacterHaven_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { foreignKey: 'characterId' });
 DefinitionLocation_1.DefinitionLocation.hasMany(CharacterHaven_1.default, { foreignKey: 'locationId' });
 CharacterHaven_1.default.belongsTo(DefinitionLocation_1.DefinitionLocation, { foreignKey: 'locationId' });

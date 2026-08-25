@@ -143,6 +143,11 @@ const getCharacterVampireById = async (req, res) => {
                     separate: true,
                     include: [{ model: models_2.DefinitionMeritFlaw, attributes: ['name', 'description', 'type'] }]
                 },
+                {
+                    model: models_2.CharacterHaven,
+                    as: 'Haven',
+                    include: [{ model: models_2.DefinitionLocation, attributes: ['id', 'name', 'level'] }]
+                }
             ]
         });
         if (!character) {

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolveMission = exports.startMission = exports.getActiveMission = exports.cancelMission = exports.listAvailableMissions = void 0;
 const models_1 = require("../models");
 const CharacterService_1 = require("../services/CharacterService");
+const NightCycleService_1 = require("../services/NightCycleService");
 const listAvailableMissions = async (req, res) => {
     try {
         const { category } = req.query;
@@ -169,6 +170,12 @@ const startMission = async (req, res) => {
         });
         if (!character)
             return res.status(404).json({ error: 'Character not found' });
+        // Bloqueia novas operações se o sol já raiou
+        if ((character.nightMinutesSpent || 0) >= 600) {
+            return res.status(400).json({
+                error: 'O Sol raiou em Nocturna (06:00)! É impossível realizar operações durante o dia. Retorne ao seu refúgio e avance para a próxima noite.'
+            });
+        }
         const getAttrVal = (name) => {
             const found = character.CharacterVampireAttributes?.find((a) => a.DefinitionAttribute?.name === name);
             return found ? found.value : 1;
@@ -199,12 +206,22 @@ const startMission = async (req, res) => {
             }
         }
         const totalActions = actions.length || 1;
-        let stepDurationMinutes = (missionDef.durationMinutes * 60) / totalActions;
-        if (stepDurationMinutes < 1)
+        let stepDurationMinutes = missionDef.durationMinutes / totalActions;
+        if (stepDurationMinutes <= 0)
             stepDurationMinutes = 1;
+        // Calcula trânsito e tempo de jogo da missão
+        const transit = await NightCycleService_1.NightCycleService.calculateTransit(character.currentLocationId || null, missionDef.locationId || null);
+        const missionInGameMinutes = NightCycleService_1.NightCycleService.getMissionInGameMinutes(missionDef.baseDifficulty || 5, missionDef.durationMinutes);
+        // Avança o relógio da noite do personagem
+        const nightAdvance = await NightCycleService_1.NightCycleService.advanceNightTime(character.id, transit.transitMinutesInGame, missionInGameMinutes, missionDef.locationId || undefined);
         const report = {
             title: missionDef.title,
             isSuccess: true,
+            transitMinutes: transit.transitMinutesInGame,
+            missionInGameMinutes,
+            departureLocation: transit.fromLocationName,
+            targetLocation: transit.toLocationName,
+            isSunHazardTriggered: nightAdvance.isSunHazardTriggered,
             steps: [],
             finalChanges: []
         };
@@ -348,6 +365,24 @@ const resolveMission = async (req, res) => {
                 report.finalChanges.push(`💪 +${rewards.attributeBonus.value} em ${rewards.attributeBonus.name}!`);
             if (rewards.skillBonus?.name)
                 report.finalChanges.push(`🎯 +${rewards.skillBonus.value} em ${rewards.skillBonus.name}!`);
+            // Se for missão de RECONHECIMENTO e teve sucesso, promove o distrito para DISCOVERED
+            if (missionDef.category === 'RECON' && missionDef.locationId) {
+                let known = await models_1.CharacterKnownLocation.findOne({
+                    where: { characterId: character.id, locationId: missionDef.locationId }
+                });
+                if (known) {
+                    known.status = 'DISCOVERED';
+                    await known.save();
+                }
+                else {
+                    await models_1.CharacterKnownLocation.create({
+                        characterId: character.id,
+                        locationId: missionDef.locationId,
+                        status: 'DISCOVERED'
+                    });
+                }
+                report.finalChanges.push(`🗺️ O distrito foi totalmente mapeado! Dados estratégicos e incursões desbloqueadas.`);
+            }
             activeMission.status = 'COMPLETED';
             await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: true });
         }
@@ -393,6 +428,9 @@ const resolveMission = async (req, res) => {
                 report.finalChanges.push(`💥 Sofreu ${penalties.willpowerDamageAggravated} de dano agravado à Força de Vontade.`);
             if (penalties.stains)
                 report.finalChanges.push(`🥀 Recebeu +${penalties.stains} Mancha(s) na Humanidade.`);
+            if (missionDef.category === 'RECON') {
+                report.finalChanges.push(`⚠️ A infiltração nas sombras falhou. O distrito permanece oculto na névoa.`);
+            }
             activeMission.status = 'FAILED';
             await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: false });
         }

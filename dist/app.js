@@ -48,6 +48,7 @@ const radarLocationRoutes_1 = __importDefault(require("./routes/radarLocationRou
 const missionIdleRoutes_1 = __importDefault(require("./routes/missionIdleRoutes"));
 const storyRoutes_1 = __importDefault(require("./routes/storyRoutes"));
 const gmRoutes_1 = __importDefault(require("./routes/gmRoutes"));
+const nightCycleRoutes_1 = __importDefault(require("./routes/nightCycleRoutes"));
 // API Routes
 app.use("/api/auth", authRoutes_1.default);
 app.use("/api/gm", gmRoutes_1.default);
@@ -68,6 +69,7 @@ app.use("/api/upload", uploadRoutes_1.default);
 app.use("/api/radar", radarLocationRoutes_1.default);
 app.use("/api/missions-idle", missionIdleRoutes_1.default);
 app.use("/api/story", storyRoutes_1.default);
+app.use("/api/night-cycle", nightCycleRoutes_1.default);
 // Base routes
 app.get("/", (req, res) => {
     res.json({

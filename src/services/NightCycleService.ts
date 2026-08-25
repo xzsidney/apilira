@@ -213,6 +213,15 @@ export class NightCycleService {
     character.emergencyHavenType = 'NONE';
     await character.save();
 
+    // Aborta automaticamente qualquer missão ativa em andamento
+    const activeMissions = await CharacterActiveMission.findAll({
+      where: { characterId, status: 'IN_PROGRESS' }
+    });
+    for (const m of activeMissions) {
+      m.status = 'CANCELLED';
+      await m.save();
+    }
+
     return this.getNightStatus(characterId);
   }
 
@@ -389,6 +398,15 @@ export class NightCycleService {
       character.emergencyHavenType = 'MOTEL';
       await character.save();
 
+      // Aborta missões ativas na rua
+      const activeMissions = await CharacterActiveMission.findAll({
+        where: { characterId, status: 'IN_PROGRESS' }
+      });
+      for (const m of activeMissions) {
+        m.status = 'CANCELLED';
+        await m.save();
+      }
+
       return {
         success: true,
         message: `Você pagou R$ ${motelCost} em uma suíte fechada com cortinas grossas. Está protegido do sol até o anoitecer.`,
@@ -420,6 +438,16 @@ export class NightCycleService {
         character.isRestingInHaven = true;
         character.emergencyHavenType = 'SEWER';
         await character.save();
+
+        // Aborta missões ativas na rua
+        const activeMissions = await CharacterActiveMission.findAll({
+          where: { characterId, status: 'IN_PROGRESS' }
+        });
+        for (const m of activeMissions) {
+          m.status = 'CANCELLED';
+          await m.save();
+        }
+
         return {
           success: true,
           message: `Sucesso! Você arrancou o bueiro com força e escorregou para a escuridão úmida dos esgotos, a salvo do sol.`,
@@ -462,6 +490,15 @@ export class NightCycleService {
       character.emergencyHavenType = 'ALLY';
       await character.save();
 
+      // Aborta missões ativas na rua
+      const activeMissions = await CharacterActiveMission.findAll({
+        where: { characterId, status: 'IN_PROGRESS' }
+      });
+      for (const m of activeMissions) {
+        m.status = 'CANCELLED';
+        await m.save();
+      }
+
       return {
         success: true,
         message: `Seu aliado abriu as portas do porão privativo. Você descansa seguro sob os cuidados de sua rede de contatos.`,
@@ -476,6 +513,164 @@ export class NightCycleService {
       message: 'Tipo de abrigo inválido.',
       damageTaken: 0,
       moneySpent: 0,
+      character
+    };
+  }
+
+  /**
+   * Aluga um quarto de hotel/motel de 1 a 5 estrelas.
+   */
+  static async bookHotel(
+    characterId: string, 
+    stars: number
+  ): Promise<{ 
+    success: boolean; 
+    message: string; 
+    hotelName: string;
+    moneySpent: number; 
+    willpowerHealed: number;
+    hungerReduced: number;
+    character: CharacterVampire 
+  }> {
+    const character = await CharacterVampire.findByPk(characterId);
+    if (!character) throw new Error('Personagem não encontrado');
+
+    const HOTEL_TIERS: Record<number, { name: string; cost: number; willpowerHeal: number; hungerBonus: number; desc: string }> = {
+      1: { name: 'Pensão "O Repouso das Sombras"', cost: 150, willpowerHeal: 1, hungerBonus: 0, desc: 'Quarto simples com cortinas velhas e tranca de metal.' },
+      2: { name: 'Motel Neon Blackout', cost: 350, willpowerHeal: 2, hungerBonus: 0, desc: 'Persiana blackout reforçada, sem janelas para a avenida.' },
+      3: { name: 'Grand Hotel Nocturna', cost: 800, willpowerHeal: 3, hungerBonus: 0, desc: 'Suíte executiva com isolamento acústico e serviço discreto.' },
+      4: { name: 'Palace Boutique Hotel', cost: 1800, willpowerHeal: 4, hungerBonus: 0, desc: 'Suíte de luxo com cortinas automatizadas à prova de luz.' },
+      5: { name: 'The Elysium Royal Suite', cost: 4000, willpowerHeal: 10, hungerBonus: 1, desc: 'Suíte presidencial blindada em cobertura, com cofre e bolsa de sangue O-negativo fresca.' }
+    };
+
+    const tier = HOTEL_TIERS[stars] || HOTEL_TIERS[2];
+
+    if (character.money < tier.cost) {
+      return {
+        success: false,
+        message: `Saldo insuficiente! Você tem R$ ${character.money} e o ${tier.name} custa R$ ${tier.cost}.`,
+        hotelName: tier.name,
+        moneySpent: 0,
+        willpowerHealed: 0,
+        hungerReduced: 0,
+        character
+      };
+    }
+
+    character.money -= tier.cost;
+    character.isRestingInHaven = true;
+    character.emergencyHavenType = 'MOTEL';
+
+    // Cura Força de Vontade
+    let healedWp = 0;
+    if (tier.willpowerHeal > 0 && character.willpowerDamageSuperficial > 0) {
+      healedWp = Math.min(character.willpowerDamageSuperficial, tier.willpowerHeal);
+      character.willpowerDamageSuperficial -= healedWp;
+    }
+
+    // Bônus de Sangue (Suíte 5 estrelas)
+    let hungerReduced = 0;
+    if (tier.hungerBonus > 0 && character.hunger > 1) {
+      character.hunger = Math.max(1, character.hunger - tier.hungerBonus);
+      hungerReduced = tier.hungerBonus;
+    }
+
+    await character.save();
+
+    // Aborta missões ativas na rua
+    const activeMissions = await CharacterActiveMission.findAll({
+      where: { characterId, status: 'IN_PROGRESS' }
+    });
+    for (const m of activeMissions) {
+      m.status = 'CANCELLED';
+      await m.save();
+    }
+
+    return {
+      success: true,
+      message: `Quarto reservado no ${tier.name}! Você está seguro contra os raios de sol.`,
+      hotelName: tier.name,
+      moneySpent: tier.cost,
+      willpowerHealed: healedWp,
+      hungerReduced,
+      character
+    };
+  }
+
+  /**
+   * Caçada de emergência de ratos nos esgotos.
+   */
+  static async huntSewerRats(characterId: string): Promise<{
+    success: boolean;
+    message: string;
+    hungerReduced: boolean;
+    diceRolls: number[];
+    successes: number;
+    character: CharacterVampire;
+  }> {
+    const character = await CharacterVampire.findByPk(characterId, {
+      include: [
+        { model: CharacterVampireAttribute, include: [{ model: DefinitionAttribute }] },
+        { model: CharacterVampireSkill, include: [{ model: DefinitionSkill }] }
+      ]
+    });
+    if (!character) throw new Error('Personagem não encontrado');
+
+    const getAttr = (name: string) => {
+      const found = (character as any).CharacterVampireAttributes?.find((a: any) => a.DefinitionAttribute?.name === name);
+      return found ? found.value : 1;
+    };
+    const getSkill = (name: string) => {
+      const found = (character as any).CharacterVampireSkills?.find((a: any) => a.DefinitionSkill?.name === name);
+      return found ? found.value : 0;
+    };
+
+    // Parada: Destreza + Furtividade
+    const pool = Math.max(2, getAttr('Destreza') + getSkill('Furtividade'));
+    const rolls: number[] = [];
+    let successes = 0;
+
+    for (let i = 0; i < pool; i++) {
+      const roll = Math.floor(Math.random() * 10) + 1;
+      rolls.push(roll);
+      if (roll >= 6) successes++;
+    }
+
+    let hungerReduced = false;
+    let msg = '';
+
+    if (successes > 0) {
+      // Regra V5: Sangue animal só sacia até Fome 4. Se Fome for 5, reduz para 4.
+      if (character.hunger >= 5) {
+        character.hunger = 4;
+        hungerReduced = true;
+        msg = 'Você capturou e drenou uma ninhada de ratos gordos no lodo. O sangue animal saciou o frenesi imediato (Fome reduziu para 4).';
+      } else {
+        msg = 'Você capturou alguns ratos, mas o sangue frio de roedores não é suficiente para saciar um vampiro com Fome menor que 5.';
+      }
+    } else {
+      msg = 'Os ratos fugiram pelas fendas dos canos antes que você pudesse pegá-los.';
+    }
+
+    character.isRestingInHaven = true;
+    character.emergencyHavenType = 'SEWER';
+    await character.save();
+
+    // Aborta missões ativas na rua
+    const activeMissions = await CharacterActiveMission.findAll({
+      where: { characterId, status: 'IN_PROGRESS' }
+    });
+    for (const m of activeMissions) {
+      m.status = 'CANCELLED';
+      await m.save();
+    }
+
+    return {
+      success: successes > 0,
+      message: msg,
+      hungerReduced,
+      diceRolls: rolls,
+      successes,
       character
     };
   }

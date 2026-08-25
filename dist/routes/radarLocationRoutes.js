@@ -8,4 +8,5 @@ router.get('/', RadarLocationController_1.getRadarLocations);
 router.get('/locations', RadarLocationController_1.getRadarLocations);
 router.post('/locations/:locationId/explore', authMiddleware_1.authMiddleware, RadarLocationController_1.exploreLocation);
 router.post('/locations/:locationId/discover', authMiddleware_1.authMiddleware, RadarLocationController_1.discoverLocation);
+router.post('/locations/:locationId/start-recon', RadarLocationController_1.startReconMission);
 exports.default = router;

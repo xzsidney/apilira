@@ -80,3 +80,31 @@ export const returnToHaven = async (req: Request, res: Response) => {
     return res.status(500).json({ error: error.message || 'Erro interno do servidor' });
   }
 };
+
+export const bookHotelRoom = async (req: Request, res: Response) => {
+  try {
+    const { characterId } = req.params;
+    const { stars } = req.body;
+    if (!characterId) return res.status(400).json({ error: 'characterId é obrigatório' });
+
+    const result = await NightCycleService.bookHotel(characterId, Number(stars) || 1);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    console.error('Erro ao reservar hotel:', error);
+    return res.status(500).json({ error: error.message || 'Erro interno do servidor' });
+  }
+};
+
+export const sewerRatHunt = async (req: Request, res: Response) => {
+  try {
+    const { characterId } = req.params;
+    if (!characterId) return res.status(400).json({ error: 'characterId é obrigatório' });
+
+    const result = await NightCycleService.huntSewerRats(characterId);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    console.error('Erro ao caçar nos esgotos:', error);
+    return res.status(500).json({ error: error.message || 'Erro interno do servidor' });
+  }
+};
+

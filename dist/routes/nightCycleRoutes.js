@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const NightCycleController_1 = require("../controllers/NightCycleController");
+const router = (0, express_1.Router)();
+router.get('/:characterId/status', NightCycleController_1.getNightStatus);
+router.post('/transit', NightCycleController_1.calculateTransit);
+router.post('/:characterId/awaken', NightCycleController_1.awakenNewNight);
+router.post('/:characterId/shelter', NightCycleController_1.takeShelter);
+router.post('/:characterId/sun-damage', NightCycleController_1.applySunDamage);
+router.post('/:characterId/return-haven', NightCycleController_1.returnToHaven);
+router.post('/:characterId/hotel/book', NightCycleController_1.bookHotelRoom);
+router.post('/:characterId/sewer/hunt', NightCycleController_1.sewerRatHunt);
+exports.default = router;

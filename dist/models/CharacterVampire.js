@@ -79,6 +79,12 @@ function initCharacterVampire(sequelize) {
         experienceSpent: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
         money: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
         isAwake: { type: sequelize_1.DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+        // Ciclo Noturno e Deslocamento (V5)
+        currentLocationId: { type: sequelize_1.DataTypes.STRING(36), allowNull: true },
+        nightMinutesSpent: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+        isRestingInHaven: { type: sequelize_1.DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+        emergencyHavenType: { type: sequelize_1.DataTypes.STRING(50), allowNull: false, defaultValue: 'NONE' },
+        lastNightCycleDate: { type: sequelize_1.DataTypes.DATE, allowNull: false, defaultValue: sequelize_1.DataTypes.NOW },
     }, {
         sequelize,
         tableName: 'CharacterVampire',
