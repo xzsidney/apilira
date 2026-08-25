@@ -123,7 +123,7 @@ CharacterKnownLocation.belongsTo(CharacterVampire, { foreignKey: 'characterId' }
 DefinitionLocation.hasMany(CharacterKnownLocation, { foreignKey: 'locationId' });
 CharacterKnownLocation.belongsTo(DefinitionLocation, { foreignKey: 'locationId' });
 
-CharacterVampire.hasOne(CharacterHaven, { foreignKey: 'characterId' });
+CharacterVampire.hasOne(CharacterHaven, { as: 'Haven', foreignKey: 'characterId' });
 CharacterHaven.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
 DefinitionLocation.hasMany(CharacterHaven, { foreignKey: 'locationId' });
 CharacterHaven.belongsTo(DefinitionLocation, { foreignKey: 'locationId' });
