@@ -22,7 +22,7 @@ CharacterKnownLocation.init({
         allowNull: false,
     },
     status: {
-        type: sequelize_1.DataTypes.ENUM('DISCOVERED', 'DOMINATED', 'HOSTILE'),
+        type: sequelize_1.DataTypes.STRING(20),
         defaultValue: 'DISCOVERED',
         allowNull: false,
     },

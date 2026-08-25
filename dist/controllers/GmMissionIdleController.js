@@ -54,7 +54,7 @@ const getMissionDetail = async (req, res) => {
 exports.getMissionDetail = getMissionDetail;
 const createMission = async (req, res) => {
     try {
-        const { title, description, durationMinutes, baseDifficulty, category, allowedRequirements, rewardsJson, penaltiesJson, maxCompletions } = req.body;
+        const { title, description, locationId, durationMinutes, baseDifficulty, category, allowedRequirements, rewardsJson, penaltiesJson, maxCompletions } = req.body;
         const userId = req.userId;
         if (!title || !description || durationMinutes === undefined) {
             return res.status(400).json({ error: "Título, descrição e duração em minutos são obrigatórios" });
@@ -62,6 +62,7 @@ const createMission = async (req, res) => {
         const mission = await models_1.DefinitionMissionIdle.create({
             title,
             description,
+            locationId: locationId || null,
             durationMinutes: parseInt(durationMinutes, 10) || 5,
             baseDifficulty: baseDifficulty ? parseInt(baseDifficulty, 10) : 6,
             category: category || "OPERATION",
@@ -82,7 +83,7 @@ exports.createMission = createMission;
 const updateMission = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, durationMinutes, baseDifficulty, category, allowedRequirements, rewardsJson, penaltiesJson, maxCompletions } = req.body;
+        const { title, description, locationId, durationMinutes, baseDifficulty, category, allowedRequirements, rewardsJson, penaltiesJson, maxCompletions } = req.body;
         const userId = req.userId;
         const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         const mission = isLeadMaster
@@ -93,6 +94,7 @@ const updateMission = async (req, res) => {
         }
         mission.title = title ?? mission.title;
         mission.description = description ?? mission.description;
+        mission.locationId = locationId !== undefined ? (locationId || null) : mission.locationId;
         mission.durationMinutes = durationMinutes !== undefined ? parseInt(durationMinutes, 10) : mission.durationMinutes;
         mission.baseDifficulty = baseDifficulty !== undefined ? parseInt(baseDifficulty, 10) : mission.baseDifficulty;
         mission.category = category ?? mission.category;

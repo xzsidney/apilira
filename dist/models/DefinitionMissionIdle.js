@@ -18,6 +18,10 @@ DefinitionMissionIdle.init({
         allowNull: true,
         references: { model: 'User', key: 'id' },
     },
+    locationId: {
+        type: sequelize_1.DataTypes.STRING(36),
+        allowNull: true,
+    },
     title: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,

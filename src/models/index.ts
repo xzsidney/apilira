@@ -137,6 +137,9 @@ CharacterActiveMission.belongsTo(DefinitionMissionIdle, { foreignKey: 'definitio
 DefinitionMissionIdle.hasMany(DefinitionMissionIdleAction, { as: 'Actions', foreignKey: 'missionId' });
 DefinitionMissionIdleAction.belongsTo(DefinitionMissionIdle, { foreignKey: 'missionId' });
 
+DefinitionLocation.hasMany(DefinitionMissionIdle, { as: 'missions', foreignKey: 'locationId' });
+DefinitionMissionIdle.belongsTo(DefinitionLocation, { foreignKey: 'locationId' });
+
 // --- Story Adventure Associations ---
 DefinitionStoryAdventure.hasMany(DefinitionStoryNode, { as: 'nodes', foreignKey: 'adventureId' });
 DefinitionStoryNode.belongsTo(DefinitionStoryAdventure, { foreignKey: 'adventureId' });

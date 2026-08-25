@@ -155,6 +155,8 @@ DefinitionMissionIdle_1.default.hasMany(CharacterActiveMission_1.default, { fore
 CharacterActiveMission_1.default.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'definitionMissionIdleId' });
 DefinitionMissionIdle_1.default.hasMany(DefinitionMissionIdleAction_1.DefinitionMissionIdleAction, { as: 'Actions', foreignKey: 'missionId' });
 DefinitionMissionIdleAction_1.DefinitionMissionIdleAction.belongsTo(DefinitionMissionIdle_1.default, { foreignKey: 'missionId' });
+DefinitionLocation_1.DefinitionLocation.hasMany(DefinitionMissionIdle_1.default, { as: 'missions', foreignKey: 'locationId' });
+DefinitionMissionIdle_1.default.belongsTo(DefinitionLocation_1.DefinitionLocation, { foreignKey: 'locationId' });
 // --- Story Adventure Associations ---
 DefinitionStoryAdventure_1.default.hasMany(DefinitionStoryNode_1.default, { as: 'nodes', foreignKey: 'adventureId' });
 DefinitionStoryNode_1.default.belongsTo(DefinitionStoryAdventure_1.default, { foreignKey: 'adventureId' });

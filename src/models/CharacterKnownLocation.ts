@@ -7,7 +7,7 @@ export interface CharacterKnownLocationAttributes {
   id: string;
   characterId: string;
   locationId: string;
-  status: 'DISCOVERED' | 'DOMINATED' | 'HOSTILE';
+  status: 'DISCOVERED' | 'RUMOR' | 'DOMINATED' | 'HOSTILE';
 }
 
 export interface CharacterKnownLocationCreationAttributes extends Optional<CharacterKnownLocationAttributes, 'id' | 'status'> {}
@@ -16,7 +16,7 @@ class CharacterKnownLocation extends Model<CharacterKnownLocationAttributes, Cha
   declare id: string;
   declare characterId: string;
   declare locationId: string;
-  declare status: 'DISCOVERED' | 'DOMINATED' | 'HOSTILE';
+  declare status: 'DISCOVERED' | 'RUMOR' | 'DOMINATED' | 'HOSTILE';
 }
 
 CharacterKnownLocation.init(
@@ -35,7 +35,7 @@ CharacterKnownLocation.init(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM('DISCOVERED', 'DOMINATED', 'HOSTILE'),
+      type: DataTypes.STRING(20),
       defaultValue: 'DISCOVERED',
       allowNull: false,
     },

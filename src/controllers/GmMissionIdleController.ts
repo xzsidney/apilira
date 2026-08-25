@@ -62,6 +62,7 @@ export const createMission = async (req: AuthenticatedRequest, res: Response) =>
     const { 
       title, 
       description, 
+      locationId,
       durationMinutes, 
       baseDifficulty, 
       category, 
@@ -79,6 +80,7 @@ export const createMission = async (req: AuthenticatedRequest, res: Response) =>
     const mission = await DefinitionMissionIdle.create({
       title,
       description,
+      locationId: locationId || null,
       durationMinutes: parseInt(durationMinutes, 10) || 5,
       baseDifficulty: baseDifficulty ? parseInt(baseDifficulty, 10) : 6,
       category: category || "OPERATION",
@@ -102,6 +104,7 @@ export const updateMission = async (req: AuthenticatedRequest, res: Response) =>
     const { 
       title, 
       description, 
+      locationId,
       durationMinutes, 
       baseDifficulty, 
       category, 
@@ -122,6 +125,7 @@ export const updateMission = async (req: AuthenticatedRequest, res: Response) =>
 
     mission.title = title ?? mission.title;
     mission.description = description ?? mission.description;
+    mission.locationId = locationId !== undefined ? (locationId || null) : mission.locationId;
     mission.durationMinutes = durationMinutes !== undefined ? parseInt(durationMinutes, 10) : mission.durationMinutes;
     mission.baseDifficulty = baseDifficulty !== undefined ? parseInt(baseDifficulty, 10) : mission.baseDifficulty;
     mission.category = category ?? mission.category;
