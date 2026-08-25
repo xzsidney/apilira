@@ -213,15 +213,6 @@ export class NightCycleService {
     character.emergencyHavenType = 'NONE';
     await character.save();
 
-    // Aborta missões ativas que o vampiro estivesse executando na rua
-    const activeMissions = await CharacterActiveMission.findAll({
-      where: { characterId, status: 'IN_PROGRESS' }
-    });
-    for (const m of activeMissions) {
-      m.status = 'CANCELLED';
-      await m.save();
-    }
-
     return this.getNightStatus(characterId);
   }
 
