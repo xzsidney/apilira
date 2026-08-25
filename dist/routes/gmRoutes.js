@@ -43,6 +43,13 @@ router.get("/status", async (req, res) => {
 });
 // ==================== AVENTURAS SOLO (LIVRO-JOGO) ====================
 const GmStoryController_1 = require("../controllers/GmStoryController");
+// Overview & Monitor
+router.get("/dashboard/overview", GmStoryController_1.getGmOverview);
+router.get("/players", GmStoryController_1.getPlayersOverview);
+// Compêndio Canônico
+router.get("/compendium/npcs", GmStoryController_1.getCompendiumNpcs);
+router.get("/compendium/locations", GmStoryController_1.getCompendiumLocations);
+router.get("/compendium/equipments", GmStoryController_1.getCompendiumEquipments);
 router.get("/story/adventures", GmStoryController_1.listAdventures);
 router.get("/story/adventures/:id", GmStoryController_1.getAdventureDetail);
 router.post("/story/adventures", GmStoryController_1.createAdventure);

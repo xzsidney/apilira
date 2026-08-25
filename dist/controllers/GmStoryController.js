@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteChoice = exports.updateChoice = exports.createChoice = exports.deleteNode = exports.updateNode = exports.createNode = exports.deleteAdventure = exports.updateAdventure = exports.createAdventure = exports.getAdventureDetail = exports.listAdventures = void 0;
+exports.getPlayersOverview = exports.getCompendiumEquipments = exports.getCompendiumLocations = exports.getCompendiumNpcs = exports.getGmOverview = exports.deleteChoice = exports.updateChoice = exports.createChoice = exports.deleteNode = exports.updateNode = exports.createNode = exports.deleteAdventure = exports.updateAdventure = exports.createAdventure = exports.getAdventureDetail = exports.listAdventures = void 0;
 const sequelize_1 = require("sequelize");
 const models_1 = require("../models");
 // ==================== AVENTURAS ====================
@@ -309,3 +309,119 @@ const deleteChoice = async (req, res) => {
     }
 };
 exports.deleteChoice = deleteChoice;
+// ==================== DASHBOARD OVERVIEW & COMPÊNDIO ====================
+const getGmOverview = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
+        const adventuresCount = await models_1.DefinitionStoryAdventure.count();
+        const nodesCount = await models_1.DefinitionStoryNode.count();
+        const missionsCount = await models_1.DefinitionMissionIdle.count();
+        const npcsCount = await models_1.CharacterVampire.count({ where: { isNpc: true } });
+        const playersCount = await models_1.CharacterVampire.count({ where: { isNpc: false } });
+        const locationsCount = await models_1.DefinitionLocation.count();
+        const equipmentsCount = await models_1.DefinitionEquipment.count();
+        const recentLogs = await models_1.CharacterActivityLog.findAll({
+            limit: 10,
+            order: [["createdAt", "DESC"]],
+            include: [
+                {
+                    model: models_1.CharacterVampire,
+                    as: "character",
+                    attributes: ["id", "name", "concept", "avatarUrl", "isNpc"]
+                }
+            ]
+        });
+        return res.status(200).json({
+            isLeadMaster,
+            stats: {
+                adventuresCount,
+                nodesCount,
+                missionsCount,
+                npcsCount,
+                playersCount,
+                locationsCount,
+                equipmentsCount
+            },
+            recentLogs
+        });
+    }
+    catch (error) {
+        console.error("Erro ao carregar overview do GM:", error);
+        return res.status(500).json({ error: "Erro interno no servidor" });
+    }
+};
+exports.getGmOverview = getGmOverview;
+const getCompendiumNpcs = async (req, res) => {
+    try {
+        const npcs = await models_1.CharacterVampire.findAll({
+            where: { isNpc: true },
+            include: [
+                {
+                    model: models_1.DefinitionClan,
+                    as: "clan",
+                    attributes: ["id", "name", "disciplines", "weakness"]
+                }
+            ],
+            order: [["name", "ASC"]]
+        });
+        return res.status(200).json(npcs);
+    }
+    catch (error) {
+        console.error("Erro ao buscar NPCs do compêndio:", error);
+        return res.status(500).json({ error: "Erro interno no servidor" });
+    }
+};
+exports.getCompendiumNpcs = getCompendiumNpcs;
+const getCompendiumLocations = async (req, res) => {
+    try {
+        const locations = await models_1.DefinitionLocation.findAll({
+            order: [["level", "ASC"], ["name", "ASC"]]
+        });
+        return res.status(200).json(locations);
+    }
+    catch (error) {
+        console.error("Erro ao buscar locais do compêndio:", error);
+        return res.status(500).json({ error: "Erro interno no servidor" });
+    }
+};
+exports.getCompendiumLocations = getCompendiumLocations;
+const getCompendiumEquipments = async (req, res) => {
+    try {
+        const equipments = await models_1.DefinitionEquipment.findAll({
+            order: [["type", "ASC"], ["name", "ASC"]]
+        });
+        return res.status(200).json(equipments);
+    }
+    catch (error) {
+        console.error("Erro ao buscar equipamentos do compêndio:", error);
+        return res.status(500).json({ error: "Erro interno no servidor" });
+    }
+};
+exports.getCompendiumEquipments = getCompendiumEquipments;
+const getPlayersOverview = async (req, res) => {
+    try {
+        const players = await models_1.CharacterVampire.findAll({
+            where: { isNpc: false },
+            include: [
+                {
+                    model: models_1.DefinitionClan,
+                    as: "clan",
+                    attributes: ["id", "name"]
+                },
+                {
+                    model: models_1.User,
+                    as: "user",
+                    attributes: ["id", "name", "email"]
+                }
+            ],
+            order: [["updatedAt", "DESC"]]
+        });
+        return res.status(200).json(players);
+    }
+    catch (error) {
+        console.error("Erro ao buscar jogadores para o GM:", error);
+        return res.status(500).json({ error: "Erro interno no servidor" });
+    }
+};
+exports.getPlayersOverview = getPlayersOverview;

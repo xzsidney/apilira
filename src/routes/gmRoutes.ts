@@ -56,8 +56,22 @@ import {
   deleteNode,
   createChoice,
   updateChoice,
-  deleteChoice
+  deleteChoice,
+  getGmOverview,
+  getPlayersOverview,
+  getCompendiumNpcs,
+  getCompendiumLocations,
+  getCompendiumEquipments
 } from "../controllers/GmStoryController";
+
+// Overview & Monitor
+router.get("/dashboard/overview", getGmOverview);
+router.get("/players", getPlayersOverview);
+
+// Compêndio Canônico
+router.get("/compendium/npcs", getCompendiumNpcs);
+router.get("/compendium/locations", getCompendiumLocations);
+router.get("/compendium/equipments", getCompendiumEquipments);
 
 router.get("/story/adventures", listAdventures);
 router.get("/story/adventures/:id", getAdventureDetail);

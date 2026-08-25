@@ -4,7 +4,14 @@ import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import { 
   DefinitionStoryAdventure, 
   DefinitionStoryNode, 
-  DefinitionStoryChoice 
+  DefinitionStoryChoice,
+  DefinitionMissionIdle,
+  CharacterVampire,
+  DefinitionLocation,
+  DefinitionEquipment,
+  CharacterActivityLog,
+  DefinitionClan,
+  User
 } from "../models";
 
 // ==================== AVENTURAS ====================
@@ -374,6 +381,121 @@ export const deleteChoice = async (req: AuthenticatedRequest, res: Response) => 
     return res.status(200).json({ message: "Escolha excluída com sucesso" });
   } catch (error) {
     console.error("Erro ao excluir escolha:", error);
+    return res.status(500).json({ error: "Erro interno no servidor" });
+  }
+};
+
+// ==================== DASHBOARD OVERVIEW & COMPÊNDIO ====================
+
+export const getGmOverview = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
+
+    const adventuresCount = await DefinitionStoryAdventure.count();
+    const nodesCount = await DefinitionStoryNode.count();
+    const missionsCount = await DefinitionMissionIdle.count();
+    const npcsCount = await CharacterVampire.count({ where: { isNpc: true } });
+    const playersCount = await CharacterVampire.count({ where: { isNpc: false } });
+    const locationsCount = await DefinitionLocation.count();
+    const equipmentsCount = await DefinitionEquipment.count();
+
+    const recentLogs = await CharacterActivityLog.findAll({
+      limit: 10,
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: CharacterVampire,
+          as: "character",
+          attributes: ["id", "name", "concept", "avatarUrl", "isNpc"]
+        }
+      ]
+    });
+
+    return res.status(200).json({
+      isLeadMaster,
+      stats: {
+        adventuresCount,
+        nodesCount,
+        missionsCount,
+        npcsCount,
+        playersCount,
+        locationsCount,
+        equipmentsCount
+      },
+      recentLogs
+    });
+  } catch (error) {
+    console.error("Erro ao carregar overview do GM:", error);
+    return res.status(500).json({ error: "Erro interno no servidor" });
+  }
+};
+
+export const getCompendiumNpcs = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const npcs = await CharacterVampire.findAll({
+      where: { isNpc: true },
+      include: [
+        {
+          model: DefinitionClan,
+          as: "clan",
+          attributes: ["id", "name", "disciplines", "weakness"]
+        }
+      ],
+      order: [["name", "ASC"]]
+    });
+    return res.status(200).json(npcs);
+  } catch (error) {
+    console.error("Erro ao buscar NPCs do compêndio:", error);
+    return res.status(500).json({ error: "Erro interno no servidor" });
+  }
+};
+
+export const getCompendiumLocations = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const locations = await DefinitionLocation.findAll({
+      order: [["level", "ASC"], ["name", "ASC"]]
+    });
+    return res.status(200).json(locations);
+  } catch (error) {
+    console.error("Erro ao buscar locais do compêndio:", error);
+    return res.status(500).json({ error: "Erro interno no servidor" });
+  }
+};
+
+export const getCompendiumEquipments = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const equipments = await DefinitionEquipment.findAll({
+      order: [["type", "ASC"], ["name", "ASC"]]
+    });
+    return res.status(200).json(equipments);
+  } catch (error) {
+    console.error("Erro ao buscar equipamentos do compêndio:", error);
+    return res.status(500).json({ error: "Erro interno no servidor" });
+  }
+};
+
+export const getPlayersOverview = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const players = await CharacterVampire.findAll({
+      where: { isNpc: false },
+      include: [
+        {
+          model: DefinitionClan,
+          as: "clan",
+          attributes: ["id", "name"]
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "name", "email"]
+        }
+      ],
+      order: [["updatedAt", "DESC"]]
+    });
+    return res.status(200).json(players);
+  } catch (error) {
+    console.error("Erro ao buscar jogadores para o GM:", error);
     return res.status(500).json({ error: "Erro interno no servidor" });
   }
 };
