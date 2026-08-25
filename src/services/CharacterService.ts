@@ -20,6 +20,7 @@ export interface ImpactData {
   stains?: number;
   money?: number;
   equipmentDropId?: string;
+  lostEquipmentId?: string;
   attributeBonus?: { name: string; value: number };
   skillBonus?: { name: string; value: number };
 }
@@ -138,6 +139,21 @@ export class CharacterService {
         if (!created) {
           charEquip.quantity += 1;
           await charEquip.save();
+        }
+      }
+    }
+
+    // PERDA / APREENSÃO DE EQUIPAMENTO
+    if (impact.lostEquipmentId) {
+      const charEquip = await CharacterVampireEquipment.findOne({
+        where: { characterVampireId: character.id, definitionEquipmentId: impact.lostEquipmentId }
+      });
+      if (charEquip) {
+        if (charEquip.quantity > 1) {
+          charEquip.quantity -= 1;
+          await charEquip.save();
+        } else {
+          await charEquip.destroy();
         }
       }
     }

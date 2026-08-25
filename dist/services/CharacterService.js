@@ -122,6 +122,21 @@ class CharacterService {
                 }
             }
         }
+        // PERDA / APREENSÃO DE EQUIPAMENTO
+        if (impact.lostEquipmentId) {
+            const charEquip = await models_1.CharacterVampireEquipment.findOne({
+                where: { characterVampireId: character.id, definitionEquipmentId: impact.lostEquipmentId }
+            });
+            if (charEquip) {
+                if (charEquip.quantity > 1) {
+                    charEquip.quantity -= 1;
+                    await charEquip.save();
+                }
+                else {
+                    await charEquip.destroy();
+                }
+            }
+        }
         return character;
     }
     /**

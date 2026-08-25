@@ -355,10 +355,22 @@ const resolveMission = async (req, res) => {
                 impact.humanity = Number(penalties.humanity);
             if (penalties.stains)
                 impact.stains = Number(penalties.stains);
+            if (penalties.money)
+                impact.money = -Math.abs(Number(penalties.money));
+            if (penalties.lostEquipmentId)
+                impact.lostEquipmentId = penalties.lostEquipmentId;
             await CharacterService_1.CharacterService.applyImpact(character.id, impact);
             await character.reload();
             if (penalties.hunger)
                 report.finalChanges.push(`🩸 A agitação da Besta aumentou a Fome em +${penalties.hunger} (Atual: ${character.hunger}/5).`);
+            if (penalties.money)
+                report.finalChanges.push(`💸 Teve R$ ${penalties.money} confiscados ou perdidos no recuo.`);
+            if (penalties.lostEquipmentId) {
+                const lostItem = await models_1.DefinitionEquipment.findByPk(penalties.lostEquipmentId);
+                if (lostItem) {
+                    report.finalChanges.push(`⚠️ Perdeu o item do inventário: ${lostItem.name} (${lostItem.type})!`);
+                }
+            }
             if (penalties.healthDamageSuperficial)
                 report.finalChanges.push(`💔 Sofreu ${penalties.healthDamageSuperficial} de dano superficial à Vitalidade.`);
             if (penalties.healthDamageAggravated)
