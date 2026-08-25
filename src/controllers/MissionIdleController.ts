@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { DefinitionMissionIdle, CharacterActiveMission, CharacterVampire, DefinitionMissionIdleAction, CharacterVampireAttribute, DefinitionAttribute, CharacterVampireSkill, DefinitionSkill, DefinitionEquipment } from '../models';
+import { DefinitionMissionIdle, CharacterActiveMission, CharacterVampire, DefinitionMissionIdleAction, CharacterVampireAttribute, DefinitionAttribute, CharacterVampireSkill, DefinitionSkill, DefinitionEquipment, CharacterKnownLocation } from '../models';
 import { Op } from 'sequelize';
 import { CharacterService } from '../services/CharacterService';
 import { NightCycleService } from '../services/NightCycleService';
@@ -378,6 +378,24 @@ export const resolveMission = async (req: Request, res: Response) => {
       if (rewards.attributeBonus?.name) report.finalChanges.push(`💪 +${rewards.attributeBonus.value} em ${rewards.attributeBonus.name}!`);
       if (rewards.skillBonus?.name) report.finalChanges.push(`🎯 +${rewards.skillBonus.value} em ${rewards.skillBonus.name}!`);
       
+      // Se for missão de RECONHECIMENTO e teve sucesso, promove o distrito para DISCOVERED
+      if (missionDef.category === 'RECON' && missionDef.locationId) {
+        let known = await CharacterKnownLocation.findOne({
+          where: { characterId: character.id, locationId: missionDef.locationId }
+        });
+        if (known) {
+          known.status = 'DISCOVERED';
+          await known.save();
+        } else {
+          await CharacterKnownLocation.create({
+            characterId: character.id,
+            locationId: missionDef.locationId,
+            status: 'DISCOVERED'
+          });
+        }
+        report.finalChanges.push(`🗺️ O distrito foi totalmente mapeado! Dados estratégicos e incursões desbloqueadas.`);
+      }
+
       activeMission.status = 'COMPLETED';
       await CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: true });
     } else {
@@ -408,6 +426,10 @@ export const resolveMission = async (req: Request, res: Response) => {
       if (penalties.willpowerDamageSuperficial) report.finalChanges.push(`🧠 Sofreu ${penalties.willpowerDamageSuperficial} de dano superficial à Força de Vontade.`);
       if (penalties.willpowerDamageAggravated) report.finalChanges.push(`💥 Sofreu ${penalties.willpowerDamageAggravated} de dano agravado à Força de Vontade.`);
       if (penalties.stains) report.finalChanges.push(`🥀 Recebeu +${penalties.stains} Mancha(s) na Humanidade.`);
+
+      if (missionDef.category === 'RECON') {
+        report.finalChanges.push(`⚠️ A infiltração nas sombras falhou. O distrito permanece oculto na névoa.`);
+      }
 
       activeMission.status = 'FAILED';
       await CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: false });

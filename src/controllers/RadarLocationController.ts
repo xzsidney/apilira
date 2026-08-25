@@ -1,6 +1,18 @@
 import { Request, Response } from 'express';
-import { DefinitionLocation, CharacterKnownLocation, DefinitionMissionIdle, DefinitionMissionIdleAction, CharacterVampire } from '../models/index';
+import { 
+  DefinitionLocation, 
+  CharacterKnownLocation, 
+  DefinitionMissionIdle, 
+  DefinitionMissionIdleAction, 
+  CharacterVampire,
+  CharacterActiveMission,
+  CharacterVampireAttribute,
+  CharacterVampireSkill,
+  DefinitionAttribute,
+  DefinitionSkill
+} from '../models/index';
 import { Op } from 'sequelize';
+import { NightCycleService } from '../services/NightCycleService';
 
 export const getRadarLocations = async (req: Request, res: Response) => {
   try {
@@ -211,5 +223,200 @@ export const discoverLocation = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erro ao registrar pista de local:', error);
     return res.status(500).json({ error: 'Erro interno ao registrar pista' });
+  }
+};
+
+export const startReconMission = async (req: Request, res: Response) => {
+  try {
+    const { locationId } = req.params;
+    const { characterId } = req.body;
+
+    if (!locationId || !characterId) {
+      return res.status(400).json({ error: 'locationId e characterId são obrigatórios' });
+    }
+
+    const character = await CharacterVampire.findByPk(characterId, {
+      include: [
+        { model: CharacterVampireAttribute, include: [{ model: DefinitionAttribute }] },
+        { model: CharacterVampireSkill, include: [{ model: DefinitionSkill }] }
+      ]
+    });
+    if (!character) return res.status(404).json({ error: 'Personagem não encontrado' });
+
+    // Verifica se já tem missão ativa
+    const existingActive = await CharacterActiveMission.findOne({
+      where: { characterId, status: 'IN_PROGRESS' }
+    });
+    if (existingActive) {
+      return res.status(400).json({ error: 'O vampiro já está em uma operação em andamento.' });
+    }
+
+    const location = await DefinitionLocation.findByPk(locationId);
+    if (!location) return res.status(404).json({ error: 'Distrito não encontrado' });
+
+    // Busca ou cria a missão de RECON para este distrito
+    let reconMission = await DefinitionMissionIdle.findOne({
+      where: { locationId: location.id, category: 'RECON' },
+      include: [{ model: DefinitionMissionIdleAction, as: 'Actions' }]
+    });
+
+    if (!reconMission) {
+      reconMission = await DefinitionMissionIdle.create({
+        title: `Reconhecimento Urbano: ${location.name}`,
+        description: `Expedição tática de infiltração, vigilância e mapeamento nas sombras do distrito de ${location.name}.`,
+        category: 'RECON',
+        durationMinutes: 5,
+        baseDifficulty: 8,
+        locationId: location.id,
+        rewardsJson: JSON.stringify({ exp: 5 }),
+        penaltiesJson: JSON.stringify({ hunger: 1 })
+      } as any);
+
+      // Cria as 3 ações sequenciais do V5
+      await DefinitionMissionIdleAction.bulkCreate([
+        {
+          definitionMissionIdleId: reconMission.id,
+          stepOrder: 1,
+          name: 'Infiltração & Rotas de Fuga',
+          attributeReq: 'Percepção',
+          skillReq: 'Sobrevivência',
+          difficulty: 7,
+          successText: 'Você identificou becos escuros e rotas seguras longe de holofotes e patrulhas civis.',
+          failureText: 'Patrulhas e transeuntes forçaram você a se esconder em um beco sem saída, perdendo preciosas horas de escuridão.'
+        },
+        {
+          definitionMissionIdleId: reconMission.id,
+          stepOrder: 2,
+          name: 'Mapeamento de Facções & Poder',
+          attributeReq: 'Raciocínio',
+          skillReq: 'Investigação',
+          difficulty: 8,
+          successText: 'Você interceptou transmissões e descobriu a presença de membros e a facção que controla o setor.',
+          failureText: 'As pistas se misturaram em um labirinto de desinformação orquestrado pela Camarilla.'
+        },
+        {
+          definitionMissionIdleId: reconMission.id,
+          stepOrder: 3,
+          name: 'Vigilância das Sombras & Retirada',
+          attributeReq: 'Destreza',
+          skillReq: 'Furtividade',
+          difficulty: 7,
+          successText: 'Você registrou os pontos críticos e recuou para as sombras sem deixar qualquer rastro.',
+          failureText: 'Câmeras de segurança e cães de guarda detectaram sua presença, forçando um recuo desajeitado e exaustivo.'
+        }
+      ]);
+
+      reconMission = await DefinitionMissionIdle.findByPk(reconMission.id, {
+        include: [{ model: DefinitionMissionIdleAction, as: 'Actions' }]
+      });
+    }
+
+    let actions = (reconMission as any).Actions || [];
+    actions.sort((a: any, b: any) => a.stepOrder - b.stepOrder);
+
+    const getAttrVal = (name: string) => {
+      const found = (character as any).CharacterVampireAttributes?.find((a: any) => a.DefinitionAttribute?.name === name);
+      return found ? found.value : 1;
+    };
+    const getSkillVal = (name: string) => {
+      const found = (character as any).CharacterVampireSkills?.find((a: any) => a.DefinitionSkill?.name === name);
+      return found ? found.value : 0;
+    };
+
+    const totalActions = actions.length || 1;
+    const stepDurationMinutes = 5 / totalActions;
+
+    // Trânsito + 300 minutos noturnos (5 horas de noite de jogo)
+    const transit = await NightCycleService.calculateTransit(character.currentLocationId || null, location.id);
+    const missionInGameMinutes = 300; // 5 horas de jogo
+
+    const nightAdvance = await NightCycleService.advanceNightTime(
+      character.id,
+      transit.transitMinutesInGame,
+      missionInGameMinutes,
+      location.id
+    );
+
+    if (!reconMission) {
+      return res.status(500).json({ error: 'Erro ao criar missão de reconhecimento' });
+    }
+
+    const report: any = {
+      title: (reconMission as any).title,
+      isSuccess: true,
+      transitMinutes: transit.transitMinutesInGame,
+      missionInGameMinutes,
+      departureLocation: transit.fromLocationName,
+      targetLocation: transit.toLocationName,
+      isSunHazardTriggered: nightAdvance.isSunHazardTriggered,
+      steps: [],
+      finalChanges: []
+    };
+
+    let missionFailed = false;
+    let failedAtStep = 0;
+
+    for (let i = 0; i < actions.length; i++) {
+      const action = actions[i];
+      const attrVal = action.attributeReq ? getAttrVal(action.attributeReq) : 1;
+      const skillVal = action.skillReq ? getSkillVal(action.skillReq) : 0;
+      const numDice = attrVal + skillVal;
+      const difficulty = action.difficulty || 8;
+      let successes = 0;
+      const diceRolls = [];
+
+      for (let d = 0; d < numDice; d++) {
+        const roll = Math.floor(Math.random() * 10) + 1;
+        diceRolls.push(roll);
+        if (roll >= difficulty) successes++;
+        if (roll === 10) successes++;
+      }
+
+      const passed = successes > 0;
+      report.steps.push({
+        stepOrder: i + 1,
+        actionName: action.name,
+        pool: `${action.attributeReq} + ${action.skillReq} (${numDice} dados)`,
+        rolls: diceRolls,
+        successes,
+        passed,
+        narrative: passed ? action.successText : action.failureText
+      });
+
+      if (!passed) {
+        missionFailed = true;
+        failedAtStep = i + 1;
+        report.isSuccess = false;
+        break;
+      }
+    }
+
+    const startedAt = new Date();
+    const expiresAt = new Date(startedAt);
+    if (missionFailed) {
+      expiresAt.setMinutes(expiresAt.getMinutes() + (failedAtStep * stepDurationMinutes));
+    } else {
+      expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+    }
+
+    const newActiveMission = await CharacterActiveMission.create({
+      characterId,
+      definitionMissionIdleId: reconMission.id,
+      startedAt,
+      expiresAt,
+      status: 'IN_PROGRESS',
+      stepDurationMinutes,
+      reportJson: JSON.stringify(report)
+    } as any);
+
+    return res.status(201).json({
+      success: true,
+      message: `Missão de Reconhecimento iniciada para ${location.name}!`,
+      activeMission: newActiveMission
+    });
+
+  } catch (error) {
+    console.error('Erro ao iniciar missão de reconhecimento:', error);
+    return res.status(500).json({ error: 'Erro interno ao iniciar reconhecimento' });
   }
 };
