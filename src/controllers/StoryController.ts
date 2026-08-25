@@ -36,20 +36,30 @@ export const getCharacterProgress = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Aventura não encontrada' });
     }
 
-    // Se a aventura não tiver firstNodeId explicitamente salvo, busca a primeira cena criada e salva
-    if (!adventure.firstNodeId) {
-      const firstNode = await DefinitionStoryNode.findOne({
+    // 1. Garante que temos um nó inicial real e existente no banco
+    let startingNode = adventure.firstNodeId 
+      ? await DefinitionStoryNode.findByPk(adventure.firstNodeId, {
+          include: [{ model: DefinitionStoryChoice, as: 'choices' }]
+        })
+      : null;
+
+    // Se o firstNodeId for nulo ou apontar para um nó que foi deletado, busca o primeiro nó válido da crônica
+    if (!startingNode) {
+      startingNode = await DefinitionStoryNode.findOne({
         where: { adventureId },
+        include: [{ model: DefinitionStoryChoice, as: 'choices' }],
         order: [['createdAt', 'ASC']]
       });
-      if (firstNode) {
-        adventure.firstNodeId = firstNode.id;
+
+      if (startingNode) {
+        adventure.firstNodeId = startingNode.id;
         await adventure.save();
       } else {
-        return res.status(400).json({ error: 'Esta crônica ainda não possui cenas cadastradas pelo Mestre' });
+        return res.status(400).json({ error: 'Esta crônica ainda não possui cenas cadastradas pelo Mestre.' });
       }
     }
 
+    // 2. Busca ou cria o progresso do personagem
     let progress = await CharacterStoryProgress.findOne({
       where: { characterId, adventureId }
     });
@@ -66,30 +76,22 @@ export const getCharacterProgress = async (req: Request, res: Response) => {
       progress = await CharacterStoryProgress.create({
         characterId,
         adventureId,
-        currentNodeId: adventure.firstNodeId
+        currentNodeId: startingNode.id
       } as any);
     }
 
-    // Busca o nó atual
+    // 3. Busca o nó atual do jogador
     let currentNode = progress.currentNodeId 
       ? await DefinitionStoryNode.findByPk(progress.currentNodeId, {
           include: [{ model: DefinitionStoryChoice, as: 'choices' }]
         })
       : null;
 
-    // Se o nó onde o personagem parou não existe mais, reseta para o nó inicial da aventura
-    if (!currentNode && adventure.firstNodeId) {
-      currentNode = await DefinitionStoryNode.findByPk(adventure.firstNodeId, {
-        include: [{ model: DefinitionStoryChoice, as: 'choices' }]
-      });
-      if (currentNode) {
-        progress.currentNodeId = adventure.firstNodeId;
-        await progress.save();
-      }
-    }
-
+    // Se o nó onde o personagem parou não existe mais, reseta automaticamente para o nó inicial válido
     if (!currentNode) {
-      return res.status(400).json({ error: 'Cena da história não encontrada para esta crônica' });
+      currentNode = startingNode;
+      progress.currentNodeId = startingNode.id;
+      await progress.save();
     }
 
     return res.status(200).json({
@@ -115,18 +117,34 @@ export const resetAdventure = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Adventure not found' });
     }
 
+    // Valida nó inicial
+    let startingNodeId = adventure.firstNodeId;
+    const exists = startingNodeId ? await DefinitionStoryNode.findByPk(startingNodeId) : null;
+    if (!exists) {
+      const first = await DefinitionStoryNode.findOne({ where: { adventureId }, order: [['createdAt', 'ASC']] });
+      if (first) {
+        startingNodeId = first.id;
+        adventure.firstNodeId = first.id;
+        await adventure.save();
+      }
+    }
+
+    if (!startingNodeId) {
+      return res.status(400).json({ error: 'Crônica não possui cenas disponíveis para reinício' });
+    }
+
     let progress = await CharacterStoryProgress.findOne({
       where: { characterId, adventureId }
     });
 
     if (progress) {
-      progress.currentNodeId = adventure.firstNodeId!;
+      progress.currentNodeId = startingNodeId;
       await progress.save();
     } else {
       progress = await CharacterStoryProgress.create({
         characterId,
         adventureId,
-        currentNodeId: adventure.firstNodeId!
+        currentNodeId: startingNodeId
       } as any);
     }
 
