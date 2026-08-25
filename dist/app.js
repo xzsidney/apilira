@@ -65,7 +65,7 @@ app.use("/api/definition-blood-potencies", definitionBloodPotencyRoutes_1.defaul
 app.use("/api/character-vampires", characterVampireRoutes_1.default);
 app.use("/api/creation-packages", creationPackageRoutes_1.default);
 app.use("/api/upload", uploadRoutes_1.default);
-app.use("/api/radar/locations", radarLocationRoutes_1.default);
+app.use("/api/radar", radarLocationRoutes_1.default);
 app.use("/api/missions-idle", missionIdleRoutes_1.default);
 app.use("/api/story", storyRoutes_1.default);
 // Base routes

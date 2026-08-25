@@ -20,16 +20,16 @@ const getRadarLocations = async (req, res) => {
             // Se for a primeira vez (neófito sem mapa), inicializa o mapa inicial com descoberta progressiva
             if (knownRecords.length === 0 && allDistricts.length > 0) {
                 const initialDiscoveries = [];
-                // Primeiros 4 distritos -> DISCOVERED (Explorado)
-                for (let i = 0; i < Math.min(4, allDistricts.length); i++) {
+                // Primeiros 8 distritos -> DISCOVERED (Explorado)
+                for (let i = 0; i < Math.min(8, allDistricts.length); i++) {
                     initialDiscoveries.push({
                         characterId: String(characterId),
                         locationId: allDistricts[i].id,
                         status: 'DISCOVERED'
                     });
                 }
-                // Próximos 4 distritos -> RUMOR (Boato)
-                for (let i = 4; i < Math.min(8, allDistricts.length); i++) {
+                // Próximos 8 distritos -> RUMOR (Boato)
+                for (let i = 8; i < Math.min(16, allDistricts.length); i++) {
                     initialDiscoveries.push({
                         characterId: String(characterId),
                         locationId: allDistricts[i].id,

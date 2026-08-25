@@ -5,6 +5,7 @@ const RadarLocationController_1 = require("../controllers/RadarLocationControlle
 const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = (0, express_1.Router)();
 router.get('/', RadarLocationController_1.getRadarLocations);
+router.get('/locations', RadarLocationController_1.getRadarLocations);
 router.post('/locations/:locationId/explore', authMiddleware_1.authMiddleware, RadarLocationController_1.exploreLocation);
 router.post('/locations/:locationId/discover', authMiddleware_1.authMiddleware, RadarLocationController_1.discoverLocation);
 exports.default = router;
