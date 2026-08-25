@@ -145,21 +145,34 @@ export class NightCycleService {
     const character = await CharacterVampire.findByPk(characterId);
     if (!character) throw new Error('Personagem não encontrado');
 
-    // Se não tiver local atual definido, busca o refúgio do personagem ou padrão Sé
+    // Se não tiver refúgio registrado na tabela character_havens, cria o refúgio inicial
     let havenLocation = null;
-    const haven = await CharacterHaven.findOne({ where: { characterId } });
-    if (haven) {
+    let haven = await CharacterHaven.findOne({ where: { characterId } });
+    if (!haven) {
+      // Busca bairro padrão (Belenzinho, Sé ou primeiro level 3)
+      let defaultLoc = await DefinitionLocation.findOne({ where: { name: 'Belenzinho', level: 3 } });
+      if (!defaultLoc) {
+        defaultLoc = await DefinitionLocation.findOne({ where: { level: 3 } });
+      }
+      if (defaultLoc) {
+        haven = await CharacterHaven.create({
+          characterId,
+          locationId: defaultLoc.id,
+          name: 'Refúgio Pessoal Seguro',
+          securityLevel: 1,
+          luxuryLevel: 1
+        } as any);
+        havenLocation = defaultLoc;
+      }
+    } else {
       havenLocation = await DefinitionLocation.findByPk(haven.locationId);
     }
 
     if (!character.currentLocationId) {
       if (havenLocation) {
         character.currentLocationId = havenLocation.id;
-      } else {
-        // Padrão: primeiro bairro encontrado
-        const defaultLoc = await DefinitionLocation.findOne({ where: { level: 3 } });
-        if (defaultLoc) character.currentLocationId = defaultLoc.id;
       }
+      character.isRestingInHaven = true;
       await character.save();
     }
 
