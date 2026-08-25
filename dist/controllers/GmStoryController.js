@@ -62,13 +62,13 @@ const createAdventure = async (req, res) => {
     try {
         const { title, description, maxCompletions } = req.body;
         const userId = req.userId;
-        if (!title || !description) {
-            return res.status(400).json({ error: "Título e descrição são obrigatórios" });
+        if (!title) {
+            return res.status(400).json({ error: "Título da crônica é obrigatório" });
         }
         const adventure = await models_1.DefinitionStoryAdventure.create({
             title,
-            description,
-            maxCompletions: maxCompletions ? parseInt(maxCompletions, 10) : null,
+            description: description || "",
+            maxCompletions: maxCompletions !== undefined && maxCompletions !== "" && maxCompletions !== null ? parseInt(maxCompletions, 10) : null,
             userId
         });
         return res.status(201).json(adventure);
@@ -84,14 +84,17 @@ const updateAdventure = async (req, res) => {
         const { id } = req.params;
         const { title, description, firstNodeId, maxCompletions } = req.body;
         const userId = req.userId;
-        const adventure = await models_1.DefinitionStoryAdventure.findOne({ where: { id, userId } });
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
+        const adventure = isLeadMaster
+            ? await models_1.DefinitionStoryAdventure.findByPk(id)
+            : await models_1.DefinitionStoryAdventure.findOne({ where: { id, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!adventure) {
             return res.status(404).json({ error: "Aventura não encontrada" });
         }
         adventure.title = title ?? adventure.title;
         adventure.description = description ?? adventure.description;
         adventure.firstNodeId = firstNodeId !== undefined ? firstNodeId : adventure.firstNodeId;
-        adventure.maxCompletions = maxCompletions !== undefined ? (maxCompletions ? parseInt(maxCompletions, 10) : null) : adventure.maxCompletions;
+        adventure.maxCompletions = maxCompletions !== undefined ? (maxCompletions !== "" && maxCompletions !== null ? parseInt(maxCompletions, 10) : null) : adventure.maxCompletions;
         await adventure.save();
         return res.status(200).json(adventure);
     }
@@ -105,7 +108,10 @@ const deleteAdventure = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.userId;
-        const adventure = await models_1.DefinitionStoryAdventure.findOne({ where: { id, userId } });
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
+        const adventure = isLeadMaster
+            ? await models_1.DefinitionStoryAdventure.findByPk(id)
+            : await models_1.DefinitionStoryAdventure.findOne({ where: { id, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!adventure) {
             return res.status(404).json({ error: "Aventura não encontrada" });
         }
@@ -132,12 +138,15 @@ const createNode = async (req, res) => {
     try {
         const { adventureId, narrativeText, speakerName, backgroundImageUrl, leftCharacterImageUrl, rightCharacterImageUrl, isEnding } = req.body;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         if (!adventureId || !narrativeText) {
             return res.status(400).json({ error: "ID da aventura e texto narrativo são obrigatórios" });
         }
-        const adventure = await models_1.DefinitionStoryAdventure.findOne({ where: { id: adventureId, userId } });
+        const adventure = isLeadMaster
+            ? await models_1.DefinitionStoryAdventure.findByPk(adventureId)
+            : await models_1.DefinitionStoryAdventure.findOne({ where: { id: adventureId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!adventure) {
-            return res.status(404).json({ error: "Aventura não encontrada ou não pertence a este narrador" });
+            return res.status(403).json({ error: "Permissão negada para esta aventura" });
         }
         const node = await models_1.DefinitionStoryNode.create({
             adventureId,
@@ -166,11 +175,14 @@ const updateNode = async (req, res) => {
         const { id } = req.params;
         const { narrativeText, speakerName, backgroundImageUrl, leftCharacterImageUrl, rightCharacterImageUrl, isEnding } = req.body;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         const node = await models_1.DefinitionStoryNode.findByPk(id);
         if (!node) {
             return res.status(404).json({ error: "Cena/Nó não encontrado" });
         }
-        const adventure = await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+        const adventure = isLeadMaster
+            ? await models_1.DefinitionStoryAdventure.findByPk(node.adventureId)
+            : await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!adventure) {
             return res.status(403).json({ error: "Permissão negada para editar esta cena" });
         }
@@ -193,11 +205,14 @@ const deleteNode = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         const node = await models_1.DefinitionStoryNode.findByPk(id);
         if (!node) {
             return res.status(404).json({ error: "Cena/Nó não encontrado" });
         }
-        const adventure = await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+        const adventure = isLeadMaster
+            ? await models_1.DefinitionStoryAdventure.findByPk(node.adventureId)
+            : await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!adventure) {
             return res.status(403).json({ error: "Permissão negada para excluir esta cena" });
         }
@@ -222,6 +237,7 @@ const createChoice = async (req, res) => {
     try {
         const { nodeId, choiceText, attributeReq, skillReq, difficulty, successNodeId, failureNodeId, customStyle } = req.body;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         if (!nodeId || !choiceText) {
             return res.status(400).json({ error: "ID do nó e texto da escolha são obrigatórios" });
         }
@@ -229,7 +245,9 @@ const createChoice = async (req, res) => {
         if (!node) {
             return res.status(404).json({ error: "Cena/Nó pai não encontrado" });
         }
-        const adventure = await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+        const adventure = isLeadMaster
+            ? await models_1.DefinitionStoryAdventure.findByPk(node.adventureId)
+            : await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!adventure) {
             return res.status(403).json({ error: "Permissão negada para adicionar escolhas nesta cena" });
         }
@@ -256,6 +274,7 @@ const updateChoice = async (req, res) => {
         const { id } = req.params;
         const { choiceText, attributeReq, skillReq, difficulty, successNodeId, failureNodeId, customStyle } = req.body;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         const choice = await models_1.DefinitionStoryChoice.findByPk(id);
         if (!choice) {
             return res.status(404).json({ error: "Escolha não encontrada" });
@@ -264,7 +283,9 @@ const updateChoice = async (req, res) => {
         if (!node) {
             return res.status(404).json({ error: "Nó pai não encontrado" });
         }
-        const adventure = await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+        const adventure = isLeadMaster
+            ? await models_1.DefinitionStoryAdventure.findByPk(node.adventureId)
+            : await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!adventure) {
             return res.status(403).json({ error: "Permissão negada para editar esta escolha" });
         }
@@ -288,6 +309,7 @@ const deleteChoice = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         const choice = await models_1.DefinitionStoryChoice.findByPk(id);
         if (!choice) {
             return res.status(404).json({ error: "Escolha não encontrada" });
@@ -296,7 +318,9 @@ const deleteChoice = async (req, res) => {
         if (!node) {
             return res.status(404).json({ error: "Nó pai não encontrado" });
         }
-        const adventure = await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+        const adventure = isLeadMaster
+            ? await models_1.DefinitionStoryAdventure.findByPk(node.adventureId)
+            : await models_1.DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!adventure) {
             return res.status(403).json({ error: "Permissão negada para excluir esta escolha" });
         }

@@ -111,8 +111,11 @@ export const updateMission = async (req: AuthenticatedRequest, res: Response) =>
       maxCompletions 
     } = req.body;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
-    const mission = await DefinitionMissionIdle.findOne({ where: { id, userId } });
+    const mission = isLeadMaster
+      ? await DefinitionMissionIdle.findByPk(id)
+      : await DefinitionMissionIdle.findOne({ where: { id, [Op.or]: [{ userId }, { userId: null }] } as any });
     if (!mission) {
       return res.status(404).json({ error: "Missão não encontrada" });
     }
@@ -139,8 +142,11 @@ export const deleteMission = async (req: AuthenticatedRequest, res: Response) =>
   try {
     const { id } = req.params;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
-    const mission = await DefinitionMissionIdle.findOne({ where: { id, userId } });
+    const mission = isLeadMaster
+      ? await DefinitionMissionIdle.findByPk(id)
+      : await DefinitionMissionIdle.findOne({ where: { id, [Op.or]: [{ userId }, { userId: null }] } as any });
     if (!mission) {
       return res.status(404).json({ error: "Missão não encontrada" });
     }
@@ -172,12 +178,15 @@ export const createAction = async (req: AuthenticatedRequest, res: Response) => 
       failureText 
     } = req.body;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     if (!name || !description || !successText || !failureText) {
       return res.status(400).json({ error: "Nome, descrição e textos de desfecho são obrigatórios" });
     }
 
-    const mission = await DefinitionMissionIdle.findOne({ where: { id: missionId, userId } });
+    const mission = isLeadMaster
+      ? await DefinitionMissionIdle.findByPk(missionId)
+      : await DefinitionMissionIdle.findOne({ where: { id: missionId, [Op.or]: [{ userId }, { userId: null }] } as any });
     if (!mission) {
       return res.status(404).json({ error: "Missão não encontrada ou não pertence a este narrador" });
     }
@@ -222,13 +231,16 @@ export const updateAction = async (req: AuthenticatedRequest, res: Response) => 
       failureText 
     } = req.body;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     const action = await DefinitionMissionIdleAction.findByPk(actionId);
     if (!action) {
       return res.status(404).json({ error: "Etapa não encontrada" });
     }
 
-    const mission = await DefinitionMissionIdle.findOne({ where: { id: (action as any).missionId, userId } });
+    const mission = isLeadMaster
+      ? await DefinitionMissionIdle.findByPk((action as any).missionId)
+      : await DefinitionMissionIdle.findOne({ where: { id: (action as any).missionId, [Op.or]: [{ userId }, { userId: null }] } as any });
     if (!mission) {
       return res.status(403).json({ error: "Permissão negada para editar esta etapa" });
     }
@@ -254,13 +266,16 @@ export const deleteAction = async (req: AuthenticatedRequest, res: Response) => 
   try {
     const { actionId } = req.params;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     const action = await DefinitionMissionIdleAction.findByPk(actionId);
     if (!action) {
       return res.status(404).json({ error: "Etapa não encontrada" });
     }
 
-    const mission = await DefinitionMissionIdle.findOne({ where: { id: (action as any).missionId, userId } });
+    const mission = isLeadMaster
+      ? await DefinitionMissionIdle.findByPk((action as any).missionId)
+      : await DefinitionMissionIdle.findOne({ where: { id: (action as any).missionId, [Op.or]: [{ userId }, { userId: null }] } as any });
     if (!mission) {
       return res.status(403).json({ error: "Permissão negada para excluir esta etapa" });
     }

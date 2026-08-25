@@ -76,14 +76,14 @@ export const createAdventure = async (req: AuthenticatedRequest, res: Response) 
     const { title, description, maxCompletions } = req.body;
     const userId = req.userId;
 
-    if (!title || !description) {
-      return res.status(400).json({ error: "Título e descrição são obrigatórios" });
+    if (!title) {
+      return res.status(400).json({ error: "Título da crônica é obrigatório" });
     }
 
     const adventure = await DefinitionStoryAdventure.create({
       title,
-      description,
-      maxCompletions: maxCompletions ? parseInt(maxCompletions, 10) : null,
+      description: description || "",
+      maxCompletions: maxCompletions !== undefined && maxCompletions !== "" && maxCompletions !== null ? parseInt(maxCompletions, 10) : null,
       userId
     });
 
@@ -99,8 +99,12 @@ export const updateAdventure = async (req: AuthenticatedRequest, res: Response) 
     const { id } = req.params;
     const { title, description, firstNodeId, maxCompletions } = req.body;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
-    const adventure = await DefinitionStoryAdventure.findOne({ where: { id, userId } });
+    const adventure = isLeadMaster
+      ? await DefinitionStoryAdventure.findByPk(id)
+      : await DefinitionStoryAdventure.findOne({ where: { id, [Op.or]: [{ userId }, { userId: null }] } as any });
+
     if (!adventure) {
       return res.status(404).json({ error: "Aventura não encontrada" });
     }
@@ -108,7 +112,7 @@ export const updateAdventure = async (req: AuthenticatedRequest, res: Response) 
     adventure.title = title ?? adventure.title;
     adventure.description = description ?? adventure.description;
     adventure.firstNodeId = firstNodeId !== undefined ? firstNodeId : adventure.firstNodeId;
-    adventure.maxCompletions = maxCompletions !== undefined ? (maxCompletions ? parseInt(maxCompletions, 10) : null) : adventure.maxCompletions;
+    adventure.maxCompletions = maxCompletions !== undefined ? (maxCompletions !== "" && maxCompletions !== null ? parseInt(maxCompletions, 10) : null) : adventure.maxCompletions;
 
     await adventure.save();
     return res.status(200).json(adventure);
@@ -122,8 +126,12 @@ export const deleteAdventure = async (req: AuthenticatedRequest, res: Response) 
   try {
     const { id } = req.params;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
-    const adventure = await DefinitionStoryAdventure.findOne({ where: { id, userId } });
+    const adventure = isLeadMaster
+      ? await DefinitionStoryAdventure.findByPk(id)
+      : await DefinitionStoryAdventure.findOne({ where: { id, [Op.or]: [{ userId }, { userId: null }] } as any });
+
     if (!adventure) {
       return res.status(404).json({ error: "Aventura não encontrada" });
     }
@@ -161,14 +169,18 @@ export const createNode = async (req: AuthenticatedRequest, res: Response) => {
       isEnding 
     } = req.body;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     if (!adventureId || !narrativeText) {
       return res.status(400).json({ error: "ID da aventura e texto narrativo são obrigatórios" });
     }
 
-    const adventure = await DefinitionStoryAdventure.findOne({ where: { id: adventureId, userId } });
+    const adventure = isLeadMaster
+      ? await DefinitionStoryAdventure.findByPk(adventureId)
+      : await DefinitionStoryAdventure.findOne({ where: { id: adventureId, [Op.or]: [{ userId }, { userId: null }] } as any });
+
     if (!adventure) {
-      return res.status(404).json({ error: "Aventura não encontrada ou não pertence a este narrador" });
+      return res.status(403).json({ error: "Permissão negada para esta aventura" });
     }
 
     const node = await DefinitionStoryNode.create({
@@ -206,13 +218,17 @@ export const updateNode = async (req: AuthenticatedRequest, res: Response) => {
       isEnding 
     } = req.body;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     const node = await DefinitionStoryNode.findByPk(id);
     if (!node) {
       return res.status(404).json({ error: "Cena/Nó não encontrado" });
     }
 
-    const adventure = await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+    const adventure = isLeadMaster
+      ? await DefinitionStoryAdventure.findByPk(node.adventureId)
+      : await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [Op.or]: [{ userId }, { userId: null }] } as any });
+
     if (!adventure) {
       return res.status(403).json({ error: "Permissão negada para editar esta cena" });
     }
@@ -236,13 +252,17 @@ export const deleteNode = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     const node = await DefinitionStoryNode.findByPk(id);
     if (!node) {
       return res.status(404).json({ error: "Cena/Nó não encontrado" });
     }
 
-    const adventure = await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+    const adventure = isLeadMaster
+      ? await DefinitionStoryAdventure.findByPk(node.adventureId)
+      : await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [Op.or]: [{ userId }, { userId: null }] } as any });
+
     if (!adventure) {
       return res.status(403).json({ error: "Permissão negada para excluir esta cena" });
     }
@@ -279,6 +299,7 @@ export const createChoice = async (req: AuthenticatedRequest, res: Response) => 
       customStyle 
     } = req.body;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     if (!nodeId || !choiceText) {
       return res.status(400).json({ error: "ID do nó e texto da escolha são obrigatórios" });
@@ -289,7 +310,10 @@ export const createChoice = async (req: AuthenticatedRequest, res: Response) => 
       return res.status(404).json({ error: "Cena/Nó pai não encontrado" });
     }
 
-    const adventure = await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+    const adventure = isLeadMaster
+      ? await DefinitionStoryAdventure.findByPk(node.adventureId)
+      : await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [Op.or]: [{ userId }, { userId: null }] } as any });
+
     if (!adventure) {
       return res.status(403).json({ error: "Permissão negada para adicionar escolhas nesta cena" });
     }
@@ -325,6 +349,7 @@ export const updateChoice = async (req: AuthenticatedRequest, res: Response) => 
       customStyle 
     } = req.body;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     const choice = await DefinitionStoryChoice.findByPk(id);
     if (!choice) {
@@ -336,7 +361,10 @@ export const updateChoice = async (req: AuthenticatedRequest, res: Response) => 
       return res.status(404).json({ error: "Nó pai não encontrado" });
     }
 
-    const adventure = await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+    const adventure = isLeadMaster
+      ? await DefinitionStoryAdventure.findByPk(node.adventureId)
+      : await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [Op.or]: [{ userId }, { userId: null }] } as any });
+
     if (!adventure) {
       return res.status(403).json({ error: "Permissão negada para editar esta escolha" });
     }
@@ -361,6 +389,7 @@ export const deleteChoice = async (req: AuthenticatedRequest, res: Response) => 
   try {
     const { id } = req.params;
     const userId = req.userId;
+    const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
 
     const choice = await DefinitionStoryChoice.findByPk(id);
     if (!choice) {
@@ -372,7 +401,10 @@ export const deleteChoice = async (req: AuthenticatedRequest, res: Response) => 
       return res.status(404).json({ error: "Nó pai não encontrado" });
     }
 
-    const adventure = await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, userId } });
+    const adventure = isLeadMaster
+      ? await DefinitionStoryAdventure.findByPk(node.adventureId)
+      : await DefinitionStoryAdventure.findOne({ where: { id: node.adventureId, [Op.or]: [{ userId }, { userId: null }] } as any });
+
     if (!adventure) {
       return res.status(403).json({ error: "Permissão negada para excluir esta escolha" });
     }

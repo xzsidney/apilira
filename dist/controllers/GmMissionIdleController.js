@@ -84,7 +84,10 @@ const updateMission = async (req, res) => {
         const { id } = req.params;
         const { title, description, durationMinutes, baseDifficulty, category, allowedRequirements, rewardsJson, penaltiesJson, maxCompletions } = req.body;
         const userId = req.userId;
-        const mission = await models_1.DefinitionMissionIdle.findOne({ where: { id, userId } });
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
+        const mission = isLeadMaster
+            ? await models_1.DefinitionMissionIdle.findByPk(id)
+            : await models_1.DefinitionMissionIdle.findOne({ where: { id, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!mission) {
             return res.status(404).json({ error: "Missão não encontrada" });
         }
@@ -110,7 +113,10 @@ const deleteMission = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.userId;
-        const mission = await models_1.DefinitionMissionIdle.findOne({ where: { id, userId } });
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
+        const mission = isLeadMaster
+            ? await models_1.DefinitionMissionIdle.findByPk(id)
+            : await models_1.DefinitionMissionIdle.findOne({ where: { id, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!mission) {
             return res.status(404).json({ error: "Missão não encontrada" });
         }
@@ -131,10 +137,13 @@ const createAction = async (req, res) => {
         const { missionId } = req.params;
         const { stepOrder, name, description, difficulty, attributeReq, skillReq, successText, failureText } = req.body;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         if (!name || !description || !successText || !failureText) {
             return res.status(400).json({ error: "Nome, descrição e textos de desfecho são obrigatórios" });
         }
-        const mission = await models_1.DefinitionMissionIdle.findOne({ where: { id: missionId, userId } });
+        const mission = isLeadMaster
+            ? await models_1.DefinitionMissionIdle.findByPk(missionId)
+            : await models_1.DefinitionMissionIdle.findOne({ where: { id: missionId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!mission) {
             return res.status(404).json({ error: "Missão não encontrada ou não pertence a este narrador" });
         }
@@ -168,11 +177,14 @@ const updateAction = async (req, res) => {
         const { actionId } = req.params;
         const { stepOrder, name, description, difficulty, attributeReq, skillReq, successText, failureText } = req.body;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         const action = await models_1.DefinitionMissionIdleAction.findByPk(actionId);
         if (!action) {
             return res.status(404).json({ error: "Etapa não encontrada" });
         }
-        const mission = await models_1.DefinitionMissionIdle.findOne({ where: { id: action.missionId, userId } });
+        const mission = isLeadMaster
+            ? await models_1.DefinitionMissionIdle.findByPk(action.missionId)
+            : await models_1.DefinitionMissionIdle.findOne({ where: { id: action.missionId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!mission) {
             return res.status(403).json({ error: "Permissão negada para editar esta etapa" });
         }
@@ -197,11 +209,14 @@ const deleteAction = async (req, res) => {
     try {
         const { actionId } = req.params;
         const userId = req.userId;
+        const isLeadMaster = userId === "37339df8-b042-458d-8d9c-d15cf18adbd8" || req.userRole === "ADMIN";
         const action = await models_1.DefinitionMissionIdleAction.findByPk(actionId);
         if (!action) {
             return res.status(404).json({ error: "Etapa não encontrada" });
         }
-        const mission = await models_1.DefinitionMissionIdle.findOne({ where: { id: action.missionId, userId } });
+        const mission = isLeadMaster
+            ? await models_1.DefinitionMissionIdle.findByPk(action.missionId)
+            : await models_1.DefinitionMissionIdle.findOne({ where: { id: action.missionId, [sequelize_1.Op.or]: [{ userId }, { userId: null }] } });
         if (!mission) {
             return res.status(403).json({ error: "Permissão negada para excluir esta etapa" });
         }
