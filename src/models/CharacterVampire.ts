@@ -49,9 +49,10 @@ export class CharacterVampire extends Model {
   declare distinguishingFeatures: string | null;
   declare history: string | null;
 
-  // XP
+  // XP e Economia
   declare experienceTotal: number;
   declare experienceSpent: number;
+  declare money: number;
 
   declare isAwake: boolean;
 
@@ -137,6 +138,7 @@ export function initCharacterVampire(sequelize: Sequelize) {
 
       experienceTotal: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
       experienceSpent: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+      money: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
       isAwake: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     },
     {

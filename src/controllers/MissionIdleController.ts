@@ -318,8 +318,18 @@ export const resolveMission = async (req: Request, res: Response) => {
     const report = activeMission.reportJson ? JSON.parse(activeMission.reportJson) : { isSuccess: true, finalChanges: [] };
     if (!report.finalChanges) report.finalChanges = [];
 
-    const rewards = missionDef.rewardsJson || {};
-    const penalties = missionDef.penaltiesJson || {};
+    const parseJson = (val: any) => {
+      if (!val) return {};
+      if (typeof val === 'object') return val;
+      try {
+        return JSON.parse(val);
+      } catch (e) {
+        return {};
+      }
+    };
+
+    const rewards = parseJson(missionDef.rewardsJson);
+    const penalties = parseJson(missionDef.penaltiesJson);
 
     if (report.isSuccess) {
       const impact: any = {};

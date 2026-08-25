@@ -81,6 +81,11 @@ class CharacterService {
                 character.stains = 10;
             updated = true;
         }
+        // DINHEIRO / RECURSOS (R$)
+        if (impact.money && typeof impact.money === 'number') {
+            character.money = Math.max(0, (character.money || 0) + impact.money);
+            updated = true;
+        }
         if (updated) {
             await character.save();
         }

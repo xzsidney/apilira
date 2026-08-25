@@ -77,6 +77,7 @@ function initCharacterVampire(sequelize) {
         history: { type: sequelize_1.DataTypes.TEXT, allowNull: true },
         experienceTotal: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
         experienceSpent: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+        money: { type: sequelize_1.DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
         isAwake: { type: sequelize_1.DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     }, {
         sequelize,
