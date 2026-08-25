@@ -1,16 +1,28 @@
-import { CharacterVampire, CharacterActivityLog } from '../models';
+import { 
+  CharacterVampire, 
+  CharacterActivityLog,
+  CharacterVampireAttribute,
+  DefinitionAttribute,
+  CharacterVampireSkill,
+  DefinitionSkill
+} from '../models';
 
 export interface ImpactData {
   exp?: number;
   hunger?: number;
-  willpowerSuperficial?: number;
-  willpowerAggravated?: number;
+  healthDamageSuperficial?: number;
+  healthDamageAggravated?: number;
+  willpowerDamageSuperficial?: number;
+  willpowerDamageAggravated?: number;
   humanity?: number;
+  stains?: number;
+  attributeBonus?: { name: string; value: number };
+  skillBonus?: { name: string; value: number };
 }
 
 export class CharacterService {
   /**
-   * Applica recompensas ou custos à ficha do personagem de forma unificada.
+   * Aplica recompensas ou custos à ficha do personagem de forma unificada.
    */
   static async applyImpact(characterId: string, impact: ImpactData) {
     const character = await CharacterVampire.findByPk(characterId);
@@ -18,34 +30,97 @@ export class CharacterService {
 
     let updated = false;
 
-    if (impact.exp) {
+    // XP
+    if (impact.exp && typeof impact.exp === 'number') {
       character.experienceTotal += impact.exp;
+      if (character.experienceTotal < 0) character.experienceTotal = 0;
       updated = true;
     }
     
-    if (impact.hunger) {
+    // FOME (0 a 5)
+    if (impact.hunger && typeof impact.hunger === 'number') {
       character.hunger += impact.hunger;
       if (character.hunger < 0) character.hunger = 0;
       if (character.hunger > 5) character.hunger = 5;
       updated = true;
     }
 
-    if (impact.willpowerSuperficial) {
-      character.willpowerDamageSuperficial += impact.willpowerSuperficial;
+    // VITALIDADE SUPERFICIAL
+    if (impact.healthDamageSuperficial && typeof impact.healthDamageSuperficial === 'number') {
+      character.healthDamageSuperficial += impact.healthDamageSuperficial;
+      if (character.healthDamageSuperficial < 0) character.healthDamageSuperficial = 0;
+      if (character.healthDamageSuperficial > character.healthMax) character.healthDamageSuperficial = character.healthMax;
+      updated = true;
+    }
+
+    // VITALIDADE AGRAVADA
+    if (impact.healthDamageAggravated && typeof impact.healthDamageAggravated === 'number') {
+      character.healthDamageAggravated += impact.healthDamageAggravated;
+      if (character.healthDamageAggravated < 0) character.healthDamageAggravated = 0;
+      if (character.healthDamageAggravated > character.healthMax) character.healthDamageAggravated = character.healthMax;
+      updated = true;
+    }
+
+    // FORÇA DE VONTADE SUPERFICIAL
+    if (impact.willpowerDamageSuperficial && typeof impact.willpowerDamageSuperficial === 'number') {
+      character.willpowerDamageSuperficial += impact.willpowerDamageSuperficial;
       if (character.willpowerDamageSuperficial < 0) character.willpowerDamageSuperficial = 0;
+      if (character.willpowerDamageSuperficial > character.willpowerMax) character.willpowerDamageSuperficial = character.willpowerMax;
       updated = true;
     }
 
-    if (impact.willpowerAggravated) {
-      character.willpowerDamageAggravated += impact.willpowerAggravated;
+    // FORÇA DE VONTADE AGRAVADA
+    if (impact.willpowerDamageAggravated && typeof impact.willpowerDamageAggravated === 'number') {
+      character.willpowerDamageAggravated += impact.willpowerDamageAggravated;
       if (character.willpowerDamageAggravated < 0) character.willpowerDamageAggravated = 0;
+      if (character.willpowerDamageAggravated > character.willpowerMax) character.willpowerDamageAggravated = character.willpowerMax;
       updated = true;
     }
 
-    // TODO: Tratamento de humanidade e outros status
-    
+    // HUMANIDADE (0 a 10)
+    if (impact.humanity && typeof impact.humanity === 'number') {
+      character.humanity += impact.humanity;
+      if (character.humanity < 0) character.humanity = 0;
+      if (character.humanity > 10) character.humanity = 10;
+      updated = true;
+    }
+
+    // MANCHAS (STAINS)
+    if (impact.stains && typeof impact.stains === 'number') {
+      character.stains += impact.stains;
+      if (character.stains < 0) character.stains = 0;
+      if (character.stains > 10) character.stains = 10;
+      updated = true;
+    }
+
     if (updated) {
       await character.save();
+    }
+
+    // BÔNUS DE ATRIBUTO (Se configurado)
+    if (impact.attributeBonus && impact.attributeBonus.name && impact.attributeBonus.value) {
+      const defAttr = await DefinitionAttribute.findOne({ where: { name: impact.attributeBonus.name } });
+      if (defAttr) {
+        const [charAttr] = await CharacterVampireAttribute.findOrCreate({
+          where: { characterVampireId: character.id, definitionAttributeId: defAttr.id },
+          defaults: { value: 1 }
+        });
+        charAttr.value = Math.min(5, charAttr.value + impact.attributeBonus.value);
+        await charAttr.save();
+      }
+    }
+
+    // BÔNUS DE PERÍCIA (Se configurado)
+    if (impact.skillBonus && impact.skillBonus.name && impact.skillBonus.value) {
+      const defSkill = await DefinitionSkill.findOne({ where: { name: impact.skillBonus.name } });
+      if (defSkill) {
+        const [charSkill] = await CharacterVampireSkill.findOrCreate({
+          where: { characterVampireId: character.id, definitionSkillId: defSkill.id },
+          defaults: { value: 0 }
+        });
+        charSkill.value = Math.min(5, charSkill.value + impact.skillBonus.value);
+        await charSkill.save();
+      }
     }
     
     return character;

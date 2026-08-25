@@ -295,37 +295,70 @@ const resolveMission = async (req, res) => {
         const rewards = missionDef.rewardsJson || {};
         const penalties = missionDef.penaltiesJson || {};
         if (report.isSuccess) {
-            if (rewards.hunger || rewards.exp) {
-                await CharacterService_1.CharacterService.applyImpact(character.id, {
-                    hunger: rewards.hunger,
-                    exp: rewards.exp
-                });
-                // Refresh character to get new values for final report
-                await character.reload();
-                if (rewards.hunger)
-                    report.finalChanges.push(`🩸 Fome alterada para ${character.hunger}.`);
-                if (rewards.exp)
-                    report.finalChanges.push(`✨ Ganhou ${rewards.exp} XP.`);
-            }
+            const impact = {};
+            if (rewards.hunger)
+                impact.hunger = Number(rewards.hunger);
+            if (rewards.exp)
+                impact.exp = Number(rewards.exp);
+            if (rewards.healthDamageSuperficial)
+                impact.healthDamageSuperficial = Number(rewards.healthDamageSuperficial);
+            if (rewards.willpowerDamageSuperficial)
+                impact.willpowerDamageSuperficial = Number(rewards.willpowerDamageSuperficial);
+            if (rewards.humanity)
+                impact.humanity = Number(rewards.humanity);
+            if (rewards.attributeBonus?.name && rewards.attributeBonus?.value)
+                impact.attributeBonus = rewards.attributeBonus;
+            if (rewards.skillBonus?.name && rewards.skillBonus?.value)
+                impact.skillBonus = rewards.skillBonus;
+            await CharacterService_1.CharacterService.applyImpact(character.id, impact);
+            await character.reload();
+            if (rewards.exp)
+                report.finalChanges.push(`✨ Ganhou +${rewards.exp} XP.`);
+            if (rewards.hunger)
+                report.finalChanges.push(`🩸 Fome saciada em ${Math.abs(rewards.hunger)} ponto(s) (Atual: ${character.hunger}/5).`);
+            if (rewards.willpowerDamageSuperficial)
+                report.finalChanges.push(`🧠 Força de Vontade recuperada.`);
+            if (rewards.humanity)
+                report.finalChanges.push(`🕊️ Humanidade alterada (Atual: ${character.humanity}/10).`);
+            if (rewards.attributeBonus?.name)
+                report.finalChanges.push(`💪 +${rewards.attributeBonus.value} em ${rewards.attributeBonus.name}!`);
+            if (rewards.skillBonus?.name)
+                report.finalChanges.push(`🎯 +${rewards.skillBonus.value} em ${rewards.skillBonus.name}!`);
             activeMission.status = 'COMPLETED';
             await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: true });
         }
         else {
-            if (penalties.hunger || penalties.willpower || penalties.health) {
-                // Here we just map health to willpower Aggravated as health isn't fully implemented in CharacterService yet
-                await CharacterService_1.CharacterService.applyImpact(character.id, {
-                    hunger: penalties.hunger,
-                    willpowerSuperficial: penalties.willpower
-                });
-                await character.reload();
-                if (penalties.hunger)
-                    report.finalChanges.push(`🩸 A confusão custou vitae. Fome alterada para ${character.hunger}.`);
-                if (penalties.willpower)
-                    report.finalChanges.push(`🧠 Perdeu força de vontade.`);
-                if (penalties.health)
-                    report.finalChanges.push(`💔 Sofreu dano!`);
-            }
+            const impact = {};
+            if (penalties.hunger)
+                impact.hunger = Number(penalties.hunger);
+            if (penalties.healthDamageSuperficial)
+                impact.healthDamageSuperficial = Number(penalties.healthDamageSuperficial);
+            if (penalties.healthDamageAggravated)
+                impact.healthDamageAggravated = Number(penalties.healthDamageAggravated);
+            if (penalties.willpowerDamageSuperficial)
+                impact.willpowerDamageSuperficial = Number(penalties.willpowerDamageSuperficial);
+            if (penalties.willpowerDamageAggravated)
+                impact.willpowerDamageAggravated = Number(penalties.willpowerDamageAggravated);
+            if (penalties.humanity)
+                impact.humanity = Number(penalties.humanity);
+            if (penalties.stains)
+                impact.stains = Number(penalties.stains);
+            await CharacterService_1.CharacterService.applyImpact(character.id, impact);
+            await character.reload();
+            if (penalties.hunger)
+                report.finalChanges.push(`🩸 A agitação da Besta aumentou a Fome em +${penalties.hunger} (Atual: ${character.hunger}/5).`);
+            if (penalties.healthDamageSuperficial)
+                report.finalChanges.push(`💔 Sofreu ${penalties.healthDamageSuperficial} de dano superficial à Vitalidade.`);
+            if (penalties.healthDamageAggravated)
+                report.finalChanges.push(`☠️ Sofreu ${penalties.healthDamageAggravated} de DANO AGRAVADO à Vitalidade!`);
+            if (penalties.willpowerDamageSuperficial)
+                report.finalChanges.push(`🧠 Sofreu ${penalties.willpowerDamageSuperficial} de dano superficial à Força de Vontade.`);
+            if (penalties.willpowerDamageAggravated)
+                report.finalChanges.push(`💥 Sofreu ${penalties.willpowerDamageAggravated} de dano agravado à Força de Vontade.`);
+            if (penalties.stains)
+                report.finalChanges.push(`🥀 Recebeu +${penalties.stains} Mancha(s) na Humanidade.`);
             activeMission.status = 'FAILED';
+            await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: false });
         }
         activeMission.reportJson = JSON.stringify(report);
         await activeMission.save();
