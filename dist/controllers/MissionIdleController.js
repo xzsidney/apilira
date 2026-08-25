@@ -68,6 +68,7 @@ const getActiveMission = async (req, res) => {
         // Filter report logs based on time (hide future steps)
         const now = new Date();
         const startedAt = new Date(activeMission.startedAt);
+        const expiresAt = new Date(activeMission.expiresAt);
         // Parse the report JSON
         let fullReport = null;
         if (activeMission.reportJson) {
@@ -80,34 +81,60 @@ const getActiveMission = async (req, res) => {
         }
         const responseMission = activeMission.toJSON();
         if (fullReport && fullReport.steps) {
-            // Reveal only steps where (startedAt + stepOrder * stepDurationMinutes) <= now
-            // Or if the mission is already expired, reveal everything.
-            const isExpired = now >= new Date(activeMission.expiresAt);
-            const revealedSteps = fullReport.steps.filter((step, index) => {
-                if (isExpired)
-                    return true;
-                const stepTime = new Date(startedAt);
-                stepTime.setMinutes(stepTime.getMinutes() + ((index + 1) * activeMission.stepDurationMinutes));
-                return now >= stepTime;
-            });
+            const isExpired = now >= expiresAt;
+            const totalSteps = fullReport.steps.length;
+            const totalDurationMs = Math.max(1000, expiresAt.getTime() - startedAt.getTime());
+            const stepDurationMs = totalDurationMs / Math.max(1, totalSteps);
+            const timelineSteps = [];
+            let completedCount = 0;
+            for (let i = 0; i < totalSteps; i++) {
+                const rawStep = fullReport.steps[i];
+                const stepEndTime = new Date(startedAt.getTime() + (i + 1) * stepDurationMs);
+                const stepStartTime = new Date(startedAt.getTime() + i * stepDurationMs);
+                if (now >= stepEndTime || isExpired) {
+                    // ETAPA CONCLUÍDA (REVELADA)
+                    completedCount++;
+                    timelineSteps.push({
+                        order: i + 1,
+                        actionName: rawStep.actionName,
+                        pool: rawStep.pool,
+                        status: 'COMPLETED',
+                        passed: rawStep.passed,
+                        rolls: rawStep.rolls,
+                        successes: rawStep.successes,
+                        narrative: rawStep.narrative
+                    });
+                }
+                else if (now >= stepStartTime) {
+                    // ETAPA ATUAL EM EXECUÇÃO
+                    timelineSteps.push({
+                        order: i + 1,
+                        actionName: rawStep.actionName,
+                        pool: rawStep.pool,
+                        status: 'IN_PROGRESS',
+                        narrative: 'O vampiro está atuando nas sombras desta etapa... Avaliando instintos e perícias.'
+                    });
+                }
+                else {
+                    // ETAPA FUTURA (BLOQUEADA)
+                    timelineSteps.push({
+                        order: i + 1,
+                        actionName: rawStep.actionName,
+                        pool: rawStep.pool,
+                        status: 'LOCKED',
+                        narrative: 'Aguardando conclusão da etapa anterior para iniciar.'
+                    });
+                }
+            }
             responseMission.currentReport = {
                 title: fullReport.title,
-                steps: revealedSteps,
+                steps: timelineSteps,
                 isSuccess: isExpired ? fullReport.isSuccess : null,
                 finalChanges: isExpired ? fullReport.finalChanges : []
             };
-            // Calculate current stage index based on time
-            const elapsedMinutes = (now.getTime() - startedAt.getTime()) / (1000 * 60);
-            let currentStage = Math.floor(elapsedMinutes / activeMission.stepDurationMinutes);
-            if (currentStage < 0)
-                currentStage = 0;
-            if (currentStage > fullReport.steps.length)
-                currentStage = fullReport.steps.length;
-            responseMission.currentStage = currentStage;
-            responseMission.totalStages = fullReport.steps.length;
+            responseMission.currentStage = isExpired ? totalSteps : completedCount;
+            responseMission.totalStages = totalSteps;
             if (isExpired) {
-                // Automatically resolve if time is up and they check status
-                // But normally they call /resolve. We just tell the frontend it's ready.
                 responseMission.readyToResolve = true;
             }
         }
