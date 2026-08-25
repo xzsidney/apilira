@@ -417,7 +417,6 @@ const getCompendiumNpcs = async (req, res) => {
             include: [
                 {
                     model: models_1.DefinitionClan,
-                    as: "clan",
                     attributes: ["id", "name", "disciplines", "weakness"]
                 }
             ],
@@ -464,12 +463,10 @@ const getPlayersOverview = async (req, res) => {
             include: [
                 {
                     model: models_1.DefinitionClan,
-                    as: "clan",
                     attributes: ["id", "name"]
                 },
                 {
                     model: models_1.User,
-                    as: "user",
                     attributes: ["id", "name", "email"]
                 }
             ],

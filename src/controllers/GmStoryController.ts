@@ -483,7 +483,6 @@ export const getCompendiumNpcs = async (req: AuthenticatedRequest, res: Response
       include: [
         {
           model: DefinitionClan,
-          as: "clan",
           attributes: ["id", "name", "disciplines", "weakness"]
         }
       ],
@@ -527,12 +526,10 @@ export const getPlayersOverview = async (req: AuthenticatedRequest, res: Respons
       include: [
         {
           model: DefinitionClan,
-          as: "clan",
           attributes: ["id", "name"]
         },
         {
           model: User,
-          as: "user",
           attributes: ["id", "name", "email"]
         }
       ],

@@ -74,10 +74,10 @@ CreationPackageItem.belongsTo(CreationPackage, { foreignKey: 'packageId' });
 
 // --- CharacterVampire Associations ---
 User.hasMany(CharacterVampire, { foreignKey: 'userId' });
-CharacterVampire.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+CharacterVampire.belongsTo(User, { foreignKey: 'userId' });
 
 DefinitionClan.hasMany(CharacterVampire, { foreignKey: 'clanId' });
-CharacterVampire.belongsTo(DefinitionClan, { as: 'clan', foreignKey: 'clanId' });
+CharacterVampire.belongsTo(DefinitionClan, { foreignKey: 'clanId' });
 
 DefinitionPredator.hasMany(CharacterVampire, { foreignKey: 'predatorId' });
 CharacterVampire.belongsTo(DefinitionPredator, { foreignKey: 'predatorId' });
