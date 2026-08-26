@@ -420,7 +420,13 @@ const resolveMission = async (req, res) => {
                 report.finalChanges.push(`🗺️ O distrito foi totalmente mapeado! Dados estratégicos e incursões desbloqueadas.`);
             }
             activeMission.status = 'COMPLETED';
-            await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: true });
+            await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, {
+                success: true,
+                title: missionDef.title,
+                category: missionDef.category,
+                rewards,
+                report
+            });
         }
         else {
             const impact = {};
@@ -468,7 +474,13 @@ const resolveMission = async (req, res) => {
                 report.finalChanges.push(`⚠️ A infiltração nas sombras falhou. O distrito permanece oculto na névoa.`);
             }
             activeMission.status = 'FAILED';
-            await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: false });
+            await CharacterService_1.CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, {
+                success: false,
+                title: missionDef.title,
+                category: missionDef.category,
+                penalties,
+                report
+            });
         }
         activeMission.reportJson = JSON.stringify(report);
         await activeMission.save();

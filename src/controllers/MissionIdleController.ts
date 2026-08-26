@@ -444,7 +444,13 @@ export const resolveMission = async (req: Request, res: Response) => {
       }
 
       activeMission.status = 'COMPLETED';
-      await CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: true });
+      await CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { 
+        success: true,
+        title: missionDef.title,
+        category: missionDef.category,
+        rewards,
+        report
+      });
     } else {
       const impact: any = {};
       if (penalties.hunger) impact.hunger = Number(penalties.hunger);
@@ -479,7 +485,13 @@ export const resolveMission = async (req: Request, res: Response) => {
       }
 
       activeMission.status = 'FAILED';
-      await CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { success: false });
+      await CharacterService.logActivity(character.id, 'IDLE_MISSION', missionDef.id, { 
+        success: false,
+        title: missionDef.title,
+        category: missionDef.category,
+        penalties,
+        report
+      });
     }
 
     activeMission.reportJson = JSON.stringify(report);

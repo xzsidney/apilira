@@ -461,7 +461,7 @@ export const getCharacterActivityLogs = async (req: Request, res: Response) => {
     const logs = await CharacterActivityLog.findAll({
       where: { characterId: id },
       order: [['createdAt', 'DESC']],
-      limit: 5
+      limit: 10
     });
 
     const enriched = await Promise.all(logs.map(async (log: any) => {
@@ -474,7 +474,7 @@ export const getCharacterActivityLogs = async (req: Request, res: Response) => {
         }
         if (data.activityType === 'IDLE_MISSION' && data.referenceId) {
           const mission = await DefinitionMissionIdle.findByPk(data.referenceId, {
-            attributes: ['title', 'description', 'category', 'difficulty', 'rewardExp', 'rewardMoney']
+            include: [{ model: DefinitionLocation, as: 'Location', attributes: ['name'] }]
           });
           data.mission = mission;
         }
