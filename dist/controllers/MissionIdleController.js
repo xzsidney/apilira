@@ -66,6 +66,8 @@ const getActiveMission = async (req, res) => {
         });
         if (!activeMission)
             return res.status(200).json(null);
+        const character = await models_1.CharacterVampire.findByPk(characterId);
+        const isSunHazard = character ? (character.nightMinutesSpent || 0) >= 600 : false;
         // Filter report logs based on time (hide future steps)
         const now = new Date();
         const startedAt = new Date(activeMission.startedAt);
@@ -81,8 +83,10 @@ const getActiveMission = async (req, res) => {
             }
         }
         const responseMission = activeMission.toJSON();
+        responseMission.isPausedBySunHazard = isSunHazard;
         if (fullReport && fullReport.steps) {
-            const isExpired = now >= expiresAt;
+            // Se houver perigo solar, a missão fica congelada e não expira normalmente
+            const isExpired = !isSunHazard && (now >= expiresAt);
             const totalSteps = fullReport.steps.length;
             const totalDurationMs = Math.max(1000, expiresAt.getTime() - startedAt.getTime());
             const stepDurationMs = totalDurationMs / Math.max(1, totalSteps);
@@ -302,9 +306,14 @@ const resolveMission = async (req, res) => {
             return res.status(404).json({ error: 'Active mission not found' });
         if (activeMission.status !== 'IN_PROGRESS')
             return res.status(400).json({ error: 'Mission is already resolved' });
+        const character = activeMission.CharacterVampire;
+        if (character && (character.nightMinutesSpent || 0) >= 600) {
+            return res.status(400).json({
+                error: 'O Sol raiou em Nocturna (06:00)! Você está sob perigo imediato de queimação solar. É impossível finalizar operações na rua durante o dia — busque um abrigo imediatamente!'
+            });
+        }
         if (new Date() < new Date(activeMission.expiresAt))
             return res.status(400).json({ error: 'Mission time has not expired yet' });
-        const character = activeMission.CharacterVampire;
         const missionDef = activeMission.DefinitionMissionIdle;
         const report = activeMission.reportJson ? JSON.parse(activeMission.reportJson) : { isSuccess: true, finalChanges: [] };
         if (!report.finalChanges)
