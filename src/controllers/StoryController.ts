@@ -8,20 +8,46 @@ import {
   CharacterVampireAttribute, 
   DefinitionAttribute, 
   CharacterVampireSkill, 
-  DefinitionSkill 
+  DefinitionSkill,
+  CharacterActivityLog
 } from '../models';
+import { CharacterService, ImpactData } from '../services/CharacterService';
 
 export const listAdventures = async (req: Request, res: Response) => {
   try {
-    const adventures = await DefinitionStoryAdventure.findAll();
-    return res.status(200).json(adventures);
+    const { characterId } = req.query;
+    const adventures = await DefinitionStoryAdventure.findAll({
+      order: [['createdAt', 'ASC']]
+    });
+
+    const enrichedAdventures = await Promise.all(adventures.map(async (adv) => {
+      const advJson: any = adv.toJSON();
+      
+      // Contagem de nós para estimar tamanho
+      const nodeCount = await DefinitionStoryNode.count({ where: { adventureId: adv.id } });
+      advJson.totalNodes = nodeCount;
+
+      if (characterId && typeof characterId === 'string') {
+        const progress = await CharacterStoryProgress.findOne({
+          where: { characterId, adventureId: adv.id }
+        });
+        
+        const completionCount = await CharacterService.getCompletionCount(characterId, 'STORY_ADVENTURE', adv.id);
+        advJson.hasActiveProgress = !!progress;
+        advJson.currentNodeId = progress ? progress.currentNodeId : null;
+        advJson.completionCount = completionCount;
+        advJson.isCompleted = completionCount > 0;
+      }
+      
+      return advJson;
+    }));
+
+    return res.status(200).json(enrichedAdventures);
   } catch (error) {
     console.error('Error fetching adventures:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
-
-import { CharacterService } from '../services/CharacterService';
 
 export const getCharacterProgress = async (req: Request, res: Response) => {
   try {
@@ -95,6 +121,7 @@ export const getCharacterProgress = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({
+      adventure,
       progress,
       currentNode
     });
@@ -148,7 +175,11 @@ export const resetAdventure = async (req: Request, res: Response) => {
       } as any);
     }
 
-    return res.status(200).json({ success: true, progress });
+    const currentNode = await DefinitionStoryNode.findByPk(startingNodeId, {
+      include: [{ model: DefinitionStoryChoice, as: 'choices' }]
+    });
+
+    return res.status(200).json({ success: true, progress, currentNode });
   } catch (error) {
     console.error('Error resetting adventure:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -161,6 +192,11 @@ export const processChoice = async (req: Request, res: Response) => {
 
     if (!characterId || !adventureId || !choiceId) {
       return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
+    const adventure = await DefinitionStoryAdventure.findByPk(adventureId);
+    if (!adventure) {
+      return res.status(404).json({ error: 'Adventure not found' });
     }
 
     const progress = await CharacterStoryProgress.findOne({
@@ -180,25 +216,23 @@ export const processChoice = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Choice does not belong to the current node' });
     }
 
-    let isSuccess = true;
-    let diceRolls: number[] = [];
-    let totalSuccesses = 0;
     let nextNodeId = choice.successNodeId;
-    let dicePool = 0;
+    let rollDetails: any = null;
 
-    // Se houver requisito de teste
+    // Buscar personagem para estatísticas vitais e atributos/perícias
+    const character = await CharacterVampire.findByPk(characterId, {
+      include: [
+        { model: CharacterVampireAttribute, include: [{ model: DefinitionAttribute }] },
+        { model: CharacterVampireSkill, include: [{ model: DefinitionSkill }] }
+      ]
+    });
+
+    if (!character) {
+      return res.status(404).json({ error: 'Character not found' });
+    }
+
+    // Se houver requisito de teste de dados V5
     if (choice.attributeReq || choice.skillReq) {
-      const character = await CharacterVampire.findByPk(characterId, {
-        include: [
-          { model: CharacterVampireAttribute, include: [{ model: DefinitionAttribute }] },
-          { model: CharacterVampireSkill, include: [{ model: DefinitionSkill }] }
-        ]
-      });
-
-      if (!character) {
-        return res.status(404).json({ error: 'Character not found' });
-      }
-
       const getAttrVal = (name: string) => {
         const found = (character as any).CharacterVampireAttributes?.find((a: any) => a.DefinitionAttribute?.name === name);
         return found ? found.value : 1;
@@ -212,53 +246,156 @@ export const processChoice = async (req: Request, res: Response) => {
       const attrVal = choice.attributeReq ? getAttrVal(choice.attributeReq) : 0;
       const skillVal = choice.skillReq ? getSkillVal(choice.skillReq) : 0;
       
-      dicePool = attrVal + skillVal;
-      const difficultyTarget = choice.difficulty || 1; // Default 1 success required
+      const totalPool = Math.max(1, attrVal + skillVal);
+      const difficultyTarget = choice.difficulty || 1;
+      const hunger = Math.max(0, Math.min(5, character.hunger ?? 1));
 
-      for (let d = 0; d < dicePool; d++) {
+      // Distribuição de Dados: Fome vs Normais
+      const hungerDiceCount = Math.min(hunger, totalPool);
+      const regularDiceCount = Math.max(0, totalPool - hungerDiceCount);
+
+      const regularRolls: number[] = [];
+      const hungerRolls: number[] = [];
+
+      let regularSuccesses = 0;
+      let regularTens = 0;
+      let hungerSuccesses = 0;
+      let hungerTens = 0;
+      let hungerOnes = 0;
+
+      // Rolagem dos dados regulares
+      for (let i = 0; i < regularDiceCount; i++) {
         const roll = Math.floor(Math.random() * 10) + 1;
-        diceRolls.push(roll);
-        if (roll >= 6) totalSuccesses++; // Standard V5 target number
-        if (roll === 10) totalSuccesses++; // Simplistic V5 crit
+        regularRolls.push(roll);
+        if (roll >= 6) regularSuccesses++;
+        if (roll === 10) regularTens++;
       }
 
-      isSuccess = totalSuccesses >= difficultyTarget;
-      
-      if (!isSuccess && choice.failureNodeId) {
-        nextNodeId = choice.failureNodeId;
-      } else if (!isSuccess && !choice.failureNodeId) {
-        // Se falhou mas não tem fallback, forçamos successNodeId ou mantém.
-        nextNodeId = choice.successNodeId;
+      // Rolagem dos dados de fome
+      for (let i = 0; i < hungerDiceCount; i++) {
+        const roll = Math.floor(Math.random() * 10) + 1;
+        hungerRolls.push(roll);
+        if (roll >= 6) hungerSuccesses++;
+        if (roll === 10) hungerTens++;
+        if (roll === 1) hungerOnes++;
+      }
+
+      const totalTens = regularTens + hungerTens;
+      const critPairs = Math.floor(totalTens / 2);
+      const critBonusSuccesses = critPairs * 2;
+      const totalSuccesses = regularSuccesses + hungerSuccesses + critBonusSuccesses;
+
+      const isVictory = totalSuccesses >= difficultyTarget;
+      const hasCritical = critPairs > 0;
+      const hasMessyCritical = hasCritical && isVictory && hungerTens > 0;
+      const hasBestialFailure = !isVictory && hungerOnes > 0;
+
+      let verdictType = 'FAILURE';
+      let verdictTitle = 'Falha no Teste';
+      let verdictSubtitle = `Você obteve ${totalSuccesses} de ${difficultyTarget} sucessos necessários.`;
+
+      if (hasMessyCritical) {
+        verdictType = 'MESSY_CRITICAL';
+        verdictTitle = 'Crítico Bestial! (Messy Critical)';
+        verdictSubtitle = 'A Besta se libertou momentaneamente para assegurar a vitória com força descomunal ou selvageria!';
+      } else if (hasCritical && isVictory) {
+        verdictType = 'CRITICAL';
+        verdictTitle = 'Sucesso Crítico!';
+        verdictSubtitle = 'Uma demonstração impecável de maestria e controle vampírico.';
+      } else if (isVictory) {
+        verdictType = 'SUCCESS';
+        verdictTitle = 'Sucesso no Teste';
+        verdictSubtitle = `Você atingiu a dificuldade ${difficultyTarget} com maestria.`;
+      } else if (hasBestialFailure) {
+        verdictType = 'BESTIAL_FAILURE';
+        verdictTitle = 'Falha Bestial! (Bestial Failure)';
+        verdictSubtitle = 'A Fome sabotou suas ações, atraindo atenção indesejada ou caos sangrento!';
+      }
+
+      rollDetails = {
+        poolName: `${choice.attributeReq || ''}${choice.attributeReq && choice.skillReq ? ' + ' : ''}${choice.skillReq || ''}`.trim(),
+        totalDicePool: totalPool,
+        difficulty: difficultyTarget,
+        regularDice: regularRolls,
+        hungerDice: hungerRolls,
+        totalSuccesses,
+        critPairs,
+        isVictory,
+        hasCritical,
+        hasMessyCritical,
+        hasBestialFailure,
+        verdictType,
+        verdictTitle,
+        verdictSubtitle
+      };
+
+      if (isVictory) {
+        nextNodeId = choice.successNodeId || choice.failureNodeId;
+      } else {
+        nextNodeId = choice.failureNodeId || choice.successNodeId;
       }
     }
 
     if (!nextNodeId) {
-      return res.status(400).json({ error: 'Choice does not lead anywhere' });
+      return res.status(400).json({ error: 'A escolha não aponta para nenhum nó de destino' });
     }
 
     const newNode = await DefinitionStoryNode.findByPk(nextNodeId, {
       include: [{ model: DefinitionStoryChoice, as: 'choices' }]
     });
 
+    let rewardsSummary: any = null;
+
     if (newNode && newNode.isEnding) {
-      // Registrar conclusão e deletar progresso para liberar (se a aventura permitir replay)
+      // Recompensas de conclusão da crônica
+      const impact: ImpactData = {
+        exp: 8,
+        money: 800,
+        hunger: -1 // Alimentação da noite de triunfo
+      };
+
+      await CharacterService.applyImpact(characterId, impact);
+
+      rewardsSummary = {
+        exp: impact.exp,
+        money: impact.money,
+        hunger: impact.hunger
+      };
+
+      // Registrar histórico no diário do personagem para aparecer no Hub
       await CharacterService.logActivity(characterId, 'STORY_ADVENTURE', adventureId, {
-        endingNodeId: newNode.id
+        title: adventure.title,
+        endingNodeId: newNode.id,
+        success: true,
+        endingText: newNode.narrativeText,
+        rewards: rewardsSummary,
+        lastTest: rollDetails ? {
+          actionName: rollDetails.poolName,
+          pool: `${rollDetails.totalDicePool} dados (Fome: ${rollDetails.hungerDice.length})`,
+          rolls: [...rollDetails.regularDice, ...rollDetails.hungerDice],
+          successes: rollDetails.totalSuccesses,
+          passed: rollDetails.isVictory,
+          verdictTitle: rollDetails.verdictTitle
+        } : null
       });
+
+      // Deletar o progresso em andamento para liberar novo playthrough
       await progress.destroy();
     } else {
       progress.currentNodeId = nextNodeId;
       await progress.save();
     }
 
+    // Buscar personagem atualizado
+    const updatedCharacter = await CharacterVampire.findByPk(characterId);
+
     return res.status(200).json({
-      success: isSuccess,
-      diceRolls,
-      totalSuccesses,
-      dicePool,
-      requiredSuccesses: choice.difficulty || 1,
+      success: rollDetails ? rollDetails.isVictory : true,
+      rollDetails,
       newNode,
-      progress: newNode?.isEnding ? null : progress
+      rewards: rewardsSummary,
+      progress: newNode?.isEnding ? null : progress,
+      character: updatedCharacter
     });
 
   } catch (error) {

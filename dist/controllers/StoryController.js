@@ -2,10 +2,31 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.processChoice = exports.resetAdventure = exports.getCharacterProgress = exports.listAdventures = void 0;
 const models_1 = require("../models");
+const CharacterService_1 = require("../services/CharacterService");
 const listAdventures = async (req, res) => {
     try {
-        const adventures = await models_1.DefinitionStoryAdventure.findAll();
-        return res.status(200).json(adventures);
+        const { characterId } = req.query;
+        const adventures = await models_1.DefinitionStoryAdventure.findAll({
+            order: [['createdAt', 'ASC']]
+        });
+        const enrichedAdventures = await Promise.all(adventures.map(async (adv) => {
+            const advJson = adv.toJSON();
+            // Contagem de nós para estimar tamanho
+            const nodeCount = await models_1.DefinitionStoryNode.count({ where: { adventureId: adv.id } });
+            advJson.totalNodes = nodeCount;
+            if (characterId && typeof characterId === 'string') {
+                const progress = await models_1.CharacterStoryProgress.findOne({
+                    where: { characterId, adventureId: adv.id }
+                });
+                const completionCount = await CharacterService_1.CharacterService.getCompletionCount(characterId, 'STORY_ADVENTURE', adv.id);
+                advJson.hasActiveProgress = !!progress;
+                advJson.currentNodeId = progress ? progress.currentNodeId : null;
+                advJson.completionCount = completionCount;
+                advJson.isCompleted = completionCount > 0;
+            }
+            return advJson;
+        }));
+        return res.status(200).json(enrichedAdventures);
     }
     catch (error) {
         console.error('Error fetching adventures:', error);
@@ -13,7 +34,6 @@ const listAdventures = async (req, res) => {
     }
 };
 exports.listAdventures = listAdventures;
-const CharacterService_1 = require("../services/CharacterService");
 const getCharacterProgress = async (req, res) => {
     try {
         const { characterId, adventureId } = req.params;
@@ -76,6 +96,7 @@ const getCharacterProgress = async (req, res) => {
             await progress.save();
         }
         return res.status(200).json({
+            adventure,
             progress,
             currentNode
         });
@@ -124,7 +145,10 @@ const resetAdventure = async (req, res) => {
                 currentNodeId: startingNodeId
             });
         }
-        return res.status(200).json({ success: true, progress });
+        const currentNode = await models_1.DefinitionStoryNode.findByPk(startingNodeId, {
+            include: [{ model: models_1.DefinitionStoryChoice, as: 'choices' }]
+        });
+        return res.status(200).json({ success: true, progress, currentNode });
     }
     catch (error) {
         console.error('Error resetting adventure:', error);
@@ -137,6 +161,10 @@ const processChoice = async (req, res) => {
         const { characterId, adventureId, choiceId } = req.body;
         if (!characterId || !adventureId || !choiceId) {
             return res.status(400).json({ error: 'Missing required parameters' });
+        }
+        const adventure = await models_1.DefinitionStoryAdventure.findByPk(adventureId);
+        if (!adventure) {
+            return res.status(404).json({ error: 'Adventure not found' });
         }
         const progress = await models_1.CharacterStoryProgress.findOne({
             where: { characterId, adventureId }
@@ -151,22 +179,20 @@ const processChoice = async (req, res) => {
         if (choice.nodeId !== progress.currentNodeId) {
             return res.status(400).json({ error: 'Choice does not belong to the current node' });
         }
-        let isSuccess = true;
-        let diceRolls = [];
-        let totalSuccesses = 0;
         let nextNodeId = choice.successNodeId;
-        let dicePool = 0;
-        // Se houver requisito de teste
+        let rollDetails = null;
+        // Buscar personagem para estatísticas vitais e atributos/perícias
+        const character = await models_1.CharacterVampire.findByPk(characterId, {
+            include: [
+                { model: models_1.CharacterVampireAttribute, include: [{ model: models_1.DefinitionAttribute }] },
+                { model: models_1.CharacterVampireSkill, include: [{ model: models_1.DefinitionSkill }] }
+            ]
+        });
+        if (!character) {
+            return res.status(404).json({ error: 'Character not found' });
+        }
+        // Se houver requisito de teste de dados V5
         if (choice.attributeReq || choice.skillReq) {
-            const character = await models_1.CharacterVampire.findByPk(characterId, {
-                include: [
-                    { model: models_1.CharacterVampireAttribute, include: [{ model: models_1.DefinitionAttribute }] },
-                    { model: models_1.CharacterVampireSkill, include: [{ model: models_1.DefinitionSkill }] }
-                ]
-            });
-            if (!character) {
-                return res.status(404).json({ error: 'Character not found' });
-            }
             const getAttrVal = (name) => {
                 const found = character.CharacterVampireAttributes?.find((a) => a.DefinitionAttribute?.name === name);
                 return found ? found.value : 1;
@@ -177,50 +203,145 @@ const processChoice = async (req, res) => {
             };
             const attrVal = choice.attributeReq ? getAttrVal(choice.attributeReq) : 0;
             const skillVal = choice.skillReq ? getSkillVal(choice.skillReq) : 0;
-            dicePool = attrVal + skillVal;
-            const difficultyTarget = choice.difficulty || 1; // Default 1 success required
-            for (let d = 0; d < dicePool; d++) {
+            const totalPool = Math.max(1, attrVal + skillVal);
+            const difficultyTarget = choice.difficulty || 1;
+            const hunger = Math.max(0, Math.min(5, character.hunger ?? 1));
+            // Distribuição de Dados: Fome vs Normais
+            const hungerDiceCount = Math.min(hunger, totalPool);
+            const regularDiceCount = Math.max(0, totalPool - hungerDiceCount);
+            const regularRolls = [];
+            const hungerRolls = [];
+            let regularSuccesses = 0;
+            let regularTens = 0;
+            let hungerSuccesses = 0;
+            let hungerTens = 0;
+            let hungerOnes = 0;
+            // Rolagem dos dados regulares
+            for (let i = 0; i < regularDiceCount; i++) {
                 const roll = Math.floor(Math.random() * 10) + 1;
-                diceRolls.push(roll);
+                regularRolls.push(roll);
                 if (roll >= 6)
-                    totalSuccesses++; // Standard V5 target number
+                    regularSuccesses++;
                 if (roll === 10)
-                    totalSuccesses++; // Simplistic V5 crit
+                    regularTens++;
             }
-            isSuccess = totalSuccesses >= difficultyTarget;
-            if (!isSuccess && choice.failureNodeId) {
-                nextNodeId = choice.failureNodeId;
+            // Rolagem dos dados de fome
+            for (let i = 0; i < hungerDiceCount; i++) {
+                const roll = Math.floor(Math.random() * 10) + 1;
+                hungerRolls.push(roll);
+                if (roll >= 6)
+                    hungerSuccesses++;
+                if (roll === 10)
+                    hungerTens++;
+                if (roll === 1)
+                    hungerOnes++;
             }
-            else if (!isSuccess && !choice.failureNodeId) {
-                // Se falhou mas não tem fallback, forçamos successNodeId ou mantém.
-                nextNodeId = choice.successNodeId;
+            const totalTens = regularTens + hungerTens;
+            const critPairs = Math.floor(totalTens / 2);
+            const critBonusSuccesses = critPairs * 2;
+            const totalSuccesses = regularSuccesses + hungerSuccesses + critBonusSuccesses;
+            const isVictory = totalSuccesses >= difficultyTarget;
+            const hasCritical = critPairs > 0;
+            const hasMessyCritical = hasCritical && isVictory && hungerTens > 0;
+            const hasBestialFailure = !isVictory && hungerOnes > 0;
+            let verdictType = 'FAILURE';
+            let verdictTitle = 'Falha no Teste';
+            let verdictSubtitle = `Você obteve ${totalSuccesses} de ${difficultyTarget} sucessos necessários.`;
+            if (hasMessyCritical) {
+                verdictType = 'MESSY_CRITICAL';
+                verdictTitle = 'Crítico Bestial! (Messy Critical)';
+                verdictSubtitle = 'A Besta se libertou momentaneamente para assegurar a vitória com força descomunal ou selvageria!';
+            }
+            else if (hasCritical && isVictory) {
+                verdictType = 'CRITICAL';
+                verdictTitle = 'Sucesso Crítico!';
+                verdictSubtitle = 'Uma demonstração impecável de maestria e controle vampírico.';
+            }
+            else if (isVictory) {
+                verdictType = 'SUCCESS';
+                verdictTitle = 'Sucesso no Teste';
+                verdictSubtitle = `Você atingiu a dificuldade ${difficultyTarget} com maestria.`;
+            }
+            else if (hasBestialFailure) {
+                verdictType = 'BESTIAL_FAILURE';
+                verdictTitle = 'Falha Bestial! (Bestial Failure)';
+                verdictSubtitle = 'A Fome sabotou suas ações, atraindo atenção indesejada ou caos sangrento!';
+            }
+            rollDetails = {
+                poolName: `${choice.attributeReq || ''}${choice.attributeReq && choice.skillReq ? ' + ' : ''}${choice.skillReq || ''}`.trim(),
+                totalDicePool: totalPool,
+                difficulty: difficultyTarget,
+                regularDice: regularRolls,
+                hungerDice: hungerRolls,
+                totalSuccesses,
+                critPairs,
+                isVictory,
+                hasCritical,
+                hasMessyCritical,
+                hasBestialFailure,
+                verdictType,
+                verdictTitle,
+                verdictSubtitle
+            };
+            if (isVictory) {
+                nextNodeId = choice.successNodeId || choice.failureNodeId;
+            }
+            else {
+                nextNodeId = choice.failureNodeId || choice.successNodeId;
             }
         }
         if (!nextNodeId) {
-            return res.status(400).json({ error: 'Choice does not lead anywhere' });
+            return res.status(400).json({ error: 'A escolha não aponta para nenhum nó de destino' });
         }
         const newNode = await models_1.DefinitionStoryNode.findByPk(nextNodeId, {
             include: [{ model: models_1.DefinitionStoryChoice, as: 'choices' }]
         });
+        let rewardsSummary = null;
         if (newNode && newNode.isEnding) {
-            // Registrar conclusão e deletar progresso para liberar (se a aventura permitir replay)
+            // Recompensas de conclusão da crônica
+            const impact = {
+                exp: 8,
+                money: 800,
+                hunger: -1 // Alimentação da noite de triunfo
+            };
+            await CharacterService_1.CharacterService.applyImpact(characterId, impact);
+            rewardsSummary = {
+                exp: impact.exp,
+                money: impact.money,
+                hunger: impact.hunger
+            };
+            // Registrar histórico no diário do personagem para aparecer no Hub
             await CharacterService_1.CharacterService.logActivity(characterId, 'STORY_ADVENTURE', adventureId, {
-                endingNodeId: newNode.id
+                title: adventure.title,
+                endingNodeId: newNode.id,
+                success: true,
+                endingText: newNode.narrativeText,
+                rewards: rewardsSummary,
+                lastTest: rollDetails ? {
+                    actionName: rollDetails.poolName,
+                    pool: `${rollDetails.totalDicePool} dados (Fome: ${rollDetails.hungerDice.length})`,
+                    rolls: [...rollDetails.regularDice, ...rollDetails.hungerDice],
+                    successes: rollDetails.totalSuccesses,
+                    passed: rollDetails.isVictory,
+                    verdictTitle: rollDetails.verdictTitle
+                } : null
             });
+            // Deletar o progresso em andamento para liberar novo playthrough
             await progress.destroy();
         }
         else {
             progress.currentNodeId = nextNodeId;
             await progress.save();
         }
+        // Buscar personagem atualizado
+        const updatedCharacter = await models_1.CharacterVampire.findByPk(characterId);
         return res.status(200).json({
-            success: isSuccess,
-            diceRolls,
-            totalSuccesses,
-            dicePool,
-            requiredSuccesses: choice.difficulty || 1,
+            success: rollDetails ? rollDetails.isVictory : true,
+            rollDetails,
             newNode,
-            progress: newNode?.isEnding ? null : progress
+            rewards: rewardsSummary,
+            progress: newNode?.isEnding ? null : progress,
+            character: updatedCharacter
         });
     }
     catch (error) {
