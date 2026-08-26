@@ -163,6 +163,12 @@ class NightCycleService {
         if (haven && haven.locationId) {
             character.currentLocationId = haven.locationId;
         }
+        // Se estiver retornando durante o dia / alerta solar (>= 600 min), aplica a penalidade tripla
+        if ((character.nightMinutesSpent || 0) >= 600) {
+            character.healthDamageAggravated = Math.min(character.healthMax, character.healthDamageAggravated + 1);
+            character.hunger = Math.min(5, character.hunger + 1);
+            character.willpowerDamageSuperficial = Math.min(character.willpowerMax, character.willpowerDamageSuperficial + 1);
+        }
         character.isRestingInHaven = true;
         character.emergencyHavenType = 'NONE';
         await character.save();
@@ -271,9 +277,11 @@ class NightCycleService {
         if (shelterType === 'GO_HOME') {
             // Retorno ao refúgio: calcula trânsito até a casa
             const transit = await this.calculateTransit(character.currentLocationId, havenLocationId);
-            // Dano solar no caminho: 1 dano agravado para cada 20 min de trânsito
+            // Dano solar no caminho: 1 dano agravado para cada 20 min de trânsito (mínimo 1)
             const damageTaken = Math.max(1, Math.floor(transit.transitMinutesInGame / 20));
             character.healthDamageAggravated = Math.min(character.healthMax, character.healthDamageAggravated + damageTaken);
+            character.hunger = Math.min(5, character.hunger + 1);
+            character.willpowerDamageSuperficial = Math.min(character.willpowerMax, character.willpowerDamageSuperficial + 1);
             character.currentLocationId = havenLocationId;
             character.isRestingInHaven = true;
             character.emergencyHavenType = 'NONE';
@@ -288,7 +296,7 @@ class NightCycleService {
             }
             return {
                 success: true,
-                message: `Você correu desesperadamente até o seu refúgio sob a luz do sol, sofrendo ${damageTaken} de Dano Agravado pela radiação solar. Operações na rua foram abortadas!`,
+                message: `Fuga Desesperada ao Refúgio: Você correu pelas ruas sob o sol da manhã. Sofreu ${damageTaken} Dano Agravado, aumentou sua Fome (+1) pelo esforço e perdeu -1 Força de Vontade pelo pânico do Rötschreck!`,
                 damageTaken,
                 moneySpent: 0,
                 character
