@@ -403,7 +403,6 @@ const toggleEquipEquipment = async (req, res) => {
     }
 };
 exports.toggleEquipEquipment = toggleEquipEquipment;
-// --- ACTIVITY LOGS & HISTORY ---
 const getCharacterActivityLogs = async (req, res) => {
     try {
         const { id } = req.params;
@@ -413,20 +412,31 @@ const getCharacterActivityLogs = async (req, res) => {
             limit: 5
         });
         const enriched = await Promise.all(logs.map(async (log) => {
-            const data = log.toJSON();
-            if (data.activityType === 'IDLE_MISSION' && data.referenceId) {
-                const mission = await models_2.DefinitionMissionIdle.findByPk(data.referenceId, {
-                    attributes: ['title', 'description', 'category', 'difficulty', 'rewardExp', 'rewardMoney']
-                });
-                data.mission = mission;
+            try {
+                const data = typeof log.toJSON === 'function' ? log.toJSON() : log;
+                if (typeof data.resultData === 'string') {
+                    try {
+                        data.resultData = JSON.parse(data.resultData);
+                    }
+                    catch { }
+                }
+                if (data.activityType === 'IDLE_MISSION' && data.referenceId) {
+                    const mission = await models_2.DefinitionMissionIdle.findByPk(data.referenceId, {
+                        attributes: ['title', 'description', 'category', 'difficulty', 'rewardExp', 'rewardMoney']
+                    });
+                    data.mission = mission;
+                }
+                return data;
             }
-            return data;
+            catch (err) {
+                return typeof log.toJSON === 'function' ? log.toJSON() : log;
+            }
         }));
-        res.json(enriched);
+        return res.json(enriched);
     }
     catch (error) {
         console.error('Erro ao buscar logs de atividade:', error);
-        res.status(500).json({ error: 'Erro ao buscar histórico de atividades' });
+        return res.json([]);
     }
 };
 exports.getCharacterActivityLogs = getCharacterActivityLogs;

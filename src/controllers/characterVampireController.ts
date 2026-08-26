@@ -455,8 +455,6 @@ export const toggleEquipEquipment = async (req: Request, res: Response) => {
   }
 };
 
-// --- ACTIVITY LOGS & HISTORY ---
-
 export const getCharacterActivityLogs = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -467,20 +465,29 @@ export const getCharacterActivityLogs = async (req: Request, res: Response) => {
     });
 
     const enriched = await Promise.all(logs.map(async (log: any) => {
-      const data = log.toJSON();
-      if (data.activityType === 'IDLE_MISSION' && data.referenceId) {
-        const mission = await DefinitionMissionIdle.findByPk(data.referenceId, {
-          attributes: ['title', 'description', 'category', 'difficulty', 'rewardExp', 'rewardMoney']
-        });
-        data.mission = mission;
+      try {
+        const data = typeof log.toJSON === 'function' ? log.toJSON() : log;
+        if (typeof data.resultData === 'string') {
+          try {
+            data.resultData = JSON.parse(data.resultData);
+          } catch {}
+        }
+        if (data.activityType === 'IDLE_MISSION' && data.referenceId) {
+          const mission = await DefinitionMissionIdle.findByPk(data.referenceId, {
+            attributes: ['title', 'description', 'category', 'difficulty', 'rewardExp', 'rewardMoney']
+          });
+          data.mission = mission;
+        }
+        return data;
+      } catch (err) {
+        return typeof log.toJSON === 'function' ? log.toJSON() : log;
       }
-      return data;
     }));
 
-    res.json(enriched);
+    return res.json(enriched);
   } catch (error) {
     console.error('Erro ao buscar logs de atividade:', error);
-    res.status(500).json({ error: 'Erro ao buscar histórico de atividades' });
+    return res.json([]);
   }
 };
 
