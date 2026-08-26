@@ -10,7 +10,23 @@ import { CharacterVampirePower } from '../models/CharacterVampirePower';
 import { CharacterVampireMeritFlaw } from '../models/CharacterVampireMeritFlaw';
 import { CharacterVampireBackground } from '../models/CharacterVampireBackground';
 import { CharacterVampireEquipment } from '../models/CharacterVampireEquipment';
-import { DefinitionClan, DefinitionPredator, DefinitionResonance, DefinitionBloodPotency, DefinitionAttribute, DefinitionSkill, DefinitionDiscipline, DefinitionDisciplinePower, DefinitionBackground, DefinitionMeritFlaw, DefinitionLocation, DefinitionEquipment, CharacterHaven } from '../models';
+import { 
+  DefinitionClan, 
+  DefinitionPredator, 
+  DefinitionResonance, 
+  DefinitionBloodPotency, 
+  DefinitionAttribute, 
+  DefinitionSkill, 
+  DefinitionDiscipline, 
+  DefinitionDisciplinePower, 
+  DefinitionBackground, 
+  DefinitionMeritFlaw, 
+  DefinitionLocation, 
+  DefinitionEquipment, 
+  CharacterHaven,
+  CharacterActivityLog,
+  DefinitionMissionIdle
+} from '../models';
 
 export const getAvailableSires = async (req: Request, res: Response) => {
   try {
@@ -436,5 +452,160 @@ export const toggleEquipEquipment = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erro ao equipar/desequipar item:', error);
     res.status(500).json({ error: 'Erro ao equipar/desequipar item.' });
+  }
+};
+
+// --- ACTIVITY LOGS & HISTORY ---
+
+export const getCharacterActivityLogs = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const logs = await CharacterActivityLog.findAll({
+      where: { characterId: id },
+      order: [['createdAt', 'DESC']],
+      limit: 5
+    });
+
+    const enriched = await Promise.all(logs.map(async (log: any) => {
+      const data = log.toJSON();
+      if (data.activityType === 'IDLE_MISSION' && data.referenceId) {
+        const mission = await DefinitionMissionIdle.findByPk(data.referenceId, {
+          attributes: ['title', 'description', 'category', 'difficulty', 'rewardExp', 'rewardMoney']
+        });
+        data.mission = mission;
+      }
+      return data;
+    }));
+
+    res.json(enriched);
+  } catch (error) {
+    console.error('Erro ao buscar logs de atividade:', error);
+    res.status(500).json({ error: 'Erro ao buscar histórico de atividades' });
+  }
+};
+
+// --- HAVEN & RETAINERS MANAGEMENT ---
+
+export const hireRetainer = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { retainerId, cost } = req.body;
+
+    const character = await CharacterVampire.findByPk(id);
+    if (!character) return res.status(404).json({ error: 'Personagem não encontrado' });
+
+    const price = Number(cost) || 5000;
+    if ((character.money || 0) < price) {
+      return res.status(400).json({ error: 'Saldo insuficiente em carteira.' });
+    }
+
+    let haven = await CharacterHaven.findOne({ where: { characterId: id } });
+    if (!haven) {
+      haven = await CharacterHaven.create({
+        characterId: id,
+        locationId: character.currentLocationId || '530d1b31-4171-4770-ae4a-5c12e84cba36',
+        securityLevel: 1,
+        luxuryLevel: 1,
+        attributes: { retainers: [] }
+      } as any);
+    }
+
+    const attr = (haven.attributes as any) || {};
+    const retainers = Array.isArray(attr.retainers) ? [...attr.retainers] : [];
+
+    if (retainers.includes(retainerId)) {
+      return res.status(400).json({ error: 'Este especialista já está a serviço do seu refúgio.' });
+    }
+
+    retainers.push(retainerId);
+    haven.attributes = { ...attr, retainers };
+    await haven.save();
+
+    character.money = Math.max(0, (character.money || 0) - price);
+    await character.save();
+
+    res.json({
+      message: 'Especialista contratado com sucesso!',
+      retainers,
+      newMoney: character.money
+    });
+  } catch (error) {
+    console.error('Erro ao contratar especialista:', error);
+    res.status(500).json({ error: 'Erro ao contratar especialista' });
+  }
+};
+
+export const consumeHavenBloodBag = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const character = await CharacterVampire.findByPk(id);
+    if (!character) return res.status(404).json({ error: 'Personagem não encontrado' });
+
+    if (character.hunger <= 0) {
+      return res.status(400).json({ error: 'Sua fome já está saciada (Fome 0).' });
+    }
+
+    character.hunger = Math.max(0, character.hunger - 1);
+    await character.save();
+
+    res.json({
+      message: 'Você consumiu uma bolsa de sangue O- da geladeira do refúgio. Fome saciada em 1 ponto.',
+      hunger: character.hunger
+    });
+  } catch (error) {
+    console.error('Erro ao consumir bolsa de sangue:', error);
+    res.status(500).json({ error: 'Erro ao consumir bolsa de sangue' });
+  }
+};
+
+export const upgradeHaven = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { type } = req.body; // 'security' or 'luxury'
+
+    const character = await CharacterVampire.findByPk(id);
+    if (!character) return res.status(404).json({ error: 'Personagem não encontrado' });
+
+    let haven = await CharacterHaven.findOne({ where: { characterId: id } });
+    if (!haven) {
+      haven = await CharacterHaven.create({
+        characterId: id,
+        locationId: character.currentLocationId || '530d1b31-4171-4770-ae4a-5c12e84cba36',
+        securityLevel: 1,
+        luxuryLevel: 1,
+        attributes: { retainers: [] }
+      } as any);
+    }
+
+    const currentLevel = type === 'security' ? haven.securityLevel : haven.luxuryLevel;
+    if (currentLevel >= 5) {
+      return res.status(400).json({ error: 'Nível máximo atingido (Nível 5).' });
+    }
+
+    const upgradeCost = (currentLevel + 1) * 3500;
+    if ((character.money || 0) < upgradeCost) {
+      return res.status(400).json({ 
+        error: `Saldo insuficiente! Custa R$ ${Number(upgradeCost).toLocaleString('pt-BR')} para evoluir para Nível ${currentLevel + 1}.` 
+      });
+    }
+
+    character.money = Math.max(0, (character.money || 0) - upgradeCost);
+    await character.save();
+
+    if (type === 'security') {
+      haven.securityLevel += 1;
+    } else {
+      haven.luxuryLevel += 1;
+    }
+    await haven.save();
+
+    res.json({
+      message: `Refúgio evoluído com sucesso para Nível ${type === 'security' ? haven.securityLevel : haven.luxuryLevel}!`,
+      haven,
+      newMoney: character.money
+    });
+  } catch (error) {
+    console.error('Erro ao evoluir refúgio:', error);
+    res.status(500).json({ error: 'Erro ao evoluir refúgio' });
   }
 };

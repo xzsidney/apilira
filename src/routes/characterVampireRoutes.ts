@@ -8,7 +8,11 @@ import {
   deleteCharacterVampire,
   awakenCharacterVampire,
   buyEquipment,
-  toggleEquipEquipment
+  toggleEquipEquipment,
+  getCharacterActivityLogs,
+  hireRetainer,
+  consumeHavenBloodBag,
+  upgradeHaven
 } from '../controllers/characterVampireController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
@@ -25,8 +29,16 @@ router.put('/:id', updateCharacterVampire);
 router.delete('/:id', deleteCharacterVampire);
 router.post('/:id/awaken', awakenCharacterVampire);
 
+// Histórico de Atividades
+router.get('/:id/activities', getCharacterActivityLogs);
 
+// Equipamentos & Arsenal
 router.post('/:id/equipments', buyEquipment);
 router.put('/:id/equipments/:equipmentId/equip', toggleEquipEquipment);
+
+// Refúgio & Lacaios
+router.post('/:id/retainers', hireRetainer);
+router.post('/:id/haven/consume-blood', consumeHavenBloodBag);
+router.post('/:id/haven/upgrade', upgradeHaven);
 
 export default router;
