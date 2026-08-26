@@ -1,0 +1,223 @@
+{
+  "title": "O Leilão Clandestino de Santana",
+  "description": "Um lote de vitae ancestral e purificada está sendo leiloado secretamente nos subterrâneos de Santana. Você foi despachado para garantir o frasco a qualquer custo antes que caia em mãos rivais.",
+  "maxCompletions": null,
+  "firstNodeKey": "cena_1_estacionamento",
+  "nodes": [
+    {
+      "key": "cena_1_estacionamento",
+      "speakerName": "Rat King (Informante Nosferatu)",
+      "isEnding": false,
+      "backgroundImageUrl": "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?q=80&w=1920&auto=format&fit=crop",
+      "leftCharacterImageUrl": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?q=80&w=800&auto=format&fit=crop",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "A chuva ácida de São Paulo escorre pela carcaça de carros abandonados no estacionamento subterrâneo de Santana. Uma figura encapuzada emerge das sombras das colunas de concreto, com a pele cadavérica e olhos amarelos reluzindo no escuro.\n\n— O convite para o leilão não sai barato, Neófito. As forças da Camarilla e os Anarquistas querem o mesmo frasco. O que você me oferece para abrir as portas da mansão?",
+      "choices": [
+        {
+          "choiceText": "[INTIMIDAÇÃO] Encurralar o informante contra a coluna e exigir o convite",
+          "attributeReq": "Força",
+          "skillReq": "Intimidação",
+          "difficulty": 2,
+          "successNodeKey": "cena_2_infiltracao",
+          "failureNodeKey": "cena_1_falha_informante",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[LÁBIA] Persuadir com promessas de proteção e favores da corte",
+          "attributeReq": "Manipulação",
+          "skillReq": "Lábia",
+          "difficulty": 2,
+          "successNodeKey": "cena_2_infiltracao",
+          "failureNodeKey": "cena_1_falha_informante"
+        },
+        {
+          "choiceText": "[INVESTIGAÇÃO] Oferecer segredos e dados roubados do Primogênito rival",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Investigação",
+          "difficulty": 1,
+          "successNodeKey": "cena_2_infiltracao",
+          "failureNodeKey": "cena_1_falha_informante"
+        },
+        {
+          "choiceText": "[DISCIPLINA] Usar o peso da Presença / Dominação para subjugá-lo",
+          "attributeReq": "Carisma",
+          "skillReq": "Persuasão",
+          "difficulty": 1,
+          "successNodeKey": "cena_2_infiltracao",
+          "failureNodeKey": "cena_1_falha_informante",
+          "customStyle": "DISCIPLINE"
+        }
+      ]
+    },
+    {
+      "key": "cena_1_falha_informante",
+      "speakerName": "Rat King (Informante Nosferatu)",
+      "isEnding": false,
+      "backgroundImageUrl": "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?q=80&w=1920&auto=format&fit=crop",
+      "leftCharacterImageUrl": "https://images.unsplash.com/photo-1566492031773-4f4e44671857?q=80&w=800&auto=format&fit=crop",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "O Nosferatu cospe no chão e ri com escárnio, recuando dois passos enquanto puxa uma lâmina oxidada da manga:\n\n— Você tem muito a aprender sobre a noite, sangue-novo. Se quiser passar, vai ter que me pagar o dobro em sangue ou me derrubar!",
+      "choices": [
+        {
+          "choiceText": "[BRIGA] Desarmá-lo com um golpe certeiro no pulso",
+          "attributeReq": "Força",
+          "skillReq": "Briga",
+          "difficulty": 2,
+          "successNodeKey": "cena_2_infiltracao",
+          "failureNodeKey": "cena_2_infiltracao",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[MANIPULAÇÃO] Pagar com seu próprio sangue para evitar um escândalo",
+          "attributeReq": "Autocontrole",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_2_infiltracao",
+          "failureNodeKey": "cena_2_infiltracao"
+        }
+      ]
+    },
+    {
+      "key": "cena_2_infiltracao",
+      "speakerName": "Segurança Ghoul da Mansão",
+      "isEnding": false,
+      "backgroundImageUrl": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?q=80&w=1920&auto=format&fit=crop",
+      "leftCharacterImageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Você chega aos portões de ferro forjado do casarão histórico no alto de Santana. Holofotes varrem o jardim e dois carniçais armados com submetralhadoras barram a escadaria principal. A entrada dos fundos possui um sensor biométrico desligado.\n\nComo você prefere penetrar no perímetro?",
+      "choices": [
+        {
+          "choiceText": "[FURTIVIDADE] Escalar o muro lateral sob as copas das árvores e entrar pelo telhado",
+          "attributeReq": "Destreza",
+          "skillReq": "Furtividade",
+          "difficulty": 2,
+          "successNodeKey": "cena_3_leilao",
+          "failureNodeKey": "cena_3_leilao"
+        },
+        {
+          "choiceText": "[ETIQUETA] Apresentar o convite do Nosferatu com pose aristocrática de alto escalão",
+          "attributeReq": "Carisma",
+          "skillReq": "Etiqueta",
+          "difficulty": 2,
+          "successNodeKey": "cena_3_leilao",
+          "failureNodeKey": "cena_3_leilao"
+        },
+        {
+          "choiceText": "[TECNOLOGIA] Hackear o painel eletrônico de serviço da garagem",
+          "attributeReq": "Inteligência",
+          "skillReq": "Tecnologia",
+          "difficulty": 2,
+          "successNodeKey": "cena_3_leilao",
+          "failureNodeKey": "cena_3_leilao"
+        },
+        {
+          "choiceText": "[ATLETISMO] Saltar silenciosamente pelo duto de ventilação da adega",
+          "attributeReq": "Força",
+          "skillReq": "Atletismo",
+          "difficulty": 1,
+          "successNodeKey": "cena_3_leilao",
+          "failureNodeKey": "cena_3_leilao"
+        }
+      ]
+    },
+    {
+      "key": "cena_3_leilao",
+      "speakerName": "Madame Genevieve (Leiloeira Toreador)",
+      "isEnding": false,
+      "backgroundImageUrl": "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=1920&auto=format&fit=crop",
+      "leftCharacterImageUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "O salão subterrâneo está iluminado por lustres de cristal e velas aromáticas que disfarçam o odor de cobre e cinzas. Vampiros de alta estirpe observam um pedestal central protegido por vidro temperado blindado: um frasco de cristal com a Vitae de um Matusalém da Quarta Geração.\n\nMadame Genevieve ergue o martelo de marfim:\n\n— O lote supremo da noite está aberto. Quem oferecerá a garantia de honra e recursos necessária para reivindicá-lo?",
+      "choices": [
+        {
+          "choiceText": "[LÁBIA] Blefar uma oferta irrecusável em nome de um Primogênito ausente",
+          "attributeReq": "Manipulação",
+          "skillReq": "Lábia",
+          "difficulty": 3,
+          "successNodeKey": "cena_4_emboscada",
+          "failureNodeKey": "cena_4_emboscada"
+        },
+        {
+          "choiceText": "[INVESTIGAÇÃO] Identificar o ponto cego dos seguranças para subtrair o frasco nas sombras",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Investigação",
+          "difficulty": 2,
+          "successNodeKey": "cena_4_emboscada",
+          "failureNodeKey": "cena_4_emboscada"
+        },
+        {
+          "choiceText": "[SAGACIDADE] Desmascarar o comprador rival revelando que seus fundos são falsos",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Sagacidade",
+          "difficulty": 2,
+          "successNodeKey": "cena_4_emboscada",
+          "failureNodeKey": "cena_4_emboscada"
+        },
+        {
+          "choiceText": "[DISCIPLINA] Projetar Ofuscação / Feitiçaria de Sangue para cegar os presentes",
+          "attributeReq": "Manipulação",
+          "skillReq": "Ocultismo",
+          "difficulty": 2,
+          "successNodeKey": "cena_4_emboscada",
+          "failureNodeKey": "cena_4_emboscada",
+          "customStyle": "DISCIPLINE"
+        }
+      ]
+    },
+    {
+      "key": "cena_4_emboscada",
+      "speakerName": "O Narrador",
+      "isEnding": false,
+      "backgroundImageUrl": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1920&auto=format&fit=crop",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "DE REPENTE, AS LUZES SE APAGAM! Sirenes ensurdecedoras ecoam pelos corredores e bombas de fósforo branco iluminam as janelas superiores. Agentes da Segunda Inquisição arrombam as portas blindadas disparando projéteis incendiários!\n\nO pânico toma conta do salão. Em meio ao fogo e aos gritos, o frasco de vitae cai perto de seus pés no chão de mármore. Você precisa agarrá-lo e escapar antes do colapso!",
+      "choices": [
+        {
+          "choiceText": "[ARMAS DE FOGO] Fornecer fogo de cobertura contra os agentes e abrir caminho",
+          "attributeReq": "Destreza",
+          "skillReq": "Armas de Fogo",
+          "difficulty": 2,
+          "successNodeKey": "cena_5_desfecho",
+          "failureNodeKey": "cena_5_desfecho",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[BRIGA] Esmagar o esquadrão tático na porta dos fundos com violência pura",
+          "attributeReq": "Força",
+          "skillReq": "Briga",
+          "difficulty": 2,
+          "successNodeKey": "cena_5_desfecho",
+          "failureNodeKey": "cena_5_desfecho",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[LADROAGEM] Pegar o frasco em alta velocidade e deslizar pelos túneis de fuga",
+          "attributeReq": "Destreza",
+          "skillReq": "Ladroagem",
+          "difficulty": 2,
+          "successNodeKey": "cena_5_desfecho",
+          "failureNodeKey": "cena_5_desfecho"
+        },
+        {
+          "choiceText": "[SOBREVIVÊNCIA] Guiar-se pelas chamas e pelo cheiro de ar puro para escapar pelo duto",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_5_desfecho",
+          "failureNodeKey": "cena_5_desfecho"
+        }
+      ]
+    },
+    {
+      "key": "cena_5_desfecho",
+      "speakerName": "O Narrador",
+      "isEnding": true,
+      "backgroundImageUrl": "https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=1920&auto=format&fit=crop",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Você emerge na escuridão fria da Marginal Tietê, com o casarão em chamas ao longe e o som distante de sirenes policiais. Em suas mãos repousa o frasco selado com cera rubra: a Vitae Ancestral de Santana.\n\nVocê bebe uma gota pura do sangue ancestral. Um poder vertiginoso percorre suas veias não-vivas, aplacando sua Fome e consolidando sua reputação entre os monstros de Nocturna. A noite é sua vitória.",
+      "choices": []
+    }
+  ]
+}

@@ -1,59 +1,150 @@
-import { sequelize } from './models';
-import DefinitionStoryAdventure from './models/DefinitionStoryAdventure';
-import DefinitionStoryNode from './models/DefinitionStoryNode';
-import DefinitionStoryChoice from './models/DefinitionStoryChoice';
+import fs from 'fs';
+import path from 'path';
+import { 
+  DefinitionStoryAdventure, 
+  DefinitionStoryNode, 
+  DefinitionStoryChoice 
+} from './models';
+import sequelize from './config/database';
 
-async function seedTestAdventure() {
-  try {
-    const adv = await DefinitionStoryAdventure.create({
-      title: 'A Noite Inicial',
-      description: 'Uma crônica de teste para avaliar o motor narrativo.',
-    } as any);
-
-    const node1 = await DefinitionStoryNode.create({
-      adventureId: adv.id,
-      narrativeText: 'Você acorda em um beco sujo. A fome queima sua garganta como brasa. Diante de você, um mortal embriagado cambaleia. O que você faz?',
-      isEnding: false,
-      backgroundImageUrl: 'https://images.unsplash.com/photo-1604085448625-e593e877fc54?q=80&w=1920&auto=format&fit=crop', // Dark alley
-      speakerName: 'O Narrador',
-      leftCharacterImageUrl: '',
-      rightCharacterImageUrl: 'https://i.pinimg.com/originals/9f/c7/27/9fc7274092b7754b2361427a13c9e99a.png', // Random placeholder for a character
-    } as any);
-
-    adv.firstNodeId = node1.id;
-    await adv.save();
-
-    const nodeSuccess = await DefinitionStoryNode.create({
-      adventureId: adv.id,
-      narrativeText: 'Com movimentos rápidos e silenciosos, você o domina e se alimenta. A fome diminui. A noite é sua.',
-      isEnding: true,
-      backgroundImageUrl: 'https://images.unsplash.com/photo-1616851173956-621e8e2e288e?q=80&w=1920&auto=format&fit=crop', // Red/Dark abstract
-    } as any);
-
-    const nodeFail = await DefinitionStoryNode.create({
-      adventureId: adv.id,
-      narrativeText: 'Você hesita e ele percebe sua aproximação. Ele grita e foge, chamando a atenção de pessoas próximas. Você precisa recuar de mãos vazias.',
-      isEnding: true,
-      backgroundImageUrl: 'https://images.unsplash.com/photo-1518002171953-a080ee817e1f?q=80&w=1920&auto=format&fit=crop', // Street running
-    } as any);
-
-    await DefinitionStoryChoice.create({
-      nodeId: node1.id,
-      choiceText: '[PREDADOR] Atacar sorrateiramente (Força + Furtividade)',
-      attributeReq: 'Força',
-      skillReq: 'Furtividade',
-      difficulty: 1,
-      successNodeId: nodeSuccess.id,
-      failureNodeId: nodeFail.id,
-      customStyle: 'DISCIPLINE'
-    } as any);
-
-    console.log('Test adventure seeded successfully!');
-    process.exit(0);
-  } catch (error) {
-    console.error('Error seeding adventure:', error);
-    process.exit(1);
-  }
+export interface StoryChoiceJson {
+  choiceText: string;
+  attributeReq?: string;
+  skillReq?: string;
+  difficulty?: number;
+  successNodeKey: string;
+  failureNodeKey?: string;
+  customStyle?: string;
 }
 
-seedTestAdventure();
+export interface StoryNodeJson {
+  key: string;
+  narrativeText: string;
+  speakerName?: string;
+  isEnding?: boolean;
+  backgroundImageUrl?: string;
+  leftCharacterImageUrl?: string;
+  rightCharacterImageUrl?: string;
+  choices?: StoryChoiceJson[];
+}
+
+export interface StoryAdventureJson {
+  title: string;
+  description: string;
+  maxCompletions?: number | null;
+  firstNodeKey: string;
+  nodes: StoryNodeJson[];
+}
+
+export async function importAdventureFromJson(filePath: string) {
+  const absolutePath = path.resolve(filePath);
+  if (!fs.existsSync(absolutePath)) {
+    console.error(`Arquivo não encontrado: ${absolutePath}`);
+    return;
+  }
+
+  const rawData = fs.readFileSync(absolutePath, 'utf-8');
+  const adventureData: StoryAdventureJson = JSON.parse(rawData);
+
+  console.log(`\n🦇 Iniciando importação da Crônica: "${adventureData.title}"...`);
+
+  // 1. Criar ou buscar Aventura
+  let adventure = await DefinitionStoryAdventure.findOne({
+    where: { title: adventureData.title }
+  });
+
+  if (!adventure) {
+    adventure = await DefinitionStoryAdventure.create({
+      title: adventureData.title,
+      description: adventureData.description,
+      maxCompletions: adventureData.maxCompletions ?? null,
+    } as any);
+    console.log(`✨ Aventura criada: "${adventure.title}" (ID: ${adventure.id})`);
+  } else {
+    adventure.description = adventureData.description;
+    adventure.maxCompletions = adventureData.maxCompletions ?? null;
+    await adventure.save();
+    console.log(`🔄 Aventura existente atualizada: "${adventure.title}"`);
+  }
+
+  // 2. Mapeamento de Nós por chave (ex: "node_1" -> Node Instance)
+  const nodeMap = new Map<string, DefinitionStoryNode>();
+
+  // Limpar nós antigos se a aventura já existia para recriar a estrutura limpa
+  const existingNodes = await DefinitionStoryNode.findAll({ where: { adventureId: adventure.id } });
+  for (const node of existingNodes) {
+    await DefinitionStoryChoice.destroy({ where: { nodeId: node.id } });
+    await node.destroy();
+  }
+
+  // 3. Criar os Nós no banco
+  for (const n of adventureData.nodes) {
+    const node = await DefinitionStoryNode.create({
+      adventureId: adventure.id,
+      narrativeText: n.narrativeText,
+      speakerName: n.speakerName || 'O Narrador',
+      isEnding: !!n.isEnding,
+      backgroundImageUrl: n.backgroundImageUrl || '',
+      leftCharacterImageUrl: n.leftCharacterImageUrl || '',
+      rightCharacterImageUrl: n.rightCharacterImageUrl || '',
+    } as any);
+
+    nodeMap.set(n.key, node);
+    console.log(`  ├─ Cena criada: [${n.key}] ${n.speakerName ? `(${n.speakerName})` : ''} - "${n.narrativeText.slice(0, 45)}..."`);
+  }
+
+  // 4. Vincular o Nó Inicial da Aventura
+  const firstNode = nodeMap.get(adventureData.firstNodeKey);
+  if (firstNode) {
+    adventure.firstNodeId = firstNode.id;
+    await adventure.save();
+    console.log(`  ├─ Nó Inicial vinculado com sucesso: [${adventureData.firstNodeKey}]`);
+  } else {
+    console.warn(`  ⚠️ Nó inicial "${adventureData.firstNodeKey}" não encontrado nos nós fornecidos.`);
+  }
+
+  // 5. Criar Escolhas e conectar as ramificações
+  let totalChoices = 0;
+  for (const n of adventureData.nodes) {
+    const parentNode = nodeMap.get(n.key);
+    if (!parentNode || !n.choices) continue;
+
+    for (const c of n.choices) {
+      const targetSuccess = nodeMap.get(c.successNodeKey);
+      const targetFailure = c.failureNodeKey ? nodeMap.get(c.failureNodeKey) : null;
+
+      if (!targetSuccess) {
+        console.warn(`    ⚠️ Escolha "${c.choiceText}" aponta para nó de sucesso inexistente: "${c.successNodeKey}"`);
+        continue;
+      }
+
+      await DefinitionStoryChoice.create({
+        nodeId: parentNode.id,
+        choiceText: c.choiceText,
+        attributeReq: c.attributeReq || null,
+        skillReq: c.skillReq || null,
+        difficulty: c.difficulty || 1,
+        successNodeId: targetSuccess.id,
+        failureNodeId: targetFailure ? targetFailure.id : targetSuccess.id,
+        customStyle: c.customStyle || null
+      } as any);
+
+      totalChoices++;
+    }
+  }
+
+  console.log(`  └─ Total de ${totalChoices} escolhas/testes vinculados.`);
+  console.log(`✅ Crônica "${adventureData.title}" importada e pronta para jogar!\n`);
+}
+
+// Execução direta via CLI
+if (require.main === module) {
+  const targetFile = process.argv[2] || path.join(__dirname, 'data/adventures/o_leilao_de_sangue.json');
+  importAdventureFromJson(targetFile)
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error('Erro na importação da crônica:', err);
+      process.exit(1);
+    });
+}
+
