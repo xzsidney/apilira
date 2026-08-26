@@ -85,62 +85,89 @@ const getActiveMission = async (req, res) => {
         const responseMission = activeMission.toJSON();
         responseMission.isPausedBySunHazard = isSunHazard;
         if (fullReport && fullReport.steps) {
-            // Se houver perigo solar, a missão fica congelada e não expira normalmente
-            const isExpired = !isSunHazard && (now >= expiresAt);
             const totalSteps = fullReport.steps.length;
-            const totalDurationMs = Math.max(1000, expiresAt.getTime() - startedAt.getTime());
-            const stepDurationMs = totalDurationMs / Math.max(1, totalSteps);
             const timelineSteps = [];
             let completedCount = 0;
-            for (let i = 0; i < totalSteps; i++) {
-                const rawStep = fullReport.steps[i];
-                const stepEndTime = new Date(startedAt.getTime() + (i + 1) * stepDurationMs);
-                const stepStartTime = new Date(startedAt.getTime() + i * stepDurationMs);
-                if (now >= stepEndTime || isExpired) {
-                    // ETAPA CONCLUÍDA (REVELADA)
-                    completedCount++;
+            if (isSunHazard) {
+                // SOB AMEAÇA SOLAR: CONGELA 100% DOS PASSOS NA HORA
+                timelineSteps.push({
+                    order: 1,
+                    actionName: fullReport.steps[0].actionName,
+                    pool: fullReport.steps[0].pool,
+                    status: 'FROZEN_SUN',
+                    narrative: '⛔ Operação paralisada pelos raios solares! O vampiro precisou cessar a ação para não ser incinerado pelo sol.'
+                });
+                for (let i = 1; i < totalSteps; i++) {
                     timelineSteps.push({
                         order: i + 1,
-                        actionName: rawStep.actionName,
-                        pool: rawStep.pool,
-                        status: 'COMPLETED',
-                        passed: rawStep.passed,
-                        rolls: rawStep.rolls,
-                        successes: rawStep.successes,
-                        narrative: rawStep.narrative
-                    });
-                }
-                else if (now >= stepStartTime) {
-                    // ETAPA ATUAL EM EXECUÇÃO
-                    timelineSteps.push({
-                        order: i + 1,
-                        actionName: rawStep.actionName,
-                        pool: rawStep.pool,
-                        status: 'IN_PROGRESS',
-                        narrative: 'O vampiro está atuando nas sombras desta etapa... Avaliando instintos e perícias.'
-                    });
-                }
-                else {
-                    // ETAPA FUTURA (BLOQUEADA)
-                    timelineSteps.push({
-                        order: i + 1,
-                        actionName: rawStep.actionName,
-                        pool: rawStep.pool,
+                        actionName: fullReport.steps[i].actionName,
+                        pool: fullReport.steps[i].pool,
                         status: 'LOCKED',
-                        narrative: 'Aguardando conclusão da etapa anterior para iniciar.'
+                        narrative: '🔒 Bloqueada. O amanhecer impede o avanço de qualquer atividade em campo aberto.'
                     });
                 }
+                responseMission.currentReport = {
+                    title: fullReport.title,
+                    steps: timelineSteps,
+                    isSuccess: null,
+                    finalChanges: []
+                };
+                responseMission.currentStage = 0;
+                responseMission.totalStages = totalSteps;
+                responseMission.readyToResolve = false;
             }
-            responseMission.currentReport = {
-                title: fullReport.title,
-                steps: timelineSteps,
-                isSuccess: isExpired ? fullReport.isSuccess : null,
-                finalChanges: isExpired ? fullReport.finalChanges : []
-            };
-            responseMission.currentStage = isExpired ? totalSteps : completedCount;
-            responseMission.totalStages = totalSteps;
-            if (isExpired) {
-                responseMission.readyToResolve = true;
+            else {
+                // FLUXO NORMAL NOTURNO
+                const isExpired = now >= expiresAt;
+                const totalDurationMs = Math.max(1000, expiresAt.getTime() - startedAt.getTime());
+                const stepDurationMs = totalDurationMs / Math.max(1, totalSteps);
+                for (let i = 0; i < totalSteps; i++) {
+                    const rawStep = fullReport.steps[i];
+                    const stepEndTime = new Date(startedAt.getTime() + (i + 1) * stepDurationMs);
+                    const stepStartTime = new Date(startedAt.getTime() + i * stepDurationMs);
+                    if (now >= stepEndTime || isExpired) {
+                        completedCount++;
+                        timelineSteps.push({
+                            order: i + 1,
+                            actionName: rawStep.actionName,
+                            pool: rawStep.pool,
+                            status: 'COMPLETED',
+                            passed: rawStep.passed,
+                            rolls: rawStep.rolls,
+                            successes: rawStep.successes,
+                            narrative: rawStep.narrative
+                        });
+                    }
+                    else if (now >= stepStartTime) {
+                        timelineSteps.push({
+                            order: i + 1,
+                            actionName: rawStep.actionName,
+                            pool: rawStep.pool,
+                            status: 'IN_PROGRESS',
+                            narrative: 'O vampiro está atuando nas sombras desta etapa... Avaliando instintos e perícias.'
+                        });
+                    }
+                    else {
+                        timelineSteps.push({
+                            order: i + 1,
+                            actionName: rawStep.actionName,
+                            pool: rawStep.pool,
+                            status: 'LOCKED',
+                            narrative: 'Aguardando conclusão da etapa anterior para iniciar.'
+                        });
+                    }
+                }
+                responseMission.currentReport = {
+                    title: fullReport.title,
+                    steps: timelineSteps,
+                    isSuccess: isExpired ? fullReport.isSuccess : null,
+                    finalChanges: isExpired ? fullReport.finalChanges : []
+                };
+                responseMission.currentStage = isExpired ? totalSteps : completedCount;
+                responseMission.totalStages = totalSteps;
+                if (isExpired) {
+                    responseMission.readyToResolve = true;
+                }
             }
         }
         return res.status(200).json(responseMission);
