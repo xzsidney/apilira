@@ -10,7 +10,7 @@ import { CharacterVampirePower } from '../models/CharacterVampirePower';
 import { CharacterVampireMeritFlaw } from '../models/CharacterVampireMeritFlaw';
 import { CharacterVampireBackground } from '../models/CharacterVampireBackground';
 import { CharacterVampireEquipment } from '../models/CharacterVampireEquipment';
-import { DefinitionClan, DefinitionPredator, DefinitionResonance, DefinitionBloodPotency, DefinitionAttribute, DefinitionSkill, DefinitionDiscipline, DefinitionDisciplinePower, DefinitionBackground, DefinitionMeritFlaw, DefinitionLocation, CharacterHaven } from '../models';
+import { DefinitionClan, DefinitionPredator, DefinitionResonance, DefinitionBloodPotency, DefinitionAttribute, DefinitionSkill, DefinitionDiscipline, DefinitionDisciplinePower, DefinitionBackground, DefinitionMeritFlaw, DefinitionLocation, DefinitionEquipment, CharacterHaven } from '../models';
 
 export const getAvailableSires = async (req: Request, res: Response) => {
   try {
@@ -163,6 +163,11 @@ export const getCharacterVampireById = async (req: Request, res: Response) => {
           include: [{ model: DefinitionMeritFlaw, attributes: ['name', 'description', 'type'] }]
         },
         {
+          model: CharacterVampireEquipment,
+          separate: true,
+          include: [{ model: DefinitionEquipment }]
+        },
+        {
           model: CharacterHaven,
           as: 'Haven',
           include: [{ model: DefinitionLocation, attributes: ['id', 'name', 'level'] }]
@@ -208,22 +213,30 @@ export const updateCharacterVampire = async (req: Request, res: Response) => {
   const transaction = await sequelize.transaction();
   try {
     const { id } = req.params;
-    const character = await CharacterVampire.findByPk(id);
+    const { 
+      name, concept, sire, ambition, desire, history, avatarUrl,
+      experienceTotal, experienceSpent,
+      healthMax, healthDamageSuperficial, healthDamageAggravated,
+      willpowerMax, willpowerDamageSuperficial, willpowerDamageAggravated,
+      humanity, hunger, bloodPotencyId, resonanceId, money,
+      attributes, skills, disciplines, backgrounds, meritsFlaws
+    } = req.body;
 
+    const character = await CharacterVampire.findByPk(id, { transaction });
     if (!character) {
       await transaction.rollback();
       return res.status(404).json({ error: 'Personagem não encontrado' });
     }
 
-    const {
-      attributes, skills, disciplines, powers, meritsFlaws, backgrounds, equipments,
-      ...updateData
-    } = req.body;
+    await character.update({
+      name, concept, sire, ambition, desire, history, avatarUrl,
+      experienceTotal, experienceSpent,
+      healthMax, healthDamageSuperficial, healthDamageAggravated,
+      willpowerMax, willpowerDamageSuperficial, willpowerDamageAggravated,
+      humanity, hunger, bloodPotencyId, resonanceId, money
+    }, { transaction });
 
-    // Atualiza os dados bases
-    await character.update(updateData, { transaction });
-
-    // Para as coleções associativas, o padrão em PUT completo é recriar:
+    // Atualiza coleções filhas se fornecidas
     if (attributes) {
       await CharacterVampireAttribute.destroy({ where: { characterVampireId: id }, transaction });
       const mapped = attributes.map((a: any) => ({
@@ -343,24 +356,63 @@ export const buyEquipment = async (req: Request, res: Response) => {
     const character = await CharacterVampire.findByPk(id);
     if (!character) return res.status(404).json({ error: 'Personagem não encontrado.' });
 
-    // Verifica se já tem o equipamento
+    const equipment = await DefinitionEquipment.findByPk(definitionEquipmentId);
+    if (!equipment) return res.status(404).json({ error: 'Equipamento não catalogado.' });
+
+    // Extrai o valor numérico de custo
+    let itemPrice = 0;
+    if (equipment.cost) {
+      const cleanNum = equipment.cost.replace(/\D/g, '');
+      if (cleanNum && parseInt(cleanNum, 10) > 0) {
+        itemPrice = parseInt(cleanNum, 10);
+      } else {
+        const dotCount = (equipment.cost.match(/●/g) || []).length;
+        if (dotCount === 1) itemPrice = 500;
+        else if (dotCount === 2) itemPrice = 1500;
+        else if (dotCount === 3) itemPrice = 4000;
+        else if (dotCount === 4) itemPrice = 10000;
+        else if (dotCount >= 5) itemPrice = 25000;
+        else itemPrice = 300;
+      }
+    } else {
+      itemPrice = 300;
+    }
+
+    if ((character.money || 0) < itemPrice) {
+      return res.status(400).json({ 
+        error: `Saldo insuficiente! Você possui R$ ${Number(character.money || 0).toLocaleString('pt-BR')}, mas o item custa R$ ${Number(itemPrice).toLocaleString('pt-BR')}.` 
+      });
+    }
+
+    // Debita o valor da carteira
+    character.money = Math.max(0, (character.money || 0) - itemPrice);
+    await character.save();
+
+    // Adiciona ou incrementa no inventário
     const existing = await CharacterVampireEquipment.findOne({
       where: { characterVampireId: id, definitionEquipmentId }
     });
 
+    let invItem;
     if (existing) {
       existing.quantity += 1;
       await existing.save();
-      return res.json(existing);
+      invItem = existing;
     } else {
-      const newItem = await CharacterVampireEquipment.create({
+      invItem = await CharacterVampireEquipment.create({
         characterVampireId: id,
         definitionEquipmentId,
         quantity: 1,
         equipped: false
       });
-      return res.status(201).json(newItem);
     }
+
+    return res.status(200).json({
+      item: invItem,
+      newMoney: character.money,
+      pricePaid: itemPrice,
+      message: `"${equipment.name}" adquirido por R$ ${Number(itemPrice).toLocaleString('pt-BR')}!`
+    });
   } catch (error) {
     console.error('Erro ao comprar equipamento:', error);
     res.status(500).json({ error: 'Erro ao processar a compra de equipamento.' });
