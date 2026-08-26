@@ -420,11 +420,37 @@ const getCharacterActivityLogs = async (req, res) => {
                     }
                     catch { }
                 }
+                if (data.resultData) {
+                    if (typeof data.resultData.rewards === 'string') {
+                        try {
+                            data.resultData.rewards = JSON.parse(data.resultData.rewards);
+                        }
+                        catch { }
+                    }
+                    if (typeof data.resultData.report === 'string') {
+                        try {
+                            data.resultData.report = JSON.parse(data.resultData.report);
+                        }
+                        catch { }
+                    }
+                }
                 if (data.activityType === 'IDLE_MISSION' && data.referenceId) {
                     const mission = await models_2.DefinitionMissionIdle.findByPk(data.referenceId, {
-                        include: [{ model: models_2.DefinitionLocation, as: 'Location', attributes: ['name'] }]
+                        include: [
+                            { model: models_2.DefinitionLocation, as: 'Location', attributes: ['name'] },
+                            { model: models_2.DefinitionMissionIdleAction, as: 'Actions' }
+                        ]
                     });
-                    data.mission = mission;
+                    if (mission) {
+                        const mData = mission.toJSON();
+                        if (typeof mData.rewardsJson === 'string') {
+                            try {
+                                mData.rewards = JSON.parse(mData.rewardsJson);
+                            }
+                            catch { }
+                        }
+                        data.mission = mData;
+                    }
                 }
                 return data;
             }

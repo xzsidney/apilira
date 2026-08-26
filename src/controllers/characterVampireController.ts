@@ -25,7 +25,8 @@ import {
   DefinitionEquipment, 
   CharacterHaven,
   CharacterActivityLog,
-  DefinitionMissionIdle
+  DefinitionMissionIdle,
+  DefinitionMissionIdleAction
 } from '../models';
 
 export const getAvailableSires = async (req: Request, res: Response) => {
@@ -472,11 +473,28 @@ export const getCharacterActivityLogs = async (req: Request, res: Response) => {
             data.resultData = JSON.parse(data.resultData);
           } catch {}
         }
+        if (data.resultData) {
+          if (typeof data.resultData.rewards === 'string') {
+            try { data.resultData.rewards = JSON.parse(data.resultData.rewards); } catch {}
+          }
+          if (typeof data.resultData.report === 'string') {
+            try { data.resultData.report = JSON.parse(data.resultData.report); } catch {}
+          }
+        }
         if (data.activityType === 'IDLE_MISSION' && data.referenceId) {
           const mission = await DefinitionMissionIdle.findByPk(data.referenceId, {
-            include: [{ model: DefinitionLocation, as: 'Location', attributes: ['name'] }]
+            include: [
+              { model: DefinitionLocation, as: 'Location', attributes: ['name'] },
+              { model: DefinitionMissionIdleAction, as: 'Actions' }
+            ]
           });
-          data.mission = mission;
+          if (mission) {
+            const mData = mission.toJSON() as any;
+            if (typeof mData.rewardsJson === 'string') {
+              try { mData.rewards = JSON.parse(mData.rewardsJson); } catch {}
+            }
+            data.mission = mData;
+          }
         }
         return data;
       } catch (err) {
