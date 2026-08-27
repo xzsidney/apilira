@@ -1,0 +1,390 @@
+{
+  "title": "O Despertar da Fera",
+  "description": "Você acorda cercado por sangue e carnificina sem memórias de sua humanidade. Com a polícia arrombando a porta, uma voz misteriosa ao telefone é o seu único guia para escapar de uma perigosa conspiração política.",
+  "maxCompletions": null,
+  "firstNodeKey": "cena_1_despertar",
+  "nodes": [
+    {
+      "key": "cena_1_despertar",
+      "speakerName": "A Voz ao Telefone",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_quarto_despertar.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Uma escuridão sufocante queima no fundo dos seus olhos antes mesmo de você conseguir abri-los. Sua garganta arde como se você tivesse engolido carvão em brasa misturado a moedas de cobre oxidadas.\n\nVocê se ergue em sobressalto. O quarto de casal é modesto e claustrofóbico: uma cômoda de madeira compensada barata, um espelho oval trincado de cima a baixo e cortinas encardidas. Mas o horror está na cama: os lençóis de algodão branco estão empapados em um líquido escuro, espesso e pegajoso. O cheiro não é de poeira; é o odor metálico, quente e adocicado de sangue fresco derramado.\n\nNa mesinha de cabeceira, a tela azulada de um smartphone pisca com uma chamada ativa em viva-voz.\n\nVocê aproxima o aparelho do ouvido com os dedos trêmulos:\n— Alô...? Quem tá aí...?\n\nUma voz feminina surge do outro lado. O tom é aveludado, refinado e gélido como o mármore:\n— Acordou, querido? Excelente. O choque costuma durar mais tempo nos fracos. Está pronto para iniciar a sua próxima vida?",
+      "choices": [
+        {
+          "choiceText": "[INVESTIGAÇÃO] Quem é você e que porra de sangue é esse na minha cama?!",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Investigação",
+          "difficulty": 1,
+          "successNodeKey": "cena_2_visita_indesejada",
+          "failureNodeKey": "cena_2_visita_indesejada"
+        },
+        {
+          "choiceText": "[AUTOCONTROLE] Manter a calma e exigir instruções sobre o que está acontecendo",
+          "attributeReq": "Autocontrole",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_2_visita_indesejada",
+          "failureNodeKey": "cena_2_visita_indesejada"
+        }
+      ]
+    },
+    {
+      "key": "cena_2_visita_indesejada",
+      "speakerName": "A Voz ao Telefone",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_quarto_despertar.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "— 'Quem sou eu?' — ela solta uma risada breve, impregnada de um desprezo aristocrático e sensual. — Considere-me a única alma nesta metrópole que tem interesse em não ver o seu crânio empalado em uma estaca de carvalho antes do amanhecer.\n\nBUM! BUM! BUM!\n\nGolpes ensurdecedores de aríete abalam as paredes da casa. O som de ferro batendo contra ferro ecoa pelo corredor. Do lado de fora da residência, vozes masculinas e autoritárias gritam entre o uivo cortante de sirenes policiais:\n'POLÍCIA CIVIL! POLÍCIA MILITAR! ABRAM A PORTA OU VAMOS DERRUBAR!'\n\nA mulher ao telefone estala a língua, agora com uma urgência cortante:\n— Sua visita indesejada chegou, lindinho. A polícia do estado não vai ter estômago para o que você fez com a decoração da casa. Saia desse quarto agora se não quiser ser metralhado como um animal raivoso!",
+      "choices": [
+        {
+          "choiceText": "[FURTIVIDADE] Abrir a porta do quarto e pisar cautelosamente no corredor",
+          "attributeReq": "Destreza",
+          "skillReq": "Furtividade",
+          "difficulty": 1,
+          "successNodeKey": "cena_3_corredor_massacre",
+          "failureNodeKey": "cena_3_corredor_massacre"
+        }
+      ]
+    },
+    {
+      "key": "cena_3_corredor_massacre",
+      "speakerName": "O Narrador",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_corredor_massacre.jpg",
+      "leftCharacterImageUrl": "/story_assets/npc_vitima_chao.jpg",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Ao cruzar o batente da porta, o ar se torna pesado e irrespirável. O corredor estreito foi transformado em um matadouro humano.\n\nO papel de parede floral está arrancado em tiras profundas, expondo o reboco marcado por sulcos de garras colossais. Pedaços de madeira estilhaçada de um armário misturam-se a roupas rasgadas e sangue espalhado pelo chão de taco. O sangue ainda escorre morno pelas paredes, pingando em um ritmo cadenciado: plop... plop... plop.\n\nMas o verdadeiro terror surge de dentro do seu próprio peito: você NÃO sente náusea. O choque e o vômito que qualquer pessoa normal sentiria simplesmente não existem. Há apenas um silêncio oco, uma frieza inumana e uma fisgada faminta no fundo da sua mandíbula que anseia pelo aroma daquele sangue.\n\nNo centro do corredor, estirada sobre um tapete ensopado de vermelho, jaz uma jovem mulher. O pescoço e a clavícula dela estão dilacerados por mordidas cruéis e cortes profundos. Para o seu espanto, o peito dela sobe e desce em respirações fracas. Ela ainda está viva... mas se esvaindo a cada segundo.\n\nBAM! A fechadura da porta da frente racha. Feixes de lanternas táticas e miras laser azuis e vermelhas já cortam a fresta entreaberta.",
+      "choices": [
+        {
+          "choiceText": "[MEDICINA] Ajoelhar-se e tentar estancar o sangramento da garota ferida no chão",
+          "attributeReq": "Inteligência",
+          "skillReq": "Medicina",
+          "difficulty": 2,
+          "successNodeKey": "cena_3a_socorrer_garota",
+          "failureNodeKey": "cena_3a_socorrer_garota"
+        },
+        {
+          "choiceText": "[RENDIÇÃO] Andar até a porta da frente de mãos para cima e se entregar à polícia",
+          "attributeReq": "Carisma",
+          "skillReq": "Persuasão",
+          "difficulty": 3,
+          "successNodeKey": "cena_3b_se_entregar_policia",
+          "failureNodeKey": "cena_3b_se_entregar_policia",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[SOBREVIVÊNCIA] Ignorar tudo, obedecer à mulher e correr direto para o quarto dos fundos",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Prontidão",
+          "difficulty": 2,
+          "successNodeKey": "cena_4_quarto_alcapao_percepcao",
+          "failureNodeKey": "cena_4_quarto_alcapao"
+        }
+      ]
+    },
+    {
+      "key": "cena_3a_socorrer_garota",
+      "speakerName": "A Voz ao Telefone",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_corredor_massacre.jpg",
+      "leftCharacterImageUrl": "/story_assets/npc_vitima_chao.jpg",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Você se ajoelha na poça viscosa e pressiona as palmas das mãos contra o pescoço da vítima. No instante em que sua pele toca o calor pulsante da artéria dela, um choque elétrico percorre sua espinha. Duas presas pontiagudas rasgam a carne da sua própria gengiva, estalando para fora. A sua Besta interior ruge, implorando para que você crave os dentes no que resta de vida daquela mulher.\n\n— O que você está fazendo, seu idiota?! — a mulher berra no fone do celular, com raiva genuína. — Você não é mais um médico ou um santo! A cada gota que ela perde, a Fera dentro de você vai querer devorá-la até os ossos! Largue-a e corra para o quarto de solteiro antes que os policiais encham seu peito de chumbo!\n\nA garota abre os olhos turvos, olha para as suas presas banhadas em saliva e solta um suspiro de puro pavor antes de desfalecer.",
+      "choices": [
+        {
+          "choiceText": "[AUTOCONTROLE] Recuar horrorizado com seus próprios dentes e disparar para o quarto dos fundos",
+          "attributeReq": "Autocontrole",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_4_quarto_alcapao",
+          "failureNodeKey": "cena_4_quarto_alcapao"
+        }
+      ]
+    },
+    {
+      "key": "cena_3b_se_entregar_policia",
+      "speakerName": "O Narrador",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_corredor_massacre.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "— Calma! Eu não fiz nada! Tem gente ferida aqui dentro! — você grita, erguendo as mãos vazias e dando passos em direção ao hall de entrada.\n\nCRRAAASH!\n\nA porta da frente é estourada para dentro por uma bota tática com biqueira de aço. Dois homens da tropa de choque, protegidos por coletes balísticos pretos e capacetes com visor escuro, invadem o ambiente empunhando submetralhadoras com lanternas acopladas.\n\nA luz forte cega seus olhos. No segundo em que o feixe de luz atinge seu rosto pálido e suas roupas ensopadas de sangue alheio, o policial da vanguarda engatilha a arma em pânico:\n'SUSPEITO HOSTIL! ELE MATOU TODO MUNDO! FOGO, FOGO, FOGO!'\n\nUma saraivada de projéteis 9mm corta o ar, estraçalhando o espelho e as paredes ao seu lado. Uma bala perfura seu ombro... mas em vez de dor excruciante, você sente apenas a força do impacto empurrando seu corpo.\n\n— Eu avisei, seu animal! — a voz grita no celular caído no seu bolso. — Corra para o quarto dos fundos agora!",
+      "choices": [
+        {
+          "choiceText": "[ATLETISMO] Mergulhar no corredor esquivando-se dos disparos e bater a porta do quarto dos fundos",
+          "attributeReq": "Destreza",
+          "skillReq": "Atletismo",
+          "difficulty": 2,
+          "successNodeKey": "cena_4_quarto_alcapao",
+          "failureNodeKey": "cena_4_quarto_alcapao",
+          "customStyle": "RED"
+        }
+      ]
+    },
+    {
+      "key": "cena_4_quarto_alcapao_percepcao",
+      "speakerName": "O Narrador",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_quarto_alcapao.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Em disparada pelo corredor, seus sentidos aguçados captam um reflexo sob uma cômoda destruída: um segundo smartphone quebrado e um crachá executivo com o logotipo do 'Banco Prado & Associados' (de Higienópolis) manchado de sangue. Você recolhe o aparelho no bolso e se tranca no quarto de solteiro.\n\nChutando o tapete felpudo de lado, surge no chão de tacos uma pesada tampa de alçapão de ferro fundido. Um grosso cadeado de latão com correntes antigas prende a tranca.\n\nNo canto da parede, você avista a chave mestra de bronze escondida discretamente atrás da moldura do quadro!",
+      "choices": [
+        {
+          "choiceText": "[USAR A CHAVE] Destrancar rapidamente o alçapão com a chave de bronze",
+          "attributeReq": "Destreza",
+          "skillReq": "Ladroagem",
+          "difficulty": 1,
+          "successNodeKey": "cena_5_salto_abismo",
+          "failureNodeKey": "cena_5_salto_abismo"
+        }
+      ]
+    },
+    {
+      "key": "cena_4_quarto_alcapao",
+      "speakerName": "O Narrador",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_quarto_alcapao.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Você bate a porta do quarto de solteiro e empurra uma cômoda pesada contra a madeira para conter os policiais, que já marcham aos gritos pelo corredor.\n\nAo chutar o tapete gasto para o lado, você revela uma escotilha pesada de ferro fundido lacrada com correntes grossas e um cadeado enferrujado.\n\n— A chave mestra está colada atrás da moldura do quadro na parede! — a mulher instrui pelo viva-voz. — Abra isso agora!",
+      "choices": [
+        {
+          "choiceText": "[FORÇA BRUTA] Quebrar a corrente na base da força física sobrenatural",
+          "attributeReq": "Força",
+          "skillReq": "Briga",
+          "difficulty": 3,
+          "successNodeKey": "cena_5_salto_abismo",
+          "failureNodeKey": "cena_5_salto_abismo",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[RACIOCÍNIO] Pegar a chave atrás do quadro e abrir a tranca com calma",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Investigação",
+          "difficulty": 1,
+          "successNodeKey": "cena_5_salto_abismo",
+          "failureNodeKey": "cena_5_salto_abismo"
+        }
+      ]
+    },
+    {
+      "key": "cena_5_salto_abismo",
+      "speakerName": "A Voz ao Telefone",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_quarto_alcapao.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "A tampa de ferro se abre com um estrondo metálico. Uma lufada de ar frio, úmido e com cheiro de esgoto e terra molhada sobe pelas suas narinas. É um poço vertical de quase cinco metros que desce direto para a escuridão absoluta das galerias pluviais clandestinas da cidade.\n\nRATATATATATA! Rajadas de fuzil perfuram a porta de madeira do quarto, enchendo o ar de lascas e fumaça de pólvora.\n\n— Pule de uma vez! — a mulher ordena pelo alto-falante. — O solo lá embaixo é lodo e terra batida. Não hesite!",
+      "choices": [
+        {
+          "choiceText": "[ATLETISMO] Saltar no abismo controlando a postura de queda",
+          "attributeReq": "Destreza",
+          "skillReq": "Atletismo",
+          "difficulty": 2,
+          "successNodeKey": "cena_6_tuneis_pouso_perfeito",
+          "failureNodeKey": "cena_6_tuneis_queda_bruta"
+        }
+      ]
+    },
+    {
+      "key": "cena_6_tuneis_pouso_perfeito",
+      "speakerName": "O Narrador",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_esgotos_tuneis.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Você mergulha no poço escuro e aterrissa de cócoras na lama espessa da galeria de esgoto. Seus novos tendões e músculos absorvem o impacto com uma flexibilidade inumana, sem nenhum ruído além do espirro de lodo.\n\nAcima, os tiros ricocheteiam na borda de ferro do alçapão enquanto você recua para as sombras do duto.",
+      "choices": [
+        {
+          "choiceText": "[AVANÇAR] Escutar as coordenadas finais do telefone",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_6_tuneis_instrucoes",
+          "failureNodeKey": "cena_6_tuneis_instrucoes"
+        }
+      ]
+    },
+    {
+      "key": "cena_6_tuneis_queda_bruta",
+      "speakerName": "O Narrador",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_esgotos_tuneis.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "A queda é pesada. Seus pés colidem em ângulo contra uma laje de alvenaria submersa e um estalo seco ecoa na sua perna esquerda. Uma fisgada aguda sobe até o quadril... mas em questão de segundos, seu sangue queima e a dor arrefece para uma dormência tolerável.\n\nVocê se arrasta para o canal principal enquanto os policiais gritam frustrados no alto do alçapão.",
+      "choices": [
+        {
+          "choiceText": "[AVANÇAR] Mancar para o interior do túnel e ouvir as instruções",
+          "attributeReq": "Vigor",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_6_tuneis_instrucoes",
+          "failureNodeKey": "cena_6_tuneis_instrucoes"
+        }
+      ]
+    },
+    {
+      "key": "cena_6_tuneis_instrucoes",
+      "speakerName": "A Voz ao Telefone",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_esgotos_tuneis.jpg",
+      "leftCharacterImageUrl": "",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "A tela do smartphone pisca freneticamente enquanto a recepção celular chia:\n\n— ...o sinal está... caindo... Preste muita atenção: caminhe rigorosamente em linha reta pela galeria principal. Não faça nenhuma curva. Há coisas muito mais perigosas do que homens fardados vivendo nas curvas dessas galerias... Suba pela escada de serviço até a tampa de ferro na rua... Estarei esperando.\n\nA linha é cortada com um estalo seco. À sua frente, o túnel úmido se projeta na escuridão fétida.",
+      "choices": [
+        {
+          "choiceText": "[LINHA RETA] Seguir rigorosamente em linha reta até a escada de emergência",
+          "attributeReq": "Autocontrole",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_7_resgate_rua",
+          "failureNodeKey": "cena_7_resgate_rua"
+        },
+        {
+          "choiceText": "[EXPLORAR A ESQUERDA] Seguir o túnel lateral farejando o ar da cidade",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Investigação",
+          "difficulty": 3,
+          "successNodeKey": "cena_7_resgate_rua",
+          "failureNodeKey": "cena_7_resgate_rua",
+          "customStyle": "RED"
+        }
+      ]
+    },
+    {
+      "key": "cena_7_resgate_rua",
+      "speakerName": "Mulher Misteriosa",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_rua_carro_preto.jpg",
+      "leftCharacterImageUrl": "/story_assets/npc_senhora_vampira.jpg",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Você empurra a pesada tampa de ferro e sai no asfalto molhado de uma rua deserta no centro de São Paulo. A garoa fria bate no seu rosto e a névoa esconde o topo dos edifícios velhos.\n\nQuase no mesmo instante, os faróis de LED de um sedã esportivo preto blindado rasgam a neblina. O motor V8 ronca em marcha lenta enquanto o veículo para suavemente junto ao meio-fio. A trava elétrica estala e o vidro fumê dianteiro desce em silêncio.\n\nNo banco do motorista está a dona da voz: uma mulher de beleza magnética e letal, vestindo sobretudo de couro escuro, com olhos delineados que brilham como âmbar na escuridão. Ela solta uma nuvem de fumaça aromática de um cigarro fino e o encara de cima a baixo:\n\n— Entra logo, lindinho. Você está parecendo um bife cru ensanguentado e a noite não espera por ninguém.",
+      "choices": [
+        {
+          "choiceText": "[ENTRAR] Entrar no banco do passageiro e fechar a porta",
+          "attributeReq": "Destreza",
+          "skillReq": "Etiqueta",
+          "difficulty": 1,
+          "successNodeKey": "cena_8_interior_carro_dialogo",
+          "failureNodeKey": "cena_8_interior_carro_dialogo"
+        }
+      ]
+    },
+    {
+      "key": "cena_8_interior_carro_dialogo",
+      "speakerName": "Mulher Misteriosa",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_interior_carro.jpg",
+      "leftCharacterImageUrl": "/story_assets/npc_senhora_vampira.jpg",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "O interior do sedã é puro luxo: couro legítimo preto com costuras vermelhas, iluminação ambiente em neon carmesim e um silêncio acústico perfeito. O carro dispara em alta velocidade pelas avenidas molhadas de Nocturna.\n\n— Você deu sorte — diz a mulher, sem tirar os olhos da pista. — Se os cães do Dr. Otávio tivessem te pegado com a polícia, o Príncipe Henrique estaria em apuros por causa do Édito de Sangue.\n\nVocê a encara atordoado, o cérebro humano em parafuso:\n— Espera aí... 'Príncipe'?! Que papo de maluco é esse? O Brasil é uma república, não tem porra de príncipe! De que país você tá falando?! E o que caralhos aconteceu com o meu corpo?!\n\nA mulher solta uma gargalhada genuína, achando graça da sua inocência:\n— Ah, a doce ignorância mortal... Você ainda acha que as leis dos homens valem alguma coisa quando o sol se põe? Você não é mais um cidadão, garoto. Você morreu há algumas horas. E o 'Príncipe' é o senhor absoluto da noite nesta cidade.\n\nEla abre um compartimento térmico refrigerado no console central e arremessa no seu colo uma bolsa plástica de sangue de hemocentro com lacre médico:\n— Beba tudo. Se não alimentar a Besta agora, você vai tentar rasgar meu pescoço antes da próxima curva.",
+      "choices": [
+        {
+          "choiceText": "[ENÉRGICO] Bater no painel e exigir saber exatamente para onde ela está te levando",
+          "attributeReq": "Força",
+          "skillReq": "Intimidação",
+          "difficulty": 2,
+          "successNodeKey": "cena_8a_reacao_jogador",
+          "failureNodeKey": "cena_8a_reacao_jogador",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[DESESPERO] Tentar puxar a maçaneta da porta para saltar na avenida",
+          "attributeReq": "Destreza",
+          "skillReq": "Atletismo",
+          "difficulty": 2,
+          "successNodeKey": "cena_8a_reacao_jogador",
+          "failureNodeKey": "cena_8a_reacao_jogador"
+        },
+        {
+          "choiceText": "[PRAGMATISMO] Rasgar o lacre da bolsa de sangue e saciar a queimação na garganta",
+          "attributeReq": "Autocontrole",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_9_galpao_emboscada",
+          "failureNodeKey": "cena_9_galpao_emboscada"
+        }
+      ]
+    },
+    {
+      "key": "cena_8a_reacao_jogador",
+      "speakerName": "Mulher Misteriosa",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_interior_carro.jpg",
+      "leftCharacterImageUrl": "/story_assets/npc_senhora_vampira.jpg",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "Não importa a sua tentativa de gritar, resistir ou forçar as travas eletrônicas blindadas: ela apenas vira o rosto com um olhar hipnótico e paralisante que faz seus músculos congelarem no banco.\n\n— Poupe sua energia. Você foi abraçado contra a sua vontade por conspiradores que queriam usá-lo como uma bomba política. Se eu não estivesse aqui, você seria cinzas no IML. Beba o sangue frio do hemocentro e cale a boca até chegarmos ao refúgio.\n\nO aroma do plasma na bolsa plástica torna-se irresistível. Ao cravar os dentes no plástico e sorver o líquido vermelho, um calor reconfortante espalha-se pelas suas veias. O tremor cessa. A clareza mental finalmente retorna.",
+      "choices": [
+        {
+          "choiceText": "[AVANÇAR] Aguardar a chegada ao refúgio seguro",
+          "attributeReq": "Autocontrole",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_9_galpao_emboscada",
+          "failureNodeKey": "cena_9_galpao_emboscada"
+        }
+      ]
+    },
+    {
+      "key": "cena_9_galpao_emboscada",
+      "speakerName": "O Narrador",
+      "isEnding": false,
+      "backgroundImageUrl": "/story_assets/cenario_galpao_emboscada.jpg",
+      "leftCharacterImageUrl": "/story_assets/npc_senhora_vampira.jpg",
+      "rightCharacterImageUrl": "/story_assets/npc_mercenario_mascarado.jpg",
+      "narrativeText": "O carro entra em um galpão de logística desativado no Baixo Centro. A mulher desce, conferindo os ferrolhos e trancando o portão de ferro.\n\n— Aqui estaremos seguros até o amanhecer. O Príncipe Henrique precisa saber que você sobreviveu para desmascararmos o Dr. Otáv—\n\nCRRAAASH! BOOM!\n\nAs claraboias de vidro no teto explodem em uma chuva de estilhaços afiados. Duas granadas de fósforo e fumaça detonam no piso de concreto, enchendo o galpão de névoa densa e chamas químicas.\n\nTrês homens vestidos com trajes táticos pretos, máscaras de caveira e empunhando fuzis com silenciadores descem por cordas de rapel!\n\n'A TESTEMUNHA ESTÁ ALI! ELIMINEM OS DOIS, NÃO DEIXEM NENHUM RASTRO!' — grita o líder mascarado.",
+      "choices": [
+        {
+          "choiceText": "[BRIGA] Avançar na fumaça e estraçalhar o líder mercenário com força sobrenatural",
+          "attributeReq": "Força",
+          "skillReq": "Briga",
+          "difficulty": 2,
+          "successNodeKey": "cena_10_refugio_desfecho",
+          "failureNodeKey": "cena_10_refugio_desfecho",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[ARMAS DE FOGO] Pegar uma arma de um mercenário caído e abrir fogo de cobertura",
+          "attributeReq": "Destreza",
+          "skillReq": "Armas de Fogo",
+          "difficulty": 2,
+          "successNodeKey": "cena_10_refugio_desfecho",
+          "failureNodeKey": "cena_10_refugio_desfecho",
+          "customStyle": "RED"
+        },
+        {
+          "choiceText": "[FURTIVIDADE] Flanquear os invasores nas sombras entre as caixas de carga",
+          "attributeReq": "Destreza",
+          "skillReq": "Furtividade",
+          "difficulty": 2,
+          "successNodeKey": "cena_10_refugio_desfecho",
+          "failureNodeKey": "cena_10_refugio_desfecho"
+        },
+        {
+          "choiceText": "[COBERTURA] Proteger-se atrás das pilastras de concreto e cobrir a retaguarda",
+          "attributeReq": "Raciocínio",
+          "skillReq": "Sobrevivência",
+          "difficulty": 1,
+          "successNodeKey": "cena_10_refugio_desfecho",
+          "failureNodeKey": "cena_10_refugio_desfecho"
+        }
+      ]
+    },
+    {
+      "key": "cena_10_refugio_desfecho",
+      "speakerName": "Mulher Misteriosa",
+      "isEnding": true,
+      "backgroundImageUrl": "/story_assets/cenario_refugio_basico.jpg",
+      "leftCharacterImageUrl": "/story_assets/npc_senhora_vampira.jpg",
+      "rightCharacterImageUrl": "",
+      "narrativeText": "O combate é rápido e brutal. Com movimentos quase invisíveis aos olhos humanos, a mulher corta a garganta do segundo atacante com unhas afiadas, enquanto o último mercenário é abatido no chão de concreto.\n\nAo revistar o colete do líder caído, você encontra uma ordem de execução com o brasão do Clã Ventrue e um pagamento em criptomoedas para 'queimar o Neófito do massacre antes que chegue à corte de Henrique'.\n\nA mulher limpa uma gota de sangue da sua bochecha com um lenço de seda e o observa com um misto de respeito e divertimento:\n— Nada mal para um recém-nascido. Você tem fibra.\n\nEla o conduz até uma escadaria que desce para um subsolo fortificado: um bunker seguro sem janelas, com paredes de concreto armado, cama, geladeira trancada com bolsas de sangue e porta de cofre de aço.\n\n— Este é o seu Refúgio provisório. O sol vai nascer em menos de três horas. Se você der um passo para fora deste porão durante o dia, virará cinzas em dez segundos. Descanse, alimente-se e prepare-se: amanhã à noite, o Príncipe Henrique vai querer conhecer o homem que sobreviveu à armadilha de Nocturna.",
+      "choices": []
+    }
+  ]
+}
