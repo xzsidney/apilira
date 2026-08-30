@@ -169,9 +169,12 @@ export function initFamilySocket(io: SocketIOServer) {
           await battle.save();
         }
 
+        const allCharacters = await FamilyCharacter.findAll();
+
         io.to('family_lira_room').emit('family:battle_party_started', {
           battle: parseBattleJson(battle),
           party,
+          characters: allCharacters,
         });
 
       } catch (err) {
@@ -322,7 +325,12 @@ export function initFamilySocket(io: SocketIOServer) {
                 target.hpCurrent = 0;
                 target.inInfirmaryUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hora de tempo real
                 await target.save();
-                logs.unshift(`🚑 **${target.name}** desmaiou em combate (0 HP) e foi levado para a **Enfermaria do Reino** para repousar por 1 hora!`);
+                logs.unshift(`🚑 **${target.name}** foi atingido por **${monsterDmg}** de dano, desmaiou (0 HP) e foi levado para a **Enfermaria do Reino**!`);
+                io.to('family_lira_room').emit('family:hero_knocked_out', {
+                  characterId: target.id,
+                  characterName: target.name,
+                  inInfirmaryUntil: target.inInfirmaryUntil,
+                });
               } else {
                 target.hpCurrent = newHp;
                 await target.save();
@@ -337,9 +345,12 @@ export function initFamilySocket(io: SocketIOServer) {
         battle.currentTurnOrder = turnOrder;
         await battle.save();
 
+        const allCharacters = await FamilyCharacter.findAll();
+
         io.to('family_lira_room').emit('family:battle_updated', {
           battle: parseBattleJson(battle),
           lastAction: logMessage,
+          characters: allCharacters,
         });
 
       } catch (err) {
