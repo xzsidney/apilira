@@ -25,6 +25,7 @@ export class FamilyCharacter extends Model {
   declare equippedPet: string | null;
   declare isParent: boolean;
   declare orderIndex: number;
+  declare inInfirmaryUntil: Date | null;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -146,6 +147,10 @@ export function initFamilyCharacter(sequelize: Sequelize) {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
+      },
+      inInfirmaryUntil: {
+        type: DataTypes.DATE,
+        allowNull: true,
       },
     },
     {

@@ -123,6 +123,10 @@ function initFamilyCharacter(sequelize) {
             allowNull: false,
             defaultValue: 0,
         },
+        inInfirmaryUntil: {
+            type: sequelize_1.DataTypes.DATE,
+            allowNull: true,
+        },
     }, {
         sequelize,
         modelName: 'FamilyCharacter',

@@ -11,8 +11,14 @@ router.post('/claim-character', authMiddleware_1.authMiddleware, familyControlle
 router.post('/create-character', authMiddleware_1.authMiddleware, familyController_1.FamilyController.createCharacter);
 router.post('/character/update-stats', authMiddleware_1.authMiddleware, familyController_1.FamilyController.updateCharacterStats);
 router.post('/character/update-avatar', authMiddleware_1.authMiddleware, familyController_1.FamilyController.updateAvatar);
+router.post('/character/change-class', authMiddleware_1.authMiddleware, familyController_1.FamilyController.changeClass);
+router.post('/character/recover-infirmary', authMiddleware_1.authMiddleware, familyController_1.FamilyController.recoverFromInfirmary);
 router.get('/character/me', authMiddleware_1.authMiddleware, familyController_1.FamilyController.getCharacter);
 router.get('/character/:id', familyController_1.FamilyController.getCharacter);
+// Árvore de Habilidades & Builds
+router.get('/skills/tree', authMiddleware_1.authMiddleware, familyController_1.FamilyController.getSkillTree);
+router.post('/skills/buy', authMiddleware_1.authMiddleware, familyController_1.FamilyController.buySkill);
+router.post('/skills/equip', authMiddleware_1.authMiddleware, familyController_1.FamilyController.equipSkill);
 router.get('/tasks', familyController_1.FamilyController.getTasks);
 router.post('/tasks/complete', familyController_1.FamilyController.requestCompleteTask);
 // Batalhas e Masmorras

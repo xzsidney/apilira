@@ -65,7 +65,7 @@ class FamilyController {
             res.status(500).json({ error: 'Erro ao vincular personagem' });
         }
     }
-    // Cria um novo personagem personalizado para o usuário logado
+    // Cria ou atualiza o personagem exclusivo do usuário logado (Regra: 1 Herói por Usuário)
     static async createCharacter(req, res) {
         try {
             const userId = req.userId || req.user?.id;
@@ -74,34 +74,65 @@ class FamilyController {
                 res.status(401).json({ error: 'Não autorizado' });
                 return;
             }
-            const newChar = await models_1.FamilyCharacter.create({
-                userId,
-                name: name || 'Novo Herói',
-                characterClass: characterClass || 'GUERREIRO',
-                title: title || 'Aventureiro da Família',
-                avatarUrl: avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60',
-                level: 1,
-                currentXp: 0,
-                nextLevelXp: 100,
-                gold: 10,
-                hpCurrent: 100,
-                hpMax: 100,
-                mpCurrent: 50,
-                mpMax: 50,
-                strength: 10,
-                vitality: 10,
-                agility: 10,
-                wisdom: 10,
-                heartBond: 10,
-                equippedWeapon: 'Espada de Madeira',
-                equippedArmor: 'Colete de Couro',
-                isParent: !!isParent,
+            const targetClass = characterClass || 'GUERREIRO';
+            // Verifica se o usuário já possui um herói
+            let char = await models_1.FamilyCharacter.findOne({ where: { userId } });
+            if (char) {
+                // Atualiza o herói existente
+                char.name = name || char.name;
+                char.characterClass = targetClass;
+                char.title = title || char.title;
+                if (avatarUrl)
+                    char.avatarUrl = avatarUrl;
+                if (isParent !== undefined)
+                    char.isParent = !!isParent;
+                await char.save();
+            }
+            else {
+                // Cria o único herói do jogador
+                char = await models_1.FamilyCharacter.create({
+                    userId,
+                    name: name || 'Novo Herói',
+                    characterClass: targetClass,
+                    title: title || 'Aventureiro da Família',
+                    avatarUrl: avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60',
+                    level: 1,
+                    currentXp: 0,
+                    nextLevelXp: 100,
+                    gold: 10,
+                    hpCurrent: 100,
+                    hpMax: 100,
+                    mpCurrent: 50,
+                    mpMax: 50,
+                    strength: 10,
+                    vitality: 10,
+                    agility: 10,
+                    wisdom: 10,
+                    heartBond: 10,
+                    equippedWeapon: targetClass === 'ARQUEIRO' ? 'Arco de Caça' : targetClass === 'MAGO' ? 'Cajado Rúnico' : 'Espada de Madeira',
+                    equippedArmor: 'Colete de Couro',
+                    isParent: !!isParent,
+                });
+            }
+            // Auto-desbloqueia habilidade Grau I da classe se ainda não tiver
+            const starterSkill = await models_1.FamilyClassSkill.findOne({
+                where: { characterClass: targetClass, tier: 1 },
             });
-            res.json({ success: true, message: 'Personagem criado com sucesso!', character: newChar });
+            if (starterSkill) {
+                await models_1.FamilyCharacterSkill.findOrCreate({
+                    where: { characterId: char.id, skillId: starterSkill.id },
+                    defaults: {
+                        characterId: char.id,
+                        skillId: starterSkill.id,
+                        isEquipped: true,
+                    },
+                });
+            }
+            res.json({ success: true, message: 'Personagem configurado com sucesso!', character: char });
         }
         catch (error) {
-            console.error('Erro ao criar personagem:', error);
-            res.status(500).json({ error: 'Erro ao criar personagem' });
+            console.error('Erro ao criar/atualizar personagem:', error);
+            res.status(500).json({ error: 'Erro ao criar/atualizar personagem' });
         }
     }
     // Busca o personagem vinculado ao usuário autenticado ou pelo ID
@@ -695,6 +726,248 @@ class FamilyController {
         catch (error) {
             console.error('Erro ao buscar feed da família:', error);
             res.status(500).json({ error: 'Erro ao buscar feed' });
+        }
+    }
+    // --- EXPANSÃO: ÁRVORE DE HABILIDADES POR GRAUS & BUILDS ---
+    static async getSkillTree(req, res) {
+        try {
+            const characterId = req.query.characterId || req.body.characterId;
+            if (!characterId) {
+                res.status(400).json({ error: 'characterId é obrigatório' });
+                return;
+            }
+            const char = await models_1.FamilyCharacter.findByPk(characterId);
+            if (!char) {
+                res.status(404).json({ error: 'Personagem não encontrado' });
+                return;
+            }
+            // Busca todas as habilidades da classe atual do herói
+            const classSkills = await models_1.FamilyClassSkill.findAll({
+                where: { characterClass: char.characterClass },
+                order: [['tier', 'ASC'], ['orderIndex', 'ASC']],
+            });
+            // Busca todas as habilidades já desbloqueadas pelo personagem
+            const characterSkills = await models_1.FamilyCharacterSkill.findAll({
+                where: { characterId: char.id },
+            });
+            const unlockedSkillIds = characterSkills.map(cs => cs.skillId);
+            const equippedSkillIds = characterSkills.filter(cs => cs.isEquipped).map(cs => cs.skillId);
+            res.json({
+                success: true,
+                characterClass: char.characterClass,
+                skills: classSkills,
+                unlockedSkillIds,
+                equippedSkillIds,
+                characterXp: char.currentXp,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao buscar árvore de habilidades:', error);
+            res.status(500).json({ error: 'Erro ao buscar árvore de habilidades' });
+        }
+    }
+    static async buySkill(req, res) {
+        try {
+            const { characterId, skillId } = req.body;
+            const char = await models_1.FamilyCharacter.findByPk(characterId);
+            if (!char) {
+                res.status(404).json({ error: 'Personagem não encontrado' });
+                return;
+            }
+            const skill = await models_1.FamilyClassSkill.findByPk(skillId);
+            if (!skill) {
+                res.status(404).json({ error: 'Habilidade não encontrada' });
+                return;
+            }
+            // Verifica se já possui
+            const alreadyOwned = await models_1.FamilyCharacterSkill.findOne({
+                where: { characterId: char.id, skillId: skill.id },
+            });
+            if (alreadyOwned) {
+                res.status(400).json({ error: 'Você já possui esta habilidade desbloqueada!' });
+                return;
+            }
+            // Validação de Pré-requisito (Grau anterior)
+            if (skill.requiredSkillId) {
+                const hasPrerequisite = await models_1.FamilyCharacterSkill.findOne({
+                    where: { characterId: char.id, skillId: skill.requiredSkillId },
+                });
+                if (!hasPrerequisite) {
+                    const reqSkill = await models_1.FamilyClassSkill.findByPk(skill.requiredSkillId);
+                    res.status(400).json({
+                        error: `Você precisa desbloquear "${reqSkill?.name || 'o Grau anterior'}" antes de comprar este grau!`,
+                    });
+                    return;
+                }
+            }
+            // Validação de XP
+            if (char.currentXp < skill.costXp) {
+                res.status(400).json({
+                    error: `XP insuficiente! Você precisa de ${skill.costXp} XP (Possui: ${char.currentXp} XP).`,
+                });
+                return;
+            }
+            // Debita o XP
+            char.currentXp -= skill.costXp;
+            await char.save();
+            // Conta quantas estão equipadas atualmente
+            const equippedCount = await models_1.FamilyCharacterSkill.count({
+                where: { characterId: char.id, isEquipped: true },
+            });
+            // Se tiver menos de 3, equipa automaticamente
+            const shouldAutoEquip = equippedCount < 3;
+            await models_1.FamilyCharacterSkill.create({
+                characterId: char.id,
+                skillId: skill.id,
+                unlockedAt: new Date(),
+                isEquipped: shouldAutoEquip,
+            });
+            res.json({
+                success: true,
+                message: `Habilidade "${skill.name}" adquirida com sucesso!`,
+                character: char,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao comprar habilidade:', error);
+            res.status(500).json({ error: 'Erro ao comprar habilidade' });
+        }
+    }
+    static async equipSkill(req, res) {
+        try {
+            const { characterId, skillId, equip } = req.body;
+            const charSkill = await models_1.FamilyCharacterSkill.findOne({
+                where: { characterId, skillId },
+            });
+            if (!charSkill) {
+                res.status(404).json({ error: 'Habilidade não desbloqueada para este personagem' });
+                return;
+            }
+            if (equip) {
+                const equippedCount = await models_1.FamilyCharacterSkill.count({
+                    where: { characterId, isEquipped: true },
+                });
+                if (equippedCount >= 3) {
+                    res.status(400).json({ error: 'Você já possui o limite máximo de 3 habilidades ativas na sua build de combate!' });
+                    return;
+                }
+                charSkill.isEquipped = true;
+            }
+            else {
+                charSkill.isEquipped = false;
+            }
+            await charSkill.save();
+            res.json({
+                success: true,
+                message: equip ? 'Habilidade equipada na build de combate!' : 'Habilidade desequipada da build.',
+                charSkill,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao equipar habilidade:', error);
+            res.status(500).json({ error: 'Erro ao equipar habilidade' });
+        }
+    }
+    // --- TROCA DE CLASSE DINÂMICA ---
+    static async changeClass(req, res) {
+        try {
+            const { characterId, characterClass } = req.body;
+            const validClasses = ['GUERREIRO', 'MAGO', 'PALADINO', 'CURANDEIRA', 'ARQUEIRO', 'LADINO'];
+            if (!validClasses.includes(characterClass)) {
+                res.status(400).json({ error: 'Classe inválida' });
+                return;
+            }
+            const char = await models_1.FamilyCharacter.findByPk(characterId);
+            if (!char) {
+                res.status(404).json({ error: 'Personagem não encontrado' });
+                return;
+            }
+            char.characterClass = characterClass;
+            if (characterClass === 'ARQUEIRO') {
+                char.equippedWeapon = 'Arco de Caça Épico';
+                char.equippedArmor = 'Gibão de Couro Furtivo';
+            }
+            else if (characterClass === 'MAGO') {
+                char.equippedWeapon = 'Cajado Rúnico de Cristal';
+                char.equippedArmor = 'Manto Arcano Estelar';
+            }
+            else if (characterClass === 'CURANDEIRA') {
+                char.equippedWeapon = 'Cajado de Luz Cósmica';
+                char.equippedArmor = 'Manto Estelar Protetor';
+            }
+            else if (characterClass === 'PALADINO') {
+                char.equippedWeapon = 'Martelo Sagrado da Justiça';
+                char.equippedArmor = 'Armadura de Placas Dourada';
+            }
+            else if (characterClass === 'LADINO') {
+                char.equippedWeapon = 'Adagas Gêmeas Sombrias';
+                char.equippedArmor = 'Capa da Invisibilidade';
+            }
+            else {
+                char.equippedWeapon = 'Espada Larga de Ferro Forjado';
+                char.equippedArmor = 'Cota de Malha Real';
+            }
+            await char.save();
+            // Desbloqueia e equipa a habilidade Grau I da nova classe
+            const starterSkill = await models_1.FamilyClassSkill.findOne({
+                where: { characterClass, tier: 1 },
+            });
+            if (starterSkill) {
+                await models_1.FamilyCharacterSkill.findOrCreate({
+                    where: { characterId: char.id, skillId: starterSkill.id },
+                    defaults: {
+                        characterId: char.id,
+                        skillId: starterSkill.id,
+                        isEquipped: true,
+                    },
+                });
+            }
+            res.json({
+                success: true,
+                message: `Classe alterada para ${characterClass} com sucesso!`,
+                character: char,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao trocar de classe:', error);
+            res.status(500).json({ error: 'Erro ao trocar de classe' });
+        }
+    }
+    // --- ENFERMARIA DO REINO ---
+    static async recoverFromInfirmary(req, res) {
+        try {
+            const { characterId } = req.body;
+            const char = await models_1.FamilyCharacter.findByPk(characterId);
+            if (!char) {
+                res.status(404).json({ error: 'Personagem não encontrado' });
+                return;
+            }
+            if (char.inInfirmaryUntil) {
+                const now = new Date();
+                const diffMs = new Date(char.inInfirmaryUntil).getTime() - now.getTime();
+                // Se ainda faltar tempo e não for override
+                if (diffMs > 0 && req.body.force !== true) {
+                    const minutesLeft = Math.ceil(diffMs / 60000);
+                    res.status(400).json({
+                        error: `O herói ainda está repousando na Enfermaria! Tempo restante: ${minutesLeft} minuto(s).`,
+                    });
+                    return;
+                }
+            }
+            // Restaura 100% do HP e zera enfermaria
+            char.inInfirmaryUntil = null;
+            char.hpCurrent = char.hpMax;
+            char.mpCurrent = char.mpMax;
+            await char.save();
+            res.json({
+                success: true,
+                message: '🎉 Herói recuperou 100% de Vida (HP) e recebeu alta da Enfermaria!',
+                character: char,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao recuperar da enfermaria:', error);
+            res.status(500).json({ error: 'Erro ao recuperar da enfermaria' });
         }
     }
 }

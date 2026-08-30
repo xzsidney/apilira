@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FamilyAchievement = exports.FamilyStoryChoice = exports.FamilyStoryNode = exports.FamilyStoryAdventure = exports.FamilyActiveMission = exports.FamilyLocation = exports.FamilyShopItem = exports.FamilyBattleParticipant = exports.FamilyBattle = exports.FamilyTaskLog = exports.FamilyTask = exports.FamilyCharacter = exports.CharacterActivityLog = exports.CharacterStoryProgress = exports.DefinitionStoryChoice = exports.DefinitionStoryNode = exports.DefinitionStoryAdventure = exports.DefinitionMissionIdleAction = exports.CharacterActiveMission = exports.DefinitionMissionIdle = exports.CharacterHaven = exports.CharacterKnownLocation = exports.DefinitionLocation = exports.CreationPackageItem = exports.CreationPackage = exports.CharacterVampireEquipment = exports.CharacterVampireBackground = exports.CharacterVampireMeritFlaw = exports.CharacterVampirePower = exports.CharacterVampireDiscipline = exports.CharacterVampireSkill = exports.CharacterVampireAttribute = exports.CharacterVampire = exports.DefinitionBloodPotency = exports.DefinitionDisciplinePower = exports.DefinitionDiscipline = exports.DefinitionResonance = exports.DefinitionPredator = exports.DefinitionClan = exports.DefinitionBackground = exports.DefinitionEquipment = exports.DefinitionMeritFlaw = exports.DefinitionArchetype = exports.DefinitionSkill = exports.DefinitionAttribute = exports.User = exports.sequelize = void 0;
+exports.FamilyCharacterSkill = exports.FamilyClassSkill = exports.FamilyAchievement = exports.FamilyStoryChoice = exports.FamilyStoryNode = exports.FamilyStoryAdventure = exports.FamilyActiveMission = exports.FamilyLocation = exports.FamilyShopItem = exports.FamilyBattleParticipant = exports.FamilyBattle = exports.FamilyTaskLog = exports.FamilyTask = exports.FamilyCharacter = exports.CharacterActivityLog = exports.CharacterStoryProgress = exports.DefinitionStoryChoice = exports.DefinitionStoryNode = exports.DefinitionStoryAdventure = exports.DefinitionMissionIdleAction = exports.CharacterActiveMission = exports.DefinitionMissionIdle = exports.CharacterHaven = exports.CharacterKnownLocation = exports.DefinitionLocation = exports.CreationPackageItem = exports.CreationPackage = exports.CharacterVampireEquipment = exports.CharacterVampireBackground = exports.CharacterVampireMeritFlaw = exports.CharacterVampirePower = exports.CharacterVampireDiscipline = exports.CharacterVampireSkill = exports.CharacterVampireAttribute = exports.CharacterVampire = exports.DefinitionBloodPotency = exports.DefinitionDisciplinePower = exports.DefinitionDiscipline = exports.DefinitionResonance = exports.DefinitionPredator = exports.DefinitionClan = exports.DefinitionBackground = exports.DefinitionEquipment = exports.DefinitionMeritFlaw = exports.DefinitionArchetype = exports.DefinitionSkill = exports.DefinitionAttribute = exports.User = exports.sequelize = void 0;
 const db_1 = __importDefault(require("../config/db"));
 exports.sequelize = db_1.default;
 const User_1 = require("./User");
@@ -86,6 +86,10 @@ const FamilyBattleParticipant_1 = require("./FamilyBattleParticipant");
 Object.defineProperty(exports, "FamilyBattleParticipant", { enumerable: true, get: function () { return FamilyBattleParticipant_1.FamilyBattleParticipant; } });
 const FamilyShopItem_1 = require("./FamilyShopItem");
 Object.defineProperty(exports, "FamilyShopItem", { enumerable: true, get: function () { return FamilyShopItem_1.FamilyShopItem; } });
+const FamilyClassSkill_1 = require("./FamilyClassSkill");
+Object.defineProperty(exports, "FamilyClassSkill", { enumerable: true, get: function () { return FamilyClassSkill_1.FamilyClassSkill; } });
+const FamilyCharacterSkill_1 = require("./FamilyCharacterSkill");
+Object.defineProperty(exports, "FamilyCharacterSkill", { enumerable: true, get: function () { return FamilyCharacterSkill_1.FamilyCharacterSkill; } });
 // Initialize models
 (0, User_1.initUser)(db_1.default);
 (0, DefinitionAttribute_1.initDefinitionAttribute)(db_1.default);
@@ -118,6 +122,13 @@ Object.defineProperty(exports, "FamilyShopItem", { enumerable: true, get: functi
 (0, FamilyBattle_1.initFamilyBattle)(db_1.default);
 (0, FamilyBattleParticipant_1.initFamilyBattleParticipant)(db_1.default);
 (0, FamilyShopItem_1.initFamilyShopItem)(db_1.default);
+(0, FamilyClassSkill_1.initFamilyClassSkill)(db_1.default);
+(0, FamilyCharacterSkill_1.initFamilyCharacterSkill)(db_1.default);
+// Family Skills Associations
+FamilyCharacter_1.FamilyCharacter.hasMany(FamilyCharacterSkill_1.FamilyCharacterSkill, { foreignKey: 'characterId' });
+FamilyCharacterSkill_1.FamilyCharacterSkill.belongsTo(FamilyCharacter_1.FamilyCharacter, { foreignKey: 'characterId' });
+FamilyClassSkill_1.FamilyClassSkill.hasMany(FamilyCharacterSkill_1.FamilyCharacterSkill, { foreignKey: 'skillId' });
+FamilyCharacterSkill_1.FamilyCharacterSkill.belongsTo(FamilyClassSkill_1.FamilyClassSkill, { foreignKey: 'skillId' });
 // Existing associations
 DefinitionLocation_1.DefinitionLocation.hasMany(DefinitionLocation_1.DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
 DefinitionLocation_1.DefinitionLocation.belongsTo(DefinitionLocation_1.DefinitionLocation, { as: 'parent', foreignKey: 'parentId' });

@@ -39,6 +39,8 @@ import { initFamilyTaskLog, FamilyTaskLog } from './FamilyTaskLog';
 import { initFamilyBattle, FamilyBattle } from './FamilyBattle';
 import { initFamilyBattleParticipant, FamilyBattleParticipant } from './FamilyBattleParticipant';
 import { initFamilyShopItem, FamilyShopItem } from './FamilyShopItem';
+import { initFamilyClassSkill, FamilyClassSkill } from './FamilyClassSkill';
+import { initFamilyCharacterSkill, FamilyCharacterSkill } from './FamilyCharacterSkill';
 
 // Initialize models
 initUser(sequelize);
@@ -72,6 +74,14 @@ initFamilyTaskLog(sequelize);
 initFamilyBattle(sequelize);
 initFamilyBattleParticipant(sequelize);
 initFamilyShopItem(sequelize);
+initFamilyClassSkill(sequelize);
+initFamilyCharacterSkill(sequelize);
+
+// Family Skills Associations
+FamilyCharacter.hasMany(FamilyCharacterSkill, { foreignKey: 'characterId' });
+FamilyCharacterSkill.belongsTo(FamilyCharacter, { foreignKey: 'characterId' });
+FamilyClassSkill.hasMany(FamilyCharacterSkill, { foreignKey: 'skillId' });
+FamilyCharacterSkill.belongsTo(FamilyClassSkill, { foreignKey: 'skillId' });
 
 // Existing associations
 DefinitionLocation.hasMany(DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
@@ -256,6 +266,8 @@ export {
   FamilyStoryAdventure,
   FamilyStoryNode,
   FamilyStoryChoice,
-  FamilyAchievement
+  FamilyAchievement,
+  FamilyClassSkill,
+  FamilyCharacterSkill
 };
 

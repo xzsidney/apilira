@@ -184,6 +184,7 @@ export function initFamilySocket(io: SocketIOServer) {
       battleId: string;
       characterId: string;
       actionType: 'ATTACK' | 'SKILL' | 'DEFEND' | 'HEAL';
+      skillId?: string;
       skillName?: string;
     }) => {
       try {
@@ -191,6 +192,12 @@ export function initFamilySocket(io: SocketIOServer) {
         const char = await FamilyCharacter.findByPk(data.characterId);
 
         if (!battle || !char || battle.status !== 'IN_PROGRESS') {
+          return;
+        }
+
+        // Verifica se o herói está na enfermaria
+        if (char.hpCurrent <= 0 || (char.inInfirmaryUntil && new Date(char.inInfirmaryUntil) > new Date())) {
+          socket.emit('family:action_error', { message: 'Seu herói está nocauteado na Enfermaria e precisa repousar!' });
           return;
         }
 
@@ -212,24 +219,49 @@ export function initFamilySocket(io: SocketIOServer) {
         let healAmount = 0;
         let logMessage = '';
 
-        if (data.actionType === 'ATTACK') {
+        if (data.skillId) {
+          const { FamilyClassSkill } = await import('../models');
+          const skill = await FamilyClassSkill.findByPk(data.skillId);
+          if (skill) {
+            // Desconta Mana se tiver
+            if (char.mpCurrent >= skill.costMp) {
+              char.mpCurrent -= skill.costMp;
+              await char.save();
+            }
+
+            if (skill.effectType === 'HEAL_SINGLE') {
+              healAmount = skill.power;
+              char.hpCurrent = Math.min(char.hpMax, char.hpCurrent + healAmount);
+              await char.save();
+              logMessage = `${skill.icon} **${char.name}** usou **${skill.name}** recuperando **+${healAmount} HP**!`;
+            } else if (skill.effectType === 'HEAL_ALL') {
+              healAmount = skill.power;
+              const allChars = await FamilyCharacter.findAll();
+              for (const c of allChars) {
+                if (c.hpCurrent > 0) {
+                  c.hpCurrent = Math.min(c.hpMax, c.hpCurrent + healAmount);
+                  await c.save();
+                }
+              }
+              logMessage = `${skill.icon} **${char.name}** usou **${skill.name}** curando **+${healAmount} HP** para toda a família!`;
+            } else if (skill.effectType === 'SHIELD') {
+              logMessage = `${skill.icon} **${char.name}** usou **${skill.name}** erguendo um escudo sagrado impenetrável!`;
+            } else {
+              damageDealt = skill.power + Math.floor(Math.random() * 12);
+              battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
+              logMessage = `${skill.icon} **${char.name}** usou **${skill.name}** causando **${damageDealt}** de dano!`;
+            }
+          }
+        } else if (data.actionType === 'ATTACK') {
           damageDealt = Math.max(15, (char.strength * 2) + Math.floor(Math.random() * 10));
           battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
           logMessage = `🗡️ **${char.name}** atacou **${battle.monsterName}** causando **${damageDealt}** de dano!`;
-        } else if (data.actionType === 'SKILL') {
-          damageDealt = Math.max(25, (char.wisdom * 3) + Math.floor(Math.random() * 15));
-          battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
-          logMessage = `🔥 **${char.name}** usou **${data.skillName || 'Magia Especial'}** causando **${damageDealt}** de dano estrondoso!`;
-        } else if (data.actionType === 'HEAL') {
-          healAmount = 30 + Math.floor(char.wisdom * 1.5);
-          const allChars = await FamilyCharacter.findAll();
-          for (const c of allChars) {
-            c.hpCurrent = Math.min(c.hpMax, c.hpCurrent + healAmount);
-            await c.save();
-          }
-          logMessage = `✨ **${char.name}** usou **Bênção da Luz** curando **+${healAmount} HP** para toda a família!`;
         } else if (data.actionType === 'DEFEND') {
           logMessage = `🛡️ **${char.name}** assumiu postura defensiva com seu escudo!`;
+        } else {
+          damageDealt = Math.max(20, (char.wisdom * 2) + Math.floor(Math.random() * 10));
+          battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
+          logMessage = `⚡ **${char.name}** desferiu um ataque especial causando **${damageDealt}** de dano!`;
         }
 
         logs.unshift(logMessage);
@@ -278,16 +310,24 @@ export function initFamilySocket(io: SocketIOServer) {
 
         // Turno do Monstro se atingir a posição
         if (turnOrder[nextIndex] === 'MONSTER') {
-          const monsterDmg = Math.max(10, battle.monsterAttack + Math.floor(Math.random() * 10));
+          const monsterDmg = Math.max(12, battle.monsterAttack + Math.floor(Math.random() * 12));
           const heroIds = turnOrder.filter(id => id !== 'MONSTER');
           const targetId = heroIds.length > 0 ? heroIds[Math.floor(Math.random() * heroIds.length)] : char.id;
           
           if (targetId) {
             const target = await FamilyCharacter.findByPk(targetId);
             if (target) {
-              target.hpCurrent = Math.max(1, target.hpCurrent - monsterDmg);
-              await target.save();
-              logs.unshift(`🐲 **${battle.monsterName}** contra-atacou **${target.name}** causando **${monsterDmg}** de dano!`);
+              const newHp = target.hpCurrent - monsterDmg;
+              if (newHp <= 0) {
+                target.hpCurrent = 0;
+                target.inInfirmaryUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hora de tempo real
+                await target.save();
+                logs.unshift(`🚑 **${target.name}** desmaiou em combate (0 HP) e foi levado para a **Enfermaria do Reino** para repousar por 1 hora!`);
+              } else {
+                target.hpCurrent = newHp;
+                await target.save();
+                logs.unshift(`🐲 **${battle.monsterName}** contra-atacou **${target.name}** causando **${monsterDmg}** de dano!`);
+              }
             }
           }
           nextIndex = (nextIndex + 1) % turnOrder.length;

@@ -11,8 +11,16 @@ router.post('/claim-character', authMiddleware, FamilyController.claimCharacter)
 router.post('/create-character', authMiddleware, FamilyController.createCharacter);
 router.post('/character/update-stats', authMiddleware, FamilyController.updateCharacterStats);
 router.post('/character/update-avatar', authMiddleware, FamilyController.updateAvatar);
+router.post('/character/change-class', authMiddleware, FamilyController.changeClass);
+router.post('/character/recover-infirmary', authMiddleware, FamilyController.recoverFromInfirmary);
 router.get('/character/me', authMiddleware, FamilyController.getCharacter);
 router.get('/character/:id', FamilyController.getCharacter);
+
+// Árvore de Habilidades & Builds
+router.get('/skills/tree', authMiddleware, FamilyController.getSkillTree);
+router.post('/skills/buy', authMiddleware, FamilyController.buySkill);
+router.post('/skills/equip', authMiddleware, FamilyController.equipSkill);
+
 router.get('/tasks', FamilyController.getTasks);
 router.post('/tasks/complete', FamilyController.requestCompleteTask);
 
