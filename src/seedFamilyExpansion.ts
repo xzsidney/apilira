@@ -209,6 +209,22 @@ async function seedFamilyExpansion() {
       });
     }
 
+    // Correção de Avatars de /uploads/family/ para /uploads/characters/
+    const { FamilyCharacter } = await import('./models');
+    const { Op } = await import('sequelize');
+    const charsToFix = await FamilyCharacter.findAll({
+      where: {
+        avatarUrl: {
+          [Op.like]: '%/uploads/family/%'
+        }
+      }
+    });
+    for (const c of charsToFix) {
+      c.avatarUrl = c.avatarUrl.replace('/uploads/family/', '/uploads/characters/');
+      await c.save();
+      console.log(`Corrigido avatar de ${c.name}: ${c.avatarUrl}`);
+    }
+
     console.log('🎉 Expansão da Família Lira concluída com sucesso!');
   } catch (error) {
     console.error('❌ Erro no seed da Expansão da Família:', error);

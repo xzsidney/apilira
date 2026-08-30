@@ -56,8 +56,9 @@ router.post('/', upload.single('avatar'), (req, res) => {
         if (!req.file) {
             return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
         }
-        const targetFolder = req.body.folder || 'characters';
-        const safeFolder = targetFolder.replace(/[^a-zA-Z0-9-_]/g, '');
+        // Pega o diretório real onde o multer salvou o arquivo no disco
+        const relativeDir = path_1.default.relative(uploadDir, req.file.destination).replace(/\\/g, '/');
+        const safeFolder = relativeDir || 'characters';
         // Constrói a URL para acessar a imagem estaticamente
         const avatarUrl = `/uploads/${safeFolder}/${req.file.filename}`;
         return res.status(200).json({ url: avatarUrl });
