@@ -12,8 +12,17 @@ interface OnlineMember {
   hpMax: number;
 }
 
+interface PartyMember {
+  characterId: string;
+  name: string;
+  characterClass: string;
+  avatarUrl: string;
+  isLeader: boolean;
+}
+
 let ioInstance: SocketIOServer | null = null;
 const onlineMembers = new Map<string, OnlineMember>(); // socketId -> OnlineMember
+let activePartyLobby: PartyMember[] = []; // Membros atualmente no grupo de preparação da batalha
 
 export function initFamilySocket(io: SocketIOServer) {
   ioInstance = io;
@@ -24,7 +33,6 @@ export function initFamilySocket(io: SocketIOServer) {
     // Entrar na Sala da Família Lira
     socket.on('family:join_room', async (data: { characterId?: string; name?: string }) => {
       socket.join('family_lira_room');
-      console.log(`[Socket.IO] ${socket.id} entrou na family_lira_room com char: ${data.characterId}`);
 
       if (data.characterId) {
         try {
@@ -46,8 +54,9 @@ export function initFamilySocket(io: SocketIOServer) {
         }
       }
 
-      // Transmite lista de membros online para todos na sala
       broadcastPresence();
+      // Envia status do lobby atual
+      socket.emit('family:party_lobby_updated', activePartyLobby);
     });
 
     // Reações rápidas e emojis flutuantes
@@ -61,7 +70,109 @@ export function initFamilySocket(io: SocketIOServer) {
       });
     });
 
-    // Ação de Batalha em Tempo Real
+    // --- SISTEMA DE GRUPO & CONVITES DE BATALHA (SOLO OU EM GRUPO) ---
+
+    // 1. Criar/Entrar no Lobby como Líder
+    socket.on('family:create_party_lobby', (data: { leaderCharacter: any }) => {
+      activePartyLobby = [{
+        characterId: data.leaderCharacter.id,
+        name: data.leaderCharacter.name,
+        characterClass: data.leaderCharacter.characterClass,
+        avatarUrl: data.leaderCharacter.avatarUrl,
+        isLeader: true,
+      }];
+      io.to('family_lira_room').emit('family:party_lobby_updated', activePartyLobby);
+    });
+
+    // 2. Enviar Convite para Todos os Online
+    socket.on('family:send_party_invite', (data: { leaderName: string; leaderId: string; monsterName: string }) => {
+      io.to('family_lira_room').emit('family:party_invite_received', {
+        leaderName: data.leaderName,
+        leaderId: data.leaderId,
+        monsterName: data.monsterName || 'O Golem da Bagunça',
+        timestamp: new Date().toISOString(),
+      });
+    });
+
+    // 3. Membro aceita convite de batalha
+    socket.on('family:accept_party_invite', (data: { character: any }) => {
+      if (!activePartyLobby.some(m => m.characterId === data.character.id)) {
+        activePartyLobby.push({
+          characterId: data.character.id,
+          name: data.character.name,
+          characterClass: data.character.characterClass,
+          avatarUrl: data.character.avatarUrl,
+          isLeader: false,
+        });
+      }
+      io.to('family_lira_room').emit('family:party_lobby_updated', activePartyLobby);
+    });
+
+    // 4. Membro sai do lobby
+    socket.on('family:leave_party_lobby', (data: { characterId: string }) => {
+      activePartyLobby = activePartyLobby.filter(m => m.characterId !== data.characterId);
+      io.to('family_lira_room').emit('family:party_lobby_updated', activePartyLobby);
+    });
+
+    // 5. Iniciar a Batalha (Solo ou com quem aceitou no Grupo!)
+    socket.on('family:start_party_battle', async (data: { partyMembers: PartyMember[]; isSolo?: boolean }) => {
+      try {
+        const party = data.partyMembers && data.partyMembers.length > 0 ? data.partyMembers : activePartyLobby;
+        const participantIds = party.map(p => p.characterId);
+        
+        // Turnos: Ordem dos Heróis do grupo + Turno do Monstro
+        const turnOrder = [...participantIds, 'MONSTER'];
+
+        // Escala a vida do monstro de acordo com o tamanho do grupo
+        // 1 Jogador Solo = 250 HP | 2 Jogadores = 400 HP | 3+ Jogadores = 600 HP
+        const monsterHp = party.length === 1 ? 250 : party.length === 2 ? 400 : 600;
+
+        let battle = await FamilyBattle.findOne({
+          where: { status: 'IN_PROGRESS' },
+          order: [['createdAt', 'DESC']],
+        });
+
+        if (!battle) {
+          battle = await FamilyBattle.create({
+            title: party.length === 1 ? '⚔️ Expedição Solo contra o Golem' : `⚔️ Incursão em Grupo (${party.length} Heróis)`,
+            monsterName: 'O Golem da Bagunça',
+            monsterAvatar: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=60',
+            monsterHpCurrent: monsterHp,
+            monsterHpMax: monsterHp,
+            monsterAttack: party.length === 1 ? 15 : 25,
+            monsterDefense: 5,
+            rewardXp: party.length === 1 ? 100 : 180,
+            rewardGold: party.length === 1 ? 30 : 60,
+            status: 'IN_PROGRESS',
+            currentTurnOrder: turnOrder,
+            activeTurnIndex: 0,
+            battleLogs: [
+              `⚔️ Batalha iniciada com ${party.map(p => p.name).join(', ')}!`,
+            ],
+          });
+        } else {
+          battle.currentTurnOrder = turnOrder;
+          battle.monsterHpMax = monsterHp;
+          battle.monsterHpCurrent = monsterHp;
+          battle.activeTurnIndex = 0;
+          battle.battleLogs = [
+            `⚔️ Batalha iniciada com ${party.map(p => p.name).join(', ')}!`,
+          ];
+          await battle.save();
+        }
+
+        // Transmite o início da batalha para toda a família
+        io.to('family_lira_room').emit('family:battle_party_started', {
+          battle,
+          party,
+        });
+
+      } catch (err) {
+        console.error('[Socket.IO] Erro ao iniciar batalha em grupo/solo:', err);
+      }
+    });
+
+    // 6. Ação de Batalha em Tempo Real
     socket.on('family:execute_battle_action', async (data: {
       battleId: string;
       characterId: string;
@@ -81,19 +192,15 @@ export function initFamilySocket(io: SocketIOServer) {
         let logMessage = '';
 
         if (data.actionType === 'ATTACK') {
-          // Dano básico baseado na Força + nível
           damageDealt = Math.max(15, (char.strength * 2) + Math.floor(Math.random() * 10));
           battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
           logMessage = `🗡️ **${char.name}** atacou **${battle.monsterName}** causando **${damageDealt}** de dano!`;
         } else if (data.actionType === 'SKILL') {
-          // Habilidade mágica / elemental
           damageDealt = Math.max(25, (char.wisdom * 3) + Math.floor(Math.random() * 15));
           battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
-          logMessage = `🔥 **${char.name}** usou **${data.skillName || 'Poder Mágico'}** causando **${damageDealt}** de dano estrondoso!`;
+          logMessage = `🔥 **${char.name}** usou **${data.skillName || 'Magia Especial'}** causando **${damageDealt}** de dano estrondoso!`;
         } else if (data.actionType === 'HEAL') {
-          // Cura para toda a família
           healAmount = 30 + Math.floor(char.wisdom * 1.5);
-          // Curar todos os personagens
           const allChars = await FamilyCharacter.findAll();
           for (const c of allChars) {
             c.hpCurrent = Math.min(c.hpMax, c.hpCurrent + healAmount);
@@ -104,44 +211,48 @@ export function initFamilySocket(io: SocketIOServer) {
           logMessage = `🛡️ **${char.name}** assumiu postura defensiva com seu escudo!`;
         }
 
-        // Adiciona log de batalha
         const logs = Array.isArray(battle.battleLogs) ? [...battle.battleLogs] : [];
         logs.unshift(logMessage);
         if (logs.length > 20) logs.pop();
         battle.battleLogs = logs;
 
-        // Verifica vitória
+        // Vitória
         if (battle.monsterHpCurrent <= 0) {
           battle.status = 'VICTORY';
-          logs.unshift(`🏆 **VITÓRIA!** O chefe **${battle.monsterName}** foi derrotado pela união da Família Lira! (+${battle.rewardXp} XP e +${battle.rewardGold} Ouro para todos!)`);
+          logs.unshift(`🏆 **VITÓRIA!** O chefe **${battle.monsterName}** foi derrotado! (+${battle.rewardXp} XP e +${battle.rewardGold} Ouro para o grupo!)`);
           battle.battleLogs = logs;
           await battle.save();
 
-          // Distribuir recompensas para todos
-          const allChars = await FamilyCharacter.findAll();
-          for (const c of allChars) {
-            c.currentXp += battle.rewardXp;
-            c.gold += battle.rewardGold;
-            // Level up check
-            while (c.currentXp >= c.nextLevelXp) {
-              c.level += 1;
-              c.currentXp -= c.nextLevelXp;
-              c.nextLevelXp = Math.floor(c.nextLevelXp * 1.5);
-              c.hpMax += 20;
-              c.hpCurrent = c.hpMax;
-              c.strength += 2;
-              c.wisdom += 2;
-              c.vitality += 2;
-              c.agility += 2;
+          // Concede recompensas para os participantes ativos
+          const participantIds = Array.isArray(battle.currentTurnOrder) 
+            ? battle.currentTurnOrder.filter(id => id !== 'MONSTER') 
+            : [];
+
+          for (const pId of participantIds) {
+            const c = await FamilyCharacter.findByPk(pId);
+            if (c) {
+              c.currentXp += battle.rewardXp;
+              c.gold += battle.rewardGold;
+              while (c.currentXp >= c.nextLevelXp) {
+                c.level += 1;
+                c.currentXp -= c.nextLevelXp;
+                c.nextLevelXp = Math.floor(c.nextLevelXp * 1.5);
+                c.hpMax += 20;
+                c.hpCurrent = c.hpMax;
+                c.strength += 2;
+                c.wisdom += 2;
+                c.vitality += 2;
+                c.agility += 2;
+              }
+              await c.save();
             }
-            await c.save();
           }
 
           io.to('family_lira_room').emit('family:battle_victory', {
             battle,
             rewardXp: battle.rewardXp,
             rewardGold: battle.rewardGold,
-            message: `Vitória! A Família Lira venceu ${battle.monsterName}!`,
+            message: `Vitória! A Masmorra foi conquistada!`,
           });
           return;
         }
@@ -153,13 +264,15 @@ export function initFamilySocket(io: SocketIOServer) {
         // Turno do Monstro se atingir a posição
         if (turnOrder[nextIndex] === 'MONSTER') {
           const monsterDmg = Math.max(10, battle.monsterAttack + Math.floor(Math.random() * 10));
-          // Ataca um herói aleatório
-          const targets = await FamilyCharacter.findAll({ where: { isParent: false } });
-          const target = targets.length > 0 ? targets[Math.floor(Math.random() * targets.length)] : null;
-          if (target) {
-            target.hpCurrent = Math.max(1, target.hpCurrent - monsterDmg);
-            await target.save();
-            logs.unshift(`🐲 **${battle.monsterName}** contra-atacou **${target.name}** causando **${monsterDmg}** de dano!`);
+          const heroIds = turnOrder.filter(id => id !== 'MONSTER');
+          const targetId = heroIds.length > 0 ? heroIds[Math.floor(Math.random() * heroIds.length)] : null;
+          if (targetId) {
+            const target = await FamilyCharacter.findByPk(targetId);
+            if (target) {
+              target.hpCurrent = Math.max(1, target.hpCurrent - monsterDmg);
+              await target.save();
+              logs.unshift(`🐲 **${battle.monsterName}** contra-atacou **${target.name}** causando **${monsterDmg}** de dano!`);
+            }
           }
           nextIndex = (nextIndex + 1) % turnOrder.length;
         }
@@ -167,7 +280,6 @@ export function initFamilySocket(io: SocketIOServer) {
         battle.activeTurnIndex = nextIndex;
         await battle.save();
 
-        // Notifica todos na sala com o estado atualizado da batalha
         io.to('family_lira_room').emit('family:battle_updated', {
           battle,
           lastAction: logMessage,
@@ -178,9 +290,7 @@ export function initFamilySocket(io: SocketIOServer) {
       }
     });
 
-    // Desconexão
     socket.on('disconnect', () => {
-      console.log(`[Socket.IO] Cliente desconectado: ${socket.id}`);
       onlineMembers.delete(socket.id);
       broadcastPresence();
     });
@@ -193,7 +303,6 @@ function broadcastPresence() {
   ioInstance.to('family_lira_room').emit('family:presence_update', uniqueMembers);
 }
 
-// Emite alerta quando uma tarefa for aprovada pelo Pai/Mãe
 export function notifyTaskApprovedRealTime(data: {
   characterName: string;
   taskTitle: string;
