@@ -21,7 +21,7 @@ class FamilyController {
     // Lista EXCLUSIVAMENTE os personagens pertencentes ao usuário logado
     static async getMyCharacters(req, res) {
         try {
-            const userId = req.user?.id;
+            const userId = req.userId || req.user?.id;
             if (!userId) {
                 res.status(401).json({ error: 'Não autorizado' });
                 return;
@@ -40,7 +40,7 @@ class FamilyController {
     // Permite ao usuário logado vincular um herói existente ao seu perfil
     static async claimCharacter(req, res) {
         try {
-            const userId = req.user?.id;
+            const userId = req.userId || req.user?.id;
             const { characterId } = req.body;
             if (!userId) {
                 res.status(401).json({ error: 'Não autorizado' });
@@ -68,7 +68,7 @@ class FamilyController {
     // Cria um novo personagem personalizado para o usuário logado
     static async createCharacter(req, res) {
         try {
-            const userId = req.user?.id;
+            const userId = req.userId || req.user?.id;
             const { name, characterClass, title, avatarUrl, isParent } = req.body;
             if (!userId) {
                 res.status(401).json({ error: 'Não autorizado' });

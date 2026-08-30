@@ -31,6 +31,7 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
     const decoded = jwt.verify(token, secret) as { id: string; role?: string };
     req.userId = decoded.id;
     req.userRole = decoded.role;
+    (req as any).user = { id: decoded.id, role: decoded.role };
     return next();
   } catch (err) {
     return res.status(401).json({ error: "Token inválido ou expirado" });

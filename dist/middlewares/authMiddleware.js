@@ -23,6 +23,7 @@ const authMiddleware = (req, res, next) => {
         const decoded = jsonwebtoken_1.default.verify(token, secret);
         req.userId = decoded.id;
         req.userRole = decoded.role;
+        req.user = { id: decoded.id, role: decoded.role };
         return next();
     }
     catch (err) {
