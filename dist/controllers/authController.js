@@ -16,19 +16,21 @@ const register = async (req, res) => {
     try {
         const validated = authSchemas_1.registerSchema.safeParse(req.body);
         if (!validated.success) {
-            return res.status(400).json({ errors: validated.error.errors });
+            const firstError = validated.error.errors[0]?.message || "Dados inválidos para registro";
+            return res.status(400).json({ error: firstError, errors: validated.error.errors, message: firstError });
         }
-        const { name, email, password, role } = validated.data;
+        const { email, password, role } = validated.data;
+        const finalName = validated.data.name || validated.data.username || "Jogador";
         // Check if user already exists
         const existingUser = await models_1.User.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ error: "Email já está cadastrado" });
+            return res.status(400).json({ error: "Email já está cadastrado", message: "Email já está cadastrado" });
         }
         // Hash password
         const hashedPassword = await bcryptjs_1.default.hash(password, 10);
         // Create user
         const user = await models_1.User.create({
-            name,
+            name: finalName,
             email,
             password: hashedPassword,
             role: role,
