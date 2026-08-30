@@ -75,6 +75,11 @@ function initFamilyBattle(sequelize) {
             allowNull: false,
             defaultValue: [],
         },
+        gridPositions: {
+            type: sequelize_1.DataTypes.JSON,
+            allowNull: true,
+            defaultValue: { monster: 6 },
+        },
     }, {
         sequelize,
         modelName: 'FamilyBattle',

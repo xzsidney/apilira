@@ -15,6 +15,7 @@ export class FamilyBattle extends Model {
   declare currentTurnOrder: string[];
   declare activeTurnIndex: number;
   declare battleLogs: string[];
+  declare gridPositions: any;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -88,6 +89,11 @@ export function initFamilyBattle(sequelize: Sequelize) {
         type: DataTypes.JSON,
         allowNull: false,
         defaultValue: [],
+      },
+      gridPositions: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: { monster: 6 },
       },
     },
     {

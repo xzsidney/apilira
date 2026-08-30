@@ -33,6 +33,12 @@ function parseBattleJson(battle: any) {
   if (typeof b.battleLogs === 'string') {
     try { b.battleLogs = JSON.parse(b.battleLogs); } catch (e) { b.battleLogs = []; }
   }
+  if (typeof b.gridPositions === 'string') {
+    try { b.gridPositions = JSON.parse(b.gridPositions); } catch (e) { b.gridPositions = { monster: 6 }; }
+  }
+  if (!b.gridPositions || typeof b.gridPositions !== 'object') {
+    b.gridPositions = { monster: 6 };
+  }
   return b;
 }
 
@@ -133,6 +139,12 @@ export function initFamilySocket(io: SocketIOServer) {
         // Escala a vida do monstro de acordo com o tamanho do grupo
         const monsterHp = party.length === 1 ? 250 : party.length === 2 ? 400 : 600;
 
+        // Grid Inicial de 10 posições (0 a 9): Herói na posição 3 e Monstro na posição 6 (3 casas de distância)
+        const gridPositions: Record<string, number> = { monster: 6 };
+        for (const p of party) {
+          gridPositions[p.characterId] = 3;
+        }
+
         let battle = await FamilyBattle.findOne({
           where: { status: 'IN_PROGRESS' },
           order: [['createdAt', 'DESC']],
@@ -152,8 +164,9 @@ export function initFamilySocket(io: SocketIOServer) {
             status: 'IN_PROGRESS',
             currentTurnOrder: turnOrder,
             activeTurnIndex: 0,
+            gridPositions,
             battleLogs: [
-              `⚔️ Batalha iniciada com ${party.map(p => p.name).join(', ')}!`,
+              `⚔️ Batalha iniciada com ${party.map(p => p.name).join(', ')}! Heróis posicionados na casa [3] e Monstro na casa [6].`,
             ],
           });
         } else {
@@ -163,8 +176,9 @@ export function initFamilySocket(io: SocketIOServer) {
           battle.monsterHpCurrent = monsterHp;
           battle.activeTurnIndex = 0;
           battle.status = 'IN_PROGRESS';
+          battle.gridPositions = gridPositions;
           battle.battleLogs = [
-            `⚔️ Batalha iniciada com ${party.map(p => p.name).join(', ')}!`,
+            `⚔️ Batalha iniciada com ${party.map(p => p.name).join(', ')}! Heróis posicionados na casa [3] e Monstro na casa [6].`,
           ];
           await battle.save();
         }
@@ -182,11 +196,12 @@ export function initFamilySocket(io: SocketIOServer) {
       }
     });
 
-    // Ação de Batalha em Tempo Real
+    // Ação de Batalha em Tempo Real (Movimento + Ataque)
     socket.on('family:execute_battle_action', async (data: {
       battleId: string;
       characterId: string;
-      actionType: 'ATTACK' | 'SKILL' | 'DEFEND' | 'HEAL';
+      actionType: 'ATTACK' | 'SKILL' | 'DEFEND' | 'HEAL' | 'MOVE';
+      moveAction?: 'LEFT' | 'RIGHT' | 'STAY';
       skillId?: string;
       skillName?: string;
     }) => {
@@ -218,14 +233,64 @@ export function initFamilySocket(io: SocketIOServer) {
         }
         if (!Array.isArray(logs)) logs = [];
 
+        // Recupera e valida o Grid de 10 Posições (0 a 9)
+        let gridPositions = battle.gridPositions;
+        if (typeof gridPositions === 'string') {
+          try { gridPositions = JSON.parse(gridPositions); } catch (e) { gridPositions = {}; }
+        }
+        if (!gridPositions || typeof gridPositions !== 'object') gridPositions = {};
+        if (gridPositions.monster === undefined) gridPositions.monster = 6;
+        if (gridPositions[char.id] === undefined) gridPositions[char.id] = 3;
+
+        let heroPos = Number(gridPositions[char.id]);
+        let monsterPos = Number(gridPositions.monster);
+
+        // 1. Processa Ação de Movimento no Grid
+        let moveLog = '';
+        if (data.moveAction === 'LEFT') {
+          if (heroPos > 0) {
+            heroPos -= 1;
+            moveLog = `🏃 **${char.name}** recuou para a posição [${heroPos}] no grid!`;
+          } else {
+            moveLog = `🛑 **${char.name}** está no limite esquerdo [0] e manteve a posição.`;
+          }
+        } else if (data.moveAction === 'RIGHT') {
+          if (heroPos + 1 < monsterPos) {
+            heroPos += 1;
+            moveLog = `🏃 **${char.name}** avançou para a posição [${heroPos}] no grid!`;
+          } else {
+            moveLog = `🛑 **${char.name}** já está adjacente ao monstro na posição [${heroPos}]!`;
+          }
+        }
+        gridPositions[char.id] = heroPos;
+        if (moveLog) {
+          logs.unshift(moveLog);
+        }
+
+        const distance = Math.abs(monsterPos - heroPos);
         let damageDealt = 0;
         let healAmount = 0;
         let logMessage = '';
 
-        if (data.skillId) {
+        // 2. Processa Ação de Combate / Habilidade com Regra de Alcance
+        if (data.actionType === 'MOVE') {
+          logMessage = `🎯 **${char.name}** ajustou sua posição tática no campo de batalha!`;
+        } else if (data.skillId) {
           const { FamilyClassSkill } = await import('../models');
           const skill = await FamilyClassSkill.findByPk(data.skillId);
           if (skill) {
+            const isRangedSkill = skill.effectType?.includes('RANGED') || char.characterClass === 'ARQUEIRO';
+            const isHealSkill = skill.effectType?.includes('HEAL') || char.characterClass === 'CURANDEIRA';
+            const isMagicSkill = skill.effectType?.includes('MAGIC') || char.characterClass === 'MAGO';
+
+            // Validação de Alcance Melee
+            if (!isRangedSkill && !isHealSkill && !isMagicSkill && skill.effectType !== 'SHIELD' && distance > 1) {
+              socket.emit('family:action_error', {
+                message: `⚠️ Muito longe (${distance} casas)! Avance até a casa adjacente para atacar corpo a corpo.`,
+              });
+              return;
+            }
+
             // Desconta Mana se tiver
             if (char.mpCurrent >= skill.costMp) {
               char.mpCurrent -= skill.costMp;
@@ -252,24 +317,34 @@ export function initFamilySocket(io: SocketIOServer) {
             } else {
               damageDealt = skill.power + Math.floor(Math.random() * 12);
               battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
-              logMessage = `${skill.icon} **${char.name}** usou **${skill.name}** causando **${damageDealt}** de dano!`;
+              logMessage = `${skill.icon} **${char.name}** usou **${skill.name}** à distância de [${distance} casas] causando **${damageDealt}** de dano!`;
             }
           }
         } else if (data.actionType === 'ATTACK') {
+          // Ataque básico é corpo a corpo a menos que seja Arqueiro
+          if (char.characterClass !== 'ARQUEIRO' && distance > 1) {
+            socket.emit('family:action_error', {
+              message: `⚠️ Muito longe (${distance} casas)! Avance para a casa adjacente no grid para golpear.`,
+            });
+            return;
+          }
           damageDealt = Math.max(15, (char.strength * 2) + Math.floor(Math.random() * 10));
           battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
           logMessage = `🗡️ **${char.name}** atacou **${battle.monsterName}** causando **${damageDealt}** de dano!`;
         } else if (data.actionType === 'DEFEND') {
-          logMessage = `🛡️ **${char.name}** assumiu postura defensiva com seu escudo!`;
+          logMessage = `🛡️ **${char.name}** assumiu postura defensiva na posição [${heroPos}]!`;
         } else {
           damageDealt = Math.max(20, (char.wisdom * 2) + Math.floor(Math.random() * 10));
           battle.monsterHpCurrent = Math.max(0, battle.monsterHpCurrent - damageDealt);
-          logMessage = `⚡ **${char.name}** desferiu um ataque especial causando **${damageDealt}** de dano!`;
+          logMessage = `⚡ **${char.name}** desferiu poder especial causando **${damageDealt}** de dano!`;
         }
 
-        logs.unshift(logMessage);
-        if (logs.length > 20) logs.pop();
+        if (logMessage) {
+          logs.unshift(logMessage);
+        }
+        if (logs.length > 25) logs.pop();
         battle.battleLogs = logs;
+        battle.gridPositions = gridPositions;
 
         // Vitória
         if (battle.monsterHpCurrent <= 0) {
@@ -311,45 +386,62 @@ export function initFamilySocket(io: SocketIOServer) {
         // Avançar o turno
         let nextIndex = (battle.activeTurnIndex + 1) % turnOrder.length;
 
-        // Turno do Monstro se atingir a posição
+        // Turno do Monstro (IA com Movimentação no Grid de 10 Posições)
         if (turnOrder[nextIndex] === 'MONSTER') {
-          const monsterDmg = Math.max(12, battle.monsterAttack + Math.floor(Math.random() * 12));
-          const heroIds = turnOrder.filter(id => id !== 'MONSTER');
-          const targetId = heroIds.length > 0 ? heroIds[Math.floor(Math.random() * heroIds.length)] : char.id;
+          let distToHero = Math.abs(monsterPos - heroPos);
           
-          if (targetId) {
-            const target = await FamilyCharacter.findByPk(targetId);
-            if (target) {
-              const newHp = target.hpCurrent - monsterDmg;
-              if (newHp <= 0) {
-                target.hpCurrent = 0;
-                target.inInfirmaryUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hora de tempo real
-                await target.save();
-                logs.unshift(`🚑 **${target.name}** foi atingido por **${monsterDmg}** de dano, desmaiou (0 HP) e foi levado para a **Enfermaria do Reino**!`);
-                io.to('family_lira_room').emit('family:hero_knocked_out', {
-                  characterId: target.id,
-                  characterName: target.name,
-                  inInfirmaryUntil: target.inInfirmaryUntil,
-                });
-              } else {
-                target.hpCurrent = newHp;
-                await target.save();
-                logs.unshift(`🐲 **${battle.monsterName}** contra-atacou **${target.name}** causando **${monsterDmg}** de dano!`);
+          // Se o monstro estiver longe (dist > 1), ele AVANÇA 1 casa em direção ao herói!
+          if (distToHero > 1) {
+            monsterPos = Math.max(heroPos + 1, monsterPos - 1);
+            gridPositions.monster = monsterPos;
+            distToHero = Math.abs(monsterPos - heroPos);
+            logs.unshift(`🐲 **${battle.monsterName}** avançou furioso para a posição [${monsterPos}] no grid!`);
+          }
+
+          // Se após o avanço estiver adjacente (dist === 1), desfere o golpe
+          if (distToHero === 1) {
+            const monsterDmg = Math.max(12, battle.monsterAttack + Math.floor(Math.random() * 12));
+            const heroIds = turnOrder.filter(id => id !== 'MONSTER');
+            const targetId = heroIds.length > 0 ? heroIds[Math.floor(Math.random() * heroIds.length)] : char.id;
+            
+            if (targetId) {
+              const target = await FamilyCharacter.findByPk(targetId);
+              if (target) {
+                const newHp = target.hpCurrent - monsterDmg;
+                if (newHp <= 0) {
+                  target.hpCurrent = 0;
+                  target.inInfirmaryUntil = new Date(Date.now() + 60 * 60 * 1000); // 1 hora de tempo real
+                  await target.save();
+                  logs.unshift(`🚑 **${target.name}** foi atingido por **${monsterDmg}** de dano (0 HP) e foi levado para a **Enfermaria do Reino**!`);
+                  io.to('family_lira_room').emit('family:hero_knocked_out', {
+                    characterId: target.id,
+                    characterName: target.name,
+                    inInfirmaryUntil: target.inInfirmaryUntil,
+                  });
+                } else {
+                  target.hpCurrent = newHp;
+                  await target.save();
+                  logs.unshift(`🐲 **${battle.monsterName}** contra-atacou **${target.name}** causando **${monsterDmg}** de dano!`);
+                }
               }
             }
+          } else {
+            logs.unshift(`🐲 **${battle.monsterName}** rugiu ferozmente na posição [${monsterPos}], preparando o próximo bote!`);
           }
+
           nextIndex = (nextIndex + 1) % turnOrder.length;
         }
 
         battle.activeTurnIndex = nextIndex;
         battle.currentTurnOrder = turnOrder;
+        battle.gridPositions = gridPositions;
         await battle.save();
 
         const allCharacters = await FamilyCharacter.findAll();
 
         io.to('family_lira_room').emit('family:battle_updated', {
           battle: parseBattleJson(battle),
-          lastAction: logMessage,
+          lastAction: logMessage || moveLog,
           characters: allCharacters,
         });
 

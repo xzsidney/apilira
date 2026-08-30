@@ -32,6 +32,18 @@ async function addAdditiveColumns() {
         else {
             console.log('Coluna userId já existe em definition_story_adventures.');
         }
+        const battleTableDesc = await queryInterface.describeTable('family_battles');
+        if (!battleTableDesc.gridPositions) {
+            console.log('Adicionando coluna gridPositions em family_battles...');
+            await queryInterface.addColumn('family_battles', 'gridPositions', {
+                type: sequelize_1.DataTypes.JSON,
+                allowNull: true,
+            });
+            console.log('Coluna gridPositions adicionada com sucesso em family_battles.');
+        }
+        else {
+            console.log('Coluna gridPositions já existe em family_battles.');
+        }
     }
     catch (error) {
         console.error('Erro ao verificar/adicionar coluna:', error.message);
