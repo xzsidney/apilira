@@ -6,6 +6,9 @@ const router = Router();
 
 // Rotas abertas/autenticadas para os heróis da família
 router.get('/members', FamilyController.getMembers);
+router.get('/my-characters', authMiddleware, FamilyController.getMyCharacters);
+router.post('/claim-character', authMiddleware, FamilyController.claimCharacter);
+router.post('/create-character', authMiddleware, FamilyController.createCharacter);
 router.get('/character/me', authMiddleware, FamilyController.getCharacter);
 router.get('/character/:id', FamilyController.getCharacter);
 router.get('/tasks', FamilyController.getTasks);

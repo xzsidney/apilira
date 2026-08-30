@@ -5,7 +5,7 @@ const models_1 = require("../models");
 const familySocketService_1 = require("../services/familySocketService");
 const sequelize_1 = require("sequelize");
 class FamilyController {
-    // Lista todos os heróis da família
+    // Lista todos os heróis da família (para visualização no salão e guilda)
     static async getMembers(req, res) {
         try {
             const members = await models_1.FamilyCharacter.findAll({
@@ -16,6 +16,92 @@ class FamilyController {
         catch (error) {
             console.error('Erro ao buscar membros da família:', error);
             res.status(500).json({ error: 'Erro ao buscar membros da família' });
+        }
+    }
+    // Lista EXCLUSIVAMENTE os personagens pertencentes ao usuário logado
+    static async getMyCharacters(req, res) {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                res.status(401).json({ error: 'Não autorizado' });
+                return;
+            }
+            const myCharacters = await models_1.FamilyCharacter.findAll({
+                where: { userId },
+                order: [['createdAt', 'ASC']],
+            });
+            res.json({ success: true, characters: myCharacters });
+        }
+        catch (error) {
+            console.error('Erro ao buscar personagens do usuário:', error);
+            res.status(500).json({ error: 'Erro ao buscar personagens' });
+        }
+    }
+    // Permite ao usuário logado vincular um herói existente ao seu perfil
+    static async claimCharacter(req, res) {
+        try {
+            const userId = req.user?.id;
+            const { characterId } = req.body;
+            if (!userId) {
+                res.status(401).json({ error: 'Não autorizado' });
+                return;
+            }
+            const character = await models_1.FamilyCharacter.findByPk(characterId);
+            if (!character) {
+                res.status(404).json({ error: 'Personagem não encontrado' });
+                return;
+            }
+            // Permite se não tiver dono ou se já for dele
+            if (character.userId && character.userId !== userId) {
+                res.status(400).json({ error: 'Este personagem já pertence a outro usuário' });
+                return;
+            }
+            character.userId = userId;
+            await character.save();
+            res.json({ success: true, message: `Personagem ${character.name} vinculado à sua conta!`, character });
+        }
+        catch (error) {
+            console.error('Erro ao vincular personagem:', error);
+            res.status(500).json({ error: 'Erro ao vincular personagem' });
+        }
+    }
+    // Cria um novo personagem personalizado para o usuário logado
+    static async createCharacter(req, res) {
+        try {
+            const userId = req.user?.id;
+            const { name, characterClass, title, avatarUrl, isParent } = req.body;
+            if (!userId) {
+                res.status(401).json({ error: 'Não autorizado' });
+                return;
+            }
+            const newChar = await models_1.FamilyCharacter.create({
+                userId,
+                name: name || 'Novo Herói',
+                characterClass: characterClass || 'GUERREIRO',
+                title: title || 'Aventureiro da Família',
+                avatarUrl: avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60',
+                level: 1,
+                currentXp: 0,
+                nextLevelXp: 100,
+                gold: 10,
+                hpCurrent: 100,
+                hpMax: 100,
+                mpCurrent: 50,
+                mpMax: 50,
+                strength: 10,
+                vitality: 10,
+                agility: 10,
+                wisdom: 10,
+                heartBond: 10,
+                equippedWeapon: 'Espada de Madeira',
+                equippedArmor: 'Colete de Couro',
+                isParent: !!isParent,
+            });
+            res.json({ success: true, message: 'Personagem criado com sucesso!', character: newChar });
+        }
+        catch (error) {
+            console.error('Erro ao criar personagem:', error);
+            res.status(500).json({ error: 'Erro ao criar personagem' });
         }
     }
     // Busca o personagem vinculado ao usuário autenticado ou pelo ID
@@ -30,7 +116,6 @@ class FamilyController {
             else if (userId) {
                 character = await models_1.FamilyCharacter.findOne({ where: { userId } });
             }
-            // Se ainda não achou, pega o primeiro membro como fallback
             if (!character) {
                 character = await models_1.FamilyCharacter.findOne({ order: [['orderIndex', 'ASC']] });
             }

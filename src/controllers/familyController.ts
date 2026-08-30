@@ -11,7 +11,7 @@ import { notifyTaskApprovedRealTime } from '../services/familySocketService';
 import { Op } from 'sequelize';
 
 export class FamilyController {
-  // Lista todos os heróis da família
+  // Lista todos os heróis da família (para visualização no salão e guilda)
   public static async getMembers(req: Request, res: Response): Promise<void> {
     try {
       const members = await FamilyCharacter.findAll({
@@ -21,6 +21,102 @@ export class FamilyController {
     } catch (error: any) {
       console.error('Erro ao buscar membros da família:', error);
       res.status(500).json({ error: 'Erro ao buscar membros da família' });
+    }
+  }
+
+  // Lista EXCLUSIVAMENTE os personagens pertencentes ao usuário logado
+  public static async getMyCharacters(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        res.status(401).json({ error: 'Não autorizado' });
+        return;
+      }
+
+      const myCharacters = await FamilyCharacter.findAll({
+        where: { userId },
+        order: [['createdAt', 'ASC']],
+      });
+
+      res.json({ success: true, characters: myCharacters });
+    } catch (error: any) {
+      console.error('Erro ao buscar personagens do usuário:', error);
+      res.status(500).json({ error: 'Erro ao buscar personagens' });
+    }
+  }
+
+  // Permite ao usuário logado vincular um herói existente ao seu perfil
+  public static async claimCharacter(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id;
+      const { characterId } = req.body;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Não autorizado' });
+        return;
+      }
+
+      const character = await FamilyCharacter.findByPk(characterId);
+      if (!character) {
+        res.status(404).json({ error: 'Personagem não encontrado' });
+        return;
+      }
+
+      // Permite se não tiver dono ou se já for dele
+      if (character.userId && character.userId !== userId) {
+        res.status(400).json({ error: 'Este personagem já pertence a outro usuário' });
+        return;
+      }
+
+      character.userId = userId;
+      await character.save();
+
+      res.json({ success: true, message: `Personagem ${character.name} vinculado à sua conta!`, character });
+    } catch (error: any) {
+      console.error('Erro ao vincular personagem:', error);
+      res.status(500).json({ error: 'Erro ao vincular personagem' });
+    }
+  }
+
+  // Cria um novo personagem personalizado para o usuário logado
+  public static async createCharacter(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id;
+      const { name, characterClass, title, avatarUrl, isParent } = req.body;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Não autorizado' });
+        return;
+      }
+
+      const newChar = await FamilyCharacter.create({
+        userId,
+        name: name || 'Novo Herói',
+        characterClass: characterClass || 'GUERREIRO',
+        title: title || 'Aventureiro da Família',
+        avatarUrl: avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60',
+        level: 1,
+        currentXp: 0,
+        nextLevelXp: 100,
+        gold: 10,
+        hpCurrent: 100,
+        hpMax: 100,
+        mpCurrent: 50,
+        mpMax: 50,
+        strength: 10,
+        vitality: 10,
+        agility: 10,
+        wisdom: 10,
+        heartBond: 10,
+        equippedWeapon: 'Espada de Madeira',
+        equippedArmor: 'Colete de Couro',
+        isParent: !!isParent,
+      });
+
+      res.json({ success: true, message: 'Personagem criado com sucesso!', character: newChar });
+    } catch (error: any) {
+      console.error('Erro ao criar personagem:', error);
+      res.status(500).json({ error: 'Erro ao criar personagem' });
     }
   }
 
@@ -37,7 +133,6 @@ export class FamilyController {
         character = await FamilyCharacter.findOne({ where: { userId } });
       }
 
-      // Se ainda não achou, pega o primeiro membro como fallback
       if (!character) {
         character = await FamilyCharacter.findOne({ order: [['orderIndex', 'ASC']] });
       }

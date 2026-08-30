@@ -6,6 +6,9 @@ const authMiddleware_1 = require("../middlewares/authMiddleware");
 const router = (0, express_1.Router)();
 // Rotas abertas/autenticadas para os heróis da família
 router.get('/members', familyController_1.FamilyController.getMembers);
+router.get('/my-characters', authMiddleware_1.authMiddleware, familyController_1.FamilyController.getMyCharacters);
+router.post('/claim-character', authMiddleware_1.authMiddleware, familyController_1.FamilyController.claimCharacter);
+router.post('/create-character', authMiddleware_1.authMiddleware, familyController_1.FamilyController.createCharacter);
 router.get('/character/me', authMiddleware_1.authMiddleware, familyController_1.FamilyController.getCharacter);
 router.get('/character/:id', familyController_1.FamilyController.getCharacter);
 router.get('/tasks', familyController_1.FamilyController.getTasks);
