@@ -276,7 +276,15 @@ export class FamilyController {
         });
       }
 
-      res.json({ success: true, battle });
+      const battleJson = battle.toJSON ? battle.toJSON() : { ...battle };
+      if (typeof battleJson.currentTurnOrder === 'string') {
+        try { battleJson.currentTurnOrder = JSON.parse(battleJson.currentTurnOrder); } catch (e) { battleJson.currentTurnOrder = []; }
+      }
+      if (typeof battleJson.battleLogs === 'string') {
+        try { battleJson.battleLogs = JSON.parse(battleJson.battleLogs); } catch (e) { battleJson.battleLogs = []; }
+      }
+
+      res.json({ success: true, battle: battleJson });
     } catch (error: any) {
       console.error('Erro ao buscar batalha ativa:', error);
       res.status(500).json({ error: 'Erro ao buscar batalha ativa' });

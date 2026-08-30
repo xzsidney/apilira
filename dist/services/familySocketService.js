@@ -5,7 +5,29 @@ exports.notifyTaskApprovedRealTime = notifyTaskApprovedRealTime;
 const models_1 = require("../models");
 let ioInstance = null;
 const onlineMembers = new Map(); // socketId -> OnlineMember
-let activePartyLobby = []; // Membros atualmente no grupo de preparação da batalha
+let activePartyLobby = []; // Membros atualmente no grupo
+function parseBattleJson(battle) {
+    if (!battle)
+        return battle;
+    const b = battle.toJSON ? battle.toJSON() : { ...battle };
+    if (typeof b.currentTurnOrder === 'string') {
+        try {
+            b.currentTurnOrder = JSON.parse(b.currentTurnOrder);
+        }
+        catch (e) {
+            b.currentTurnOrder = [];
+        }
+    }
+    if (typeof b.battleLogs === 'string') {
+        try {
+            b.battleLogs = JSON.parse(b.battleLogs);
+        }
+        catch (e) {
+            b.battleLogs = [];
+        }
+    }
+    return b;
+}
 function initFamilySocket(io) {
     ioInstance = io;
     io.on('connection', (socket) => {
@@ -34,7 +56,6 @@ function initFamilySocket(io) {
                 }
             }
             broadcastPresence();
-            // Envia status do lobby atual
             socket.emit('family:party_lobby_updated', activePartyLobby);
         });
         // Reações rápidas e emojis flutuantes
@@ -48,7 +69,6 @@ function initFamilySocket(io) {
             });
         });
         // --- SISTEMA DE GRUPO & CONVITES DE BATALHA (SOLO OU EM GRUPO) ---
-        // 1. Criar/Entrar no Lobby como Líder
         socket.on('family:create_party_lobby', (data) => {
             activePartyLobby = [{
                     characterId: data.leaderCharacter.id,
@@ -59,7 +79,6 @@ function initFamilySocket(io) {
                 }];
             io.to('family_lira_room').emit('family:party_lobby_updated', activePartyLobby);
         });
-        // 2. Enviar Convite para Todos os Online
         socket.on('family:send_party_invite', (data) => {
             io.to('family_lira_room').emit('family:party_invite_received', {
                 leaderName: data.leaderName,
@@ -68,7 +87,6 @@ function initFamilySocket(io) {
                 timestamp: new Date().toISOString(),
             });
         });
-        // 3. Membro aceita convite de batalha
         socket.on('family:accept_party_invite', (data) => {
             if (!activePartyLobby.some(m => m.characterId === data.character.id)) {
                 activePartyLobby.push({
@@ -81,12 +99,11 @@ function initFamilySocket(io) {
             }
             io.to('family_lira_room').emit('family:party_lobby_updated', activePartyLobby);
         });
-        // 4. Membro sai do lobby
         socket.on('family:leave_party_lobby', (data) => {
             activePartyLobby = activePartyLobby.filter(m => m.characterId !== data.characterId);
             io.to('family_lira_room').emit('family:party_lobby_updated', activePartyLobby);
         });
-        // 5. Iniciar a Batalha (Solo ou com quem aceitou no Grupo!)
+        // Iniciar a Batalha (Solo ou com quem aceitou no Grupo!)
         socket.on('family:start_party_battle', async (data) => {
             try {
                 const party = data.partyMembers && data.partyMembers.length > 0 ? data.partyMembers : activePartyLobby;
@@ -94,7 +111,6 @@ function initFamilySocket(io) {
                 // Turnos: Ordem dos Heróis do grupo + Turno do Monstro
                 const turnOrder = [...participantIds, 'MONSTER'];
                 // Escala a vida do monstro de acordo com o tamanho do grupo
-                // 1 Jogador Solo = 250 HP | 2 Jogadores = 400 HP | 3+ Jogadores = 600 HP
                 const monsterHp = party.length === 1 ? 250 : party.length === 2 ? 400 : 600;
                 let battle = await models_1.FamilyBattle.findOne({
                     where: { status: 'IN_PROGRESS' },
@@ -120,18 +136,19 @@ function initFamilySocket(io) {
                     });
                 }
                 else {
+                    battle.title = party.length === 1 ? '⚔️ Expedição Solo contra o Golem' : `⚔️ Incursão em Grupo (${party.length} Heróis)`;
                     battle.currentTurnOrder = turnOrder;
                     battle.monsterHpMax = monsterHp;
                     battle.monsterHpCurrent = monsterHp;
                     battle.activeTurnIndex = 0;
+                    battle.status = 'IN_PROGRESS';
                     battle.battleLogs = [
                         `⚔️ Batalha iniciada com ${party.map(p => p.name).join(', ')}!`,
                     ];
                     await battle.save();
                 }
-                // Transmite o início da batalha para toda a família
                 io.to('family_lira_room').emit('family:battle_party_started', {
-                    battle,
+                    battle: parseBattleJson(battle),
                     party,
                 });
             }
@@ -139,7 +156,7 @@ function initFamilySocket(io) {
                 console.error('[Socket.IO] Erro ao iniciar batalha em grupo/solo:', err);
             }
         });
-        // 6. Ação de Batalha em Tempo Real
+        // Ação de Batalha em Tempo Real
         socket.on('family:execute_battle_action', async (data) => {
             try {
                 const battle = await models_1.FamilyBattle.findByPk(data.battleId);
@@ -147,6 +164,29 @@ function initFamilySocket(io) {
                 if (!battle || !char || battle.status !== 'IN_PROGRESS') {
                     return;
                 }
+                let turnOrder = battle.currentTurnOrder;
+                if (typeof turnOrder === 'string') {
+                    try {
+                        turnOrder = JSON.parse(turnOrder);
+                    }
+                    catch (e) {
+                        turnOrder = [];
+                    }
+                }
+                if (!Array.isArray(turnOrder) || turnOrder.length === 0) {
+                    turnOrder = [char.id, 'MONSTER'];
+                }
+                let logs = battle.battleLogs;
+                if (typeof logs === 'string') {
+                    try {
+                        logs = JSON.parse(logs);
+                    }
+                    catch (e) {
+                        logs = [];
+                    }
+                }
+                if (!Array.isArray(logs))
+                    logs = [];
                 let damageDealt = 0;
                 let healAmount = 0;
                 let logMessage = '';
@@ -172,7 +212,6 @@ function initFamilySocket(io) {
                 else if (data.actionType === 'DEFEND') {
                     logMessage = `🛡️ **${char.name}** assumiu postura defensiva com seu escudo!`;
                 }
-                const logs = Array.isArray(battle.battleLogs) ? [...battle.battleLogs] : [];
                 logs.unshift(logMessage);
                 if (logs.length > 20)
                     logs.pop();
@@ -183,10 +222,7 @@ function initFamilySocket(io) {
                     logs.unshift(`🏆 **VITÓRIA!** O chefe **${battle.monsterName}** foi derrotado! (+${battle.rewardXp} XP e +${battle.rewardGold} Ouro para o grupo!)`);
                     battle.battleLogs = logs;
                     await battle.save();
-                    // Concede recompensas para os participantes ativos
-                    const participantIds = Array.isArray(battle.currentTurnOrder)
-                        ? battle.currentTurnOrder.filter(id => id !== 'MONSTER')
-                        : [];
+                    const participantIds = turnOrder.filter(id => id !== 'MONSTER');
                     for (const pId of participantIds) {
                         const c = await models_1.FamilyCharacter.findByPk(pId);
                         if (c) {
@@ -207,7 +243,7 @@ function initFamilySocket(io) {
                         }
                     }
                     io.to('family_lira_room').emit('family:battle_victory', {
-                        battle,
+                        battle: parseBattleJson(battle),
                         rewardXp: battle.rewardXp,
                         rewardGold: battle.rewardGold,
                         message: `Vitória! A Masmorra foi conquistada!`,
@@ -215,13 +251,12 @@ function initFamilySocket(io) {
                     return;
                 }
                 // Avançar o turno
-                const turnOrder = Array.isArray(battle.currentTurnOrder) ? battle.currentTurnOrder : [];
-                let nextIndex = (battle.activeTurnIndex + 1) % (turnOrder.length || 1);
+                let nextIndex = (battle.activeTurnIndex + 1) % turnOrder.length;
                 // Turno do Monstro se atingir a posição
                 if (turnOrder[nextIndex] === 'MONSTER') {
                     const monsterDmg = Math.max(10, battle.monsterAttack + Math.floor(Math.random() * 10));
                     const heroIds = turnOrder.filter(id => id !== 'MONSTER');
-                    const targetId = heroIds.length > 0 ? heroIds[Math.floor(Math.random() * heroIds.length)] : null;
+                    const targetId = heroIds.length > 0 ? heroIds[Math.floor(Math.random() * heroIds.length)] : char.id;
                     if (targetId) {
                         const target = await models_1.FamilyCharacter.findByPk(targetId);
                         if (target) {
@@ -233,9 +268,10 @@ function initFamilySocket(io) {
                     nextIndex = (nextIndex + 1) % turnOrder.length;
                 }
                 battle.activeTurnIndex = nextIndex;
+                battle.currentTurnOrder = turnOrder;
                 await battle.save();
                 io.to('family_lira_room').emit('family:battle_updated', {
-                    battle,
+                    battle: parseBattleJson(battle),
                     lastAction: logMessage,
                 });
             }
