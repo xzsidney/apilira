@@ -177,6 +177,20 @@ User.hasOne(FamilyCharacter, { as: 'familyCharacter', foreignKey: 'userId' });
 FamilyCharacter.belongsTo(User, { as: 'user', foreignKey: 'userId' });
 
 FamilyCharacter.hasMany(FamilyTaskLog, { as: 'taskLogs', foreignKey: 'characterId' });
+import { FamilyLocation, initFamilyLocation } from './FamilyLocation';
+import { FamilyActiveMission, initFamilyActiveMission } from './FamilyActiveMission';
+import { FamilyStoryAdventure, initFamilyStoryAdventure } from './FamilyStoryAdventure';
+import { FamilyStoryNode, initFamilyStoryNode } from './FamilyStoryNode';
+import { FamilyStoryChoice, initFamilyStoryChoice } from './FamilyStoryChoice';
+import { FamilyAchievement, initFamilyAchievement } from './FamilyAchievement';
+
+initFamilyLocation(sequelize);
+initFamilyActiveMission(sequelize);
+initFamilyStoryAdventure(sequelize);
+initFamilyStoryNode(sequelize);
+initFamilyStoryChoice(sequelize);
+initFamilyAchievement(sequelize);
+
 FamilyTaskLog.belongsTo(FamilyCharacter, { as: 'character', foreignKey: 'characterId' });
 
 FamilyTask.hasMany(FamilyTaskLog, { as: 'logs', foreignKey: 'taskId' });
@@ -187,6 +201,12 @@ FamilyBattleParticipant.belongsTo(FamilyBattle, { as: 'battle', foreignKey: 'bat
 
 FamilyCharacter.hasMany(FamilyBattleParticipant, { as: 'battles', foreignKey: 'characterId' });
 FamilyBattleParticipant.belongsTo(FamilyCharacter, { as: 'character', foreignKey: 'characterId' });
+
+FamilyStoryAdventure.hasMany(FamilyStoryNode, { as: 'nodes', foreignKey: 'adventureId' });
+FamilyStoryNode.belongsTo(FamilyStoryAdventure, { as: 'adventure', foreignKey: 'adventureId' });
+
+FamilyStoryNode.hasMany(FamilyStoryChoice, { as: 'choices', foreignKey: 'nodeRecordId' });
+FamilyStoryChoice.belongsTo(FamilyStoryNode, { as: 'node', foreignKey: 'nodeRecordId' });
 
 // Export
 export { 
@@ -230,6 +250,12 @@ export {
   FamilyTaskLog,
   FamilyBattle,
   FamilyBattleParticipant,
-  FamilyShopItem
+  FamilyShopItem,
+  FamilyLocation,
+  FamilyActiveMission,
+  FamilyStoryAdventure,
+  FamilyStoryNode,
+  FamilyStoryChoice,
+  FamilyAchievement
 };
 

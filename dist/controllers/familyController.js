@@ -407,5 +407,273 @@ class FamilyController {
             res.status(500).json({ error: 'Erro ao processar compra' });
         }
     }
+    // --- EXPANSÃO: FICHA & TALENTOS ---
+    // Distribui pontos / melhora atributos do Herói
+    static async updateCharacterStats(req, res) {
+        try {
+            const { characterId, attribute } = req.body;
+            const char = await models_1.FamilyCharacter.findByPk(characterId);
+            if (!char) {
+                res.status(404).json({ error: 'Personagem não encontrado' });
+                return;
+            }
+            // Custo de evolução em XP
+            const costXp = 50;
+            if (char.currentXp < costXp) {
+                res.status(400).json({ error: `XP insuficiente! Você precisa de ${costXp} XP para aprimorar um atributo.` });
+                return;
+            }
+            char.currentXp -= costXp;
+            if (attribute === 'strength')
+                char.strength += 1;
+            else if (attribute === 'vitality') {
+                char.vitality += 1;
+                char.hpMax += 10;
+                char.hpCurrent = char.hpMax;
+            }
+            else if (attribute === 'agility')
+                char.agility += 1;
+            else if (attribute === 'wisdom') {
+                char.wisdom += 1;
+                char.mpMax += 10;
+                char.mpCurrent = char.mpMax;
+            }
+            else if (attribute === 'heartBond')
+                char.heartBond += 1;
+            await char.save();
+            res.json({
+                success: true,
+                message: `Atributo ${attribute} aprimorado com sucesso!`,
+                character: char,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao aprimorar atributo:', error);
+            res.status(500).json({ error: 'Erro ao aprimorar atributo' });
+        }
+    }
+    // --- EXPANSÃO: RADAR DA CASA E VIZINHANÇA ---
+    static async getLocations(req, res) {
+        try {
+            const locations = await models_1.FamilyLocation.findAll({
+                where: { isUnlocked: true },
+                order: [['orderIndex', 'ASC']],
+            });
+            res.json({ success: true, locations });
+        }
+        catch (error) {
+            console.error('Erro ao buscar locais do radar:', error);
+            res.status(500).json({ error: 'Erro ao buscar locais' });
+        }
+    }
+    // --- EXPANSÃO: CENTRO DE FOCO & MISSÃO ATIVA AFK ---
+    static async startActiveMission(req, res) {
+        try {
+            const { characterId, title, category, durationMinutes, rewardXp, rewardGold } = req.body;
+            const duration = Number(durationMinutes) || 15;
+            const startedAt = new Date();
+            const endsAt = new Date(startedAt.getTime() + duration * 60 * 1000);
+            // Cancela missões anteriores em progresso
+            await models_1.FamilyActiveMission.update({ status: 'CANCELLED' }, { where: { characterId, status: 'IN_PROGRESS' } });
+            const mission = await models_1.FamilyActiveMission.create({
+                characterId,
+                title: title || 'Sessão de Foco & Estudo',
+                category: category || 'STUDY',
+                durationMinutes: duration,
+                startedAt,
+                endsAt,
+                status: 'IN_PROGRESS',
+                rewardXp: Number(rewardXp) || duration * 4,
+                rewardGold: Number(rewardGold) || Math.floor(duration * 1.5),
+                focusScore: 100,
+                stages: [
+                    { minute: Math.floor(duration * 0.25), text: 'Concentração inicial ativada!', completed: false },
+                    { minute: Math.floor(duration * 0.5), text: 'Metade do tempo! Ritmo excelente!', completed: false },
+                    { minute: Math.floor(duration * 0.75), text: 'Reta final da dedicação!', completed: false },
+                ],
+            });
+            res.json({ success: true, mission });
+        }
+        catch (error) {
+            console.error('Erro ao iniciar missão ativa:', error);
+            res.status(500).json({ error: 'Erro ao iniciar missão ativa' });
+        }
+    }
+    static async getCurrentActiveMission(req, res) {
+        try {
+            const { characterId } = req.query;
+            if (!characterId) {
+                res.json({ success: true, mission: null });
+                return;
+            }
+            const mission = await models_1.FamilyActiveMission.findOne({
+                where: { characterId: String(characterId), status: 'IN_PROGRESS' },
+                order: [['createdAt', 'DESC']],
+            });
+            res.json({ success: true, mission });
+        }
+        catch (error) {
+            console.error('Erro ao buscar missão ativa:', error);
+            res.status(500).json({ error: 'Erro ao buscar missão ativa' });
+        }
+    }
+    static async completeActiveMission(req, res) {
+        try {
+            const { missionId } = req.body;
+            const mission = await models_1.FamilyActiveMission.findByPk(missionId);
+            if (!mission || mission.status !== 'IN_PROGRESS') {
+                res.status(404).json({ error: 'Missão não encontrada ou já concluída' });
+                return;
+            }
+            mission.status = 'COMPLETED';
+            await mission.save();
+            // Credita recompensas
+            const char = await models_1.FamilyCharacter.findByPk(mission.characterId);
+            if (char) {
+                char.currentXp += mission.rewardXp;
+                char.gold += mission.rewardGold;
+                while (char.currentXp >= char.nextLevelXp) {
+                    char.level += 1;
+                    char.currentXp -= char.nextLevelXp;
+                    char.nextLevelXp = Math.floor(char.nextLevelXp * 1.5);
+                    char.hpMax += 15;
+                    char.strength += 1;
+                    char.wisdom += 1;
+                }
+                await char.save();
+            }
+            res.json({
+                success: true,
+                message: `🎉 Missão de foco concluída! Você ganhou ${mission.rewardXp} XP e ${mission.rewardGold} Ouro!`,
+                mission,
+                character: char,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao concluir missão ativa:', error);
+            res.status(500).json({ error: 'Erro ao concluir missão ativa' });
+        }
+    }
+    // --- EXPANSÃO: CONTOS & LIVRO-JOGO SOLO INFANTIL ---
+    static async getStoryAdventures(req, res) {
+        try {
+            const adventures = await models_1.FamilyStoryAdventure.findAll({
+                where: { isActive: true },
+                order: [['recommendedLevel', 'ASC']],
+            });
+            res.json({ success: true, adventures });
+        }
+        catch (error) {
+            console.error('Erro ao buscar contos da família:', error);
+            res.status(500).json({ error: 'Erro ao buscar aventuras' });
+        }
+    }
+    static async getStoryNode(req, res) {
+        try {
+            const { adventureId, nodeId } = req.params;
+            const node = await models_1.FamilyStoryNode.findOne({
+                where: { adventureId, nodeId },
+                include: [{ model: models_1.FamilyStoryChoice, as: 'choices' }],
+            });
+            if (!node) {
+                res.status(404).json({ error: 'Cena da história não encontrada' });
+                return;
+            }
+            res.json({ success: true, node });
+        }
+        catch (error) {
+            console.error('Erro ao buscar cena do livro-jogo:', error);
+            res.status(500).json({ error: 'Erro ao buscar cena' });
+        }
+    }
+    static async executeStoryChoice(req, res) {
+        try {
+            const { characterId, choiceId } = req.body;
+            const choice = await models_1.FamilyStoryChoice.findByPk(choiceId);
+            const char = await models_1.FamilyCharacter.findByPk(characterId);
+            if (!choice || !char) {
+                res.status(404).json({ error: 'Escolha ou Personagem não encontrados' });
+                return;
+            }
+            let rollResult = null;
+            let targetNodeId = choice.targetNodeId;
+            // Se a escolha exigir teste de atributo
+            if (choice.testAttribute && choice.difficulty > 0) {
+                const d20 = Math.floor(Math.random() * 20) + 1;
+                let attributeBonus = 0;
+                if (choice.testAttribute === 'STRENGTH')
+                    attributeBonus = char.strength;
+                else if (choice.testAttribute === 'WISDOM')
+                    attributeBonus = char.wisdom;
+                else if (choice.testAttribute === 'AGILITY')
+                    attributeBonus = char.agility;
+                else if (choice.testAttribute === 'VITALITY')
+                    attributeBonus = char.vitality;
+                else if (choice.testAttribute === 'HEART_BOND')
+                    attributeBonus = char.heartBond;
+                const total = d20 + Math.floor(attributeBonus / 2);
+                const passed = total >= choice.difficulty;
+                rollResult = {
+                    d20,
+                    attributeBonus: Math.floor(attributeBonus / 2),
+                    total,
+                    difficulty: choice.difficulty,
+                    passed,
+                };
+                targetNodeId = passed ? (choice.successNodeId || choice.targetNodeId) : (choice.failureNodeId || choice.targetNodeId);
+            }
+            // Busca o próximo nó
+            const targetNode = await models_1.FamilyStoryNode.findOne({
+                where: { nodeId: targetNodeId },
+                include: [{ model: models_1.FamilyStoryChoice, as: 'choices' }],
+            });
+            // Se for final com recompensa
+            if (targetNode?.isEnding && targetNode.rewardXp > 0) {
+                char.currentXp += targetNode.rewardXp;
+                char.gold += targetNode.rewardGold;
+                await char.save();
+            }
+            res.json({
+                success: true,
+                rollResult,
+                targetNode,
+                character: char,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao executar escolha na história:', error);
+            res.status(500).json({ error: 'Erro ao processar escolha' });
+        }
+    }
+    // --- EXPANSÃO: MURAL DO CLÃ & CONQUISTAS ---
+    static async getFamilyFeed(req, res) {
+        try {
+            const achievements = await models_1.FamilyAchievement.findAll({ order: [['rewardXp', 'ASC']] });
+            const recentApprovedLogs = await models_1.FamilyTaskLog.findAll({
+                where: { status: 'APPROVED' },
+                include: [
+                    { model: models_1.FamilyCharacter, as: 'character', attributes: ['id', 'name', 'avatarUrl', 'characterClass', 'level'] },
+                    { model: models_1.FamilyTask, as: 'task', attributes: ['title', 'icon', 'rewardXp', 'rewardGold'] },
+                ],
+                order: [['reviewedAt', 'DESC']],
+                limit: 15,
+            });
+            // Placar de heróis da família (Ranking de XP e Nível)
+            const leaderboard = await models_1.FamilyCharacter.findAll({
+                order: [['level', 'DESC'], ['currentXp', 'DESC'], ['gold', 'DESC']],
+                attributes: ['id', 'name', 'avatarUrl', 'characterClass', 'title', 'level', 'currentXp', 'gold'],
+            });
+            res.json({
+                success: true,
+                achievements,
+                feed: recentApprovedLogs,
+                leaderboard,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao buscar feed da família:', error);
+            res.status(500).json({ error: 'Erro ao buscar feed' });
+        }
+    }
 }
 exports.FamilyController = FamilyController;
