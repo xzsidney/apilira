@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CharacterActivityLog = exports.CharacterStoryProgress = exports.DefinitionStoryChoice = exports.DefinitionStoryNode = exports.DefinitionStoryAdventure = exports.DefinitionMissionIdleAction = exports.CharacterActiveMission = exports.DefinitionMissionIdle = exports.CharacterHaven = exports.CharacterKnownLocation = exports.DefinitionLocation = exports.CreationPackageItem = exports.CreationPackage = exports.CharacterVampireEquipment = exports.CharacterVampireBackground = exports.CharacterVampireMeritFlaw = exports.CharacterVampirePower = exports.CharacterVampireDiscipline = exports.CharacterVampireSkill = exports.CharacterVampireAttribute = exports.CharacterVampire = exports.DefinitionBloodPotency = exports.DefinitionDisciplinePower = exports.DefinitionDiscipline = exports.DefinitionResonance = exports.DefinitionPredator = exports.DefinitionClan = exports.DefinitionBackground = exports.DefinitionEquipment = exports.DefinitionMeritFlaw = exports.DefinitionArchetype = exports.DefinitionSkill = exports.DefinitionAttribute = exports.User = exports.sequelize = void 0;
+exports.FamilyShopItem = exports.FamilyBattleParticipant = exports.FamilyBattle = exports.FamilyTaskLog = exports.FamilyTask = exports.FamilyCharacter = exports.CharacterActivityLog = exports.CharacterStoryProgress = exports.DefinitionStoryChoice = exports.DefinitionStoryNode = exports.DefinitionStoryAdventure = exports.DefinitionMissionIdleAction = exports.CharacterActiveMission = exports.DefinitionMissionIdle = exports.CharacterHaven = exports.CharacterKnownLocation = exports.DefinitionLocation = exports.CreationPackageItem = exports.CreationPackage = exports.CharacterVampireEquipment = exports.CharacterVampireBackground = exports.CharacterVampireMeritFlaw = exports.CharacterVampirePower = exports.CharacterVampireDiscipline = exports.CharacterVampireSkill = exports.CharacterVampireAttribute = exports.CharacterVampire = exports.DefinitionBloodPotency = exports.DefinitionDisciplinePower = exports.DefinitionDiscipline = exports.DefinitionResonance = exports.DefinitionPredator = exports.DefinitionClan = exports.DefinitionBackground = exports.DefinitionEquipment = exports.DefinitionMeritFlaw = exports.DefinitionArchetype = exports.DefinitionSkill = exports.DefinitionAttribute = exports.User = exports.sequelize = void 0;
 const db_1 = __importDefault(require("../config/db"));
 exports.sequelize = db_1.default;
 const User_1 = require("./User");
@@ -72,6 +72,20 @@ const DefinitionStoryChoice_1 = __importDefault(require("./DefinitionStoryChoice
 exports.DefinitionStoryChoice = DefinitionStoryChoice_1.default;
 const CharacterStoryProgress_1 = __importDefault(require("./CharacterStoryProgress"));
 exports.CharacterStoryProgress = CharacterStoryProgress_1.default;
+const CharacterActivityLog_1 = __importDefault(require("./CharacterActivityLog"));
+exports.CharacterActivityLog = CharacterActivityLog_1.default;
+const FamilyCharacter_1 = require("./FamilyCharacter");
+Object.defineProperty(exports, "FamilyCharacter", { enumerable: true, get: function () { return FamilyCharacter_1.FamilyCharacter; } });
+const FamilyTask_1 = require("./FamilyTask");
+Object.defineProperty(exports, "FamilyTask", { enumerable: true, get: function () { return FamilyTask_1.FamilyTask; } });
+const FamilyTaskLog_1 = require("./FamilyTaskLog");
+Object.defineProperty(exports, "FamilyTaskLog", { enumerable: true, get: function () { return FamilyTaskLog_1.FamilyTaskLog; } });
+const FamilyBattle_1 = require("./FamilyBattle");
+Object.defineProperty(exports, "FamilyBattle", { enumerable: true, get: function () { return FamilyBattle_1.FamilyBattle; } });
+const FamilyBattleParticipant_1 = require("./FamilyBattleParticipant");
+Object.defineProperty(exports, "FamilyBattleParticipant", { enumerable: true, get: function () { return FamilyBattleParticipant_1.FamilyBattleParticipant; } });
+const FamilyShopItem_1 = require("./FamilyShopItem");
+Object.defineProperty(exports, "FamilyShopItem", { enumerable: true, get: function () { return FamilyShopItem_1.FamilyShopItem; } });
 // Initialize models
 (0, User_1.initUser)(db_1.default);
 (0, DefinitionAttribute_1.initDefinitionAttribute)(db_1.default);
@@ -98,6 +112,12 @@ exports.CharacterStoryProgress = CharacterStoryProgress_1.default;
 (0, CreationPackageItem_1.initCreationPackageItem)(db_1.default);
 (0, DefinitionLocation_1.initDefinitionLocation)(db_1.default);
 (0, DefinitionMissionIdleAction_1.initDefinitionMissionIdleAction)(db_1.default);
+(0, FamilyCharacter_1.initFamilyCharacter)(db_1.default);
+(0, FamilyTask_1.initFamilyTask)(db_1.default);
+(0, FamilyTaskLog_1.initFamilyTaskLog)(db_1.default);
+(0, FamilyBattle_1.initFamilyBattle)(db_1.default);
+(0, FamilyBattleParticipant_1.initFamilyBattleParticipant)(db_1.default);
+(0, FamilyShopItem_1.initFamilyShopItem)(db_1.default);
 // Existing associations
 DefinitionLocation_1.DefinitionLocation.hasMany(DefinitionLocation_1.DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
 DefinitionLocation_1.DefinitionLocation.belongsTo(DefinitionLocation_1.DefinitionLocation, { as: 'parent', foreignKey: 'parentId' });
@@ -163,8 +183,6 @@ DefinitionStoryNode_1.default.belongsTo(DefinitionStoryAdventure_1.default, { fo
 DefinitionStoryNode_1.default.hasMany(DefinitionStoryChoice_1.default, { as: 'choices', foreignKey: 'nodeId' });
 DefinitionStoryChoice_1.default.belongsTo(DefinitionStoryNode_1.default, { foreignKey: 'nodeId' });
 CharacterVampire_1.CharacterVampire.hasMany(CharacterStoryProgress_1.default, { foreignKey: 'characterId' });
-const CharacterActivityLog_1 = __importDefault(require("./CharacterActivityLog"));
-exports.CharacterActivityLog = CharacterActivityLog_1.default;
 CharacterStoryProgress_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { foreignKey: 'characterId' });
 DefinitionStoryAdventure_1.default.hasMany(CharacterStoryProgress_1.default, { foreignKey: 'adventureId' });
 CharacterStoryProgress_1.default.belongsTo(DefinitionStoryAdventure_1.default, { foreignKey: 'adventureId' });
@@ -172,3 +190,14 @@ DefinitionStoryNode_1.default.hasMany(CharacterStoryProgress_1.default, { foreig
 CharacterStoryProgress_1.default.belongsTo(DefinitionStoryNode_1.default, { foreignKey: 'currentNodeId' });
 CharacterVampire_1.CharacterVampire.hasMany(CharacterActivityLog_1.default, { as: 'activityLogs', foreignKey: 'characterId' });
 CharacterActivityLog_1.default.belongsTo(CharacterVampire_1.CharacterVampire, { as: 'character', foreignKey: 'characterId' });
+// --- Family System Associations ---
+User_1.User.hasOne(FamilyCharacter_1.FamilyCharacter, { as: 'familyCharacter', foreignKey: 'userId' });
+FamilyCharacter_1.FamilyCharacter.belongsTo(User_1.User, { as: 'user', foreignKey: 'userId' });
+FamilyCharacter_1.FamilyCharacter.hasMany(FamilyTaskLog_1.FamilyTaskLog, { as: 'taskLogs', foreignKey: 'characterId' });
+FamilyTaskLog_1.FamilyTaskLog.belongsTo(FamilyCharacter_1.FamilyCharacter, { as: 'character', foreignKey: 'characterId' });
+FamilyTask_1.FamilyTask.hasMany(FamilyTaskLog_1.FamilyTaskLog, { as: 'logs', foreignKey: 'taskId' });
+FamilyTaskLog_1.FamilyTaskLog.belongsTo(FamilyTask_1.FamilyTask, { as: 'task', foreignKey: 'taskId' });
+FamilyBattle_1.FamilyBattle.hasMany(FamilyBattleParticipant_1.FamilyBattleParticipant, { as: 'participants', foreignKey: 'battleId' });
+FamilyBattleParticipant_1.FamilyBattleParticipant.belongsTo(FamilyBattle_1.FamilyBattle, { as: 'battle', foreignKey: 'battleId' });
+FamilyCharacter_1.FamilyCharacter.hasMany(FamilyBattleParticipant_1.FamilyBattleParticipant, { as: 'battles', foreignKey: 'characterId' });
+FamilyBattleParticipant_1.FamilyBattleParticipant.belongsTo(FamilyCharacter_1.FamilyCharacter, { as: 'character', foreignKey: 'characterId' });

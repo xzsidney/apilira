@@ -32,6 +32,13 @@ import DefinitionStoryAdventure from './DefinitionStoryAdventure';
 import DefinitionStoryNode from './DefinitionStoryNode';
 import DefinitionStoryChoice from './DefinitionStoryChoice';
 import CharacterStoryProgress from './CharacterStoryProgress';
+import CharacterActivityLog from './CharacterActivityLog';
+import { initFamilyCharacter, FamilyCharacter } from './FamilyCharacter';
+import { initFamilyTask, FamilyTask } from './FamilyTask';
+import { initFamilyTaskLog, FamilyTaskLog } from './FamilyTaskLog';
+import { initFamilyBattle, FamilyBattle } from './FamilyBattle';
+import { initFamilyBattleParticipant, FamilyBattleParticipant } from './FamilyBattleParticipant';
+import { initFamilyShopItem, FamilyShopItem } from './FamilyShopItem';
 
 // Initialize models
 initUser(sequelize);
@@ -59,6 +66,12 @@ initCreationPackage(sequelize);
 initCreationPackageItem(sequelize);
 initDefinitionLocation(sequelize);
 initDefinitionMissionIdleAction(sequelize);
+initFamilyCharacter(sequelize);
+initFamilyTask(sequelize);
+initFamilyTaskLog(sequelize);
+initFamilyBattle(sequelize);
+initFamilyBattleParticipant(sequelize);
+initFamilyShopItem(sequelize);
 
 // Existing associations
 DefinitionLocation.hasMany(DefinitionLocation, { as: 'children', foreignKey: 'parentId' });
@@ -148,8 +161,6 @@ DefinitionStoryNode.hasMany(DefinitionStoryChoice, { as: 'choices', foreignKey: 
 DefinitionStoryChoice.belongsTo(DefinitionStoryNode, { foreignKey: 'nodeId' });
 
 CharacterVampire.hasMany(CharacterStoryProgress, { foreignKey: 'characterId' });
-import CharacterActivityLog from './CharacterActivityLog';
-
 CharacterStoryProgress.belongsTo(CharacterVampire, { foreignKey: 'characterId' });
 
 DefinitionStoryAdventure.hasMany(CharacterStoryProgress, { foreignKey: 'adventureId' });
@@ -160,6 +171,22 @@ CharacterStoryProgress.belongsTo(DefinitionStoryNode, { foreignKey: 'currentNode
 
 CharacterVampire.hasMany(CharacterActivityLog, { as: 'activityLogs', foreignKey: 'characterId' });
 CharacterActivityLog.belongsTo(CharacterVampire, { as: 'character', foreignKey: 'characterId' });
+
+// --- Family System Associations ---
+User.hasOne(FamilyCharacter, { as: 'familyCharacter', foreignKey: 'userId' });
+FamilyCharacter.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+
+FamilyCharacter.hasMany(FamilyTaskLog, { as: 'taskLogs', foreignKey: 'characterId' });
+FamilyTaskLog.belongsTo(FamilyCharacter, { as: 'character', foreignKey: 'characterId' });
+
+FamilyTask.hasMany(FamilyTaskLog, { as: 'logs', foreignKey: 'taskId' });
+FamilyTaskLog.belongsTo(FamilyTask, { as: 'task', foreignKey: 'taskId' });
+
+FamilyBattle.hasMany(FamilyBattleParticipant, { as: 'participants', foreignKey: 'battleId' });
+FamilyBattleParticipant.belongsTo(FamilyBattle, { as: 'battle', foreignKey: 'battleId' });
+
+FamilyCharacter.hasMany(FamilyBattleParticipant, { as: 'battles', foreignKey: 'characterId' });
+FamilyBattleParticipant.belongsTo(FamilyCharacter, { as: 'character', foreignKey: 'characterId' });
 
 // Export
 export { 
@@ -197,5 +224,12 @@ export {
   DefinitionStoryNode,
   DefinitionStoryChoice,
   CharacterStoryProgress,
-  CharacterActivityLog
+  CharacterActivityLog,
+  FamilyCharacter,
+  FamilyTask,
+  FamilyTaskLog,
+  FamilyBattle,
+  FamilyBattleParticipant,
+  FamilyShopItem
 };
+

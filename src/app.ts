@@ -51,9 +51,12 @@ import missionIdleRoutes from "./routes/missionIdleRoutes";
 import storyRoutes from "./routes/storyRoutes";
 import gmRoutes from "./routes/gmRoutes";
 import nightCycleRoutes from "./routes/nightCycleRoutes";
+import familyRoutes from "./routes/familyRoutes";
+
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/gm", gmRoutes);
+app.use("/api/family", familyRoutes);
 app.use("/api/definition-attributes", definitionAttributeRoutes);
 app.use("/api/definition-skills", definitionSkillRoutes);
 app.use("/api/definition-archetypes", definitionArchetypeRoutes);

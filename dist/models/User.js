@@ -28,7 +28,7 @@ function initUser(sequelize) {
             allowNull: false,
         },
         role: {
-            type: sequelize_1.DataTypes.ENUM('ADMIN', 'MESTRE', 'JOGADOR'),
+            type: sequelize_1.DataTypes.ENUM('ADMIN', 'MESTRE', 'JOGADOR', 'LIRA'),
             allowNull: false,
             defaultValue: 'JOGADOR',
         },

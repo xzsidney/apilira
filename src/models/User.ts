@@ -6,7 +6,7 @@ export class User extends Model {
   declare name: string;
   declare email: string;
   declare password: string;
-  declare role: 'ADMIN' | 'MESTRE' | 'JOGADOR';
+  declare role: 'ADMIN' | 'MESTRE' | 'JOGADOR' | 'LIRA';
   declare createdAt: Date;
   declare updatedAt: Date;
 }
@@ -33,7 +33,7 @@ export function initUser(sequelize: Sequelize) {
         allowNull: false,
       },
       role: {
-        type: DataTypes.ENUM('ADMIN', 'MESTRE', 'JOGADOR'),
+        type: DataTypes.ENUM('ADMIN', 'MESTRE', 'JOGADOR', 'LIRA'),
         allowNull: false,
         defaultValue: 'JOGADOR',
       },
