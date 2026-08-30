@@ -402,7 +402,19 @@ function initFamilySocket(io) {
                     });
                     return;
                 }
-                // Avançar o turno
+                // Se a ação for apenas de Movimentação no Grid:
+                if (data.actionType === 'MOVE') {
+                    battle.gridPositions = gridPositions;
+                    await battle.save();
+                    const allCharacters = await models_1.FamilyCharacter.findAll();
+                    io.to('family_lira_room').emit('family:battle_updated', {
+                        battle: parseBattleJson(battle),
+                        lastAction: moveLog,
+                        characters: allCharacters,
+                    });
+                    return;
+                }
+                // Avançar o turno após o ataque
                 let nextIndex = (battle.activeTurnIndex + 1) % turnOrder.length;
                 // Turno do Monstro (IA com Movimentação no Grid de 10 Posições)
                 if (turnOrder[nextIndex] === 'MONSTER') {
