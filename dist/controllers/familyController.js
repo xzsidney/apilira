@@ -452,6 +452,28 @@ class FamilyController {
             res.status(500).json({ error: 'Erro ao aprimorar atributo' });
         }
     }
+    // Atualiza o avatar do herói
+    static async updateAvatar(req, res) {
+        try {
+            const { characterId, avatarUrl } = req.body;
+            const char = await models_1.FamilyCharacter.findByPk(characterId);
+            if (!char) {
+                res.status(404).json({ error: 'Personagem não encontrado' });
+                return;
+            }
+            char.avatarUrl = avatarUrl;
+            await char.save();
+            res.json({
+                success: true,
+                message: 'Foto do herói atualizada com sucesso!',
+                character: char,
+            });
+        }
+        catch (error) {
+            console.error('Erro ao atualizar avatar:', error);
+            res.status(500).json({ error: 'Erro ao atualizar avatar' });
+        }
+    }
     // --- EXPANSÃO: RADAR DA CASA E VIZINHANÇA ---
     static async getLocations(req, res) {
         try {

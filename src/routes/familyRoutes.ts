@@ -10,6 +10,7 @@ router.get('/my-characters', authMiddleware, FamilyController.getMyCharacters);
 router.post('/claim-character', authMiddleware, FamilyController.claimCharacter);
 router.post('/create-character', authMiddleware, FamilyController.createCharacter);
 router.post('/character/update-stats', authMiddleware, FamilyController.updateCharacterStats);
+router.post('/character/update-avatar', authMiddleware, FamilyController.updateAvatar);
 router.get('/character/me', authMiddleware, FamilyController.getCharacter);
 router.get('/character/:id', FamilyController.getCharacter);
 router.get('/tasks', FamilyController.getTasks);
